@@ -2,11 +2,9 @@ import Link from "next/link";
 
 const navItems: { label: string; href: string }[] = [
   { label: "Home", href: "/" },
-  { label: "Start", href: "/start" },
-  { label: "Build", href: "/build" },
-  { label: "Sell", href: "/sell" },
-  { label: "Scale", href: "/scale" },
-  { label: "Resources", href: "#" },
+  { label: "Finder", href: "#" },
+  { label: "CRM", href: "#" },
+  { label: "Reviews", href: "#" },
   { label: "Pricing", href: "#" },
   { label: "Log in", href: "#" },
 ];
@@ -21,7 +19,7 @@ export default function TopNav({ variant = "light" }: { variant?: "light" | "dar
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
             <path d="M8 12c0-2.2 1.8-4 4-4M16 12c0 2.2-1.8 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          <span className="font-display text-[18px] tracking-tight">Cofounder</span>
+          <span className="font-display text-[18px] tracking-tight">uTune AI</span>
         </Link>
         <nav
           className={`hidden md:flex items-center gap-1 rounded-full px-2 py-1 ${
@@ -43,7 +41,7 @@ export default function TopNav({ variant = "light" }: { variant?: "light" | "dar
             href="#"
             className="ml-1 bg-white text-[#0f1115] text-[12.5px] font-medium rounded-full px-3 py-1.5 border border-black/5"
           >
-            Run a company
+            Find leads
           </Link>
         </nav>
       </div>
