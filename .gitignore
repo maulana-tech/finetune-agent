@@ -5,6 +5,8 @@ node_modules
 # Next.js
 apps/web/.next/
 apps/web/out/
+landing/.next/
+landing/out/
 
 # NestJS / TypeScript
 dist
