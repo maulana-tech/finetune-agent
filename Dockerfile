@@ -1,41 +1,37 @@
 FROM node:22-slim AS base
 
-# Install system dependencies for Node, Python, and Playwright
+# Install system dependencies for Node, Python (scraper venv), and curl
 RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-venv \
     curl wget gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm
+# Install pnpm + PM2
 RUN npm install -g pnpm pm2
 
-# Set working directory
 WORKDIR /app
 
-# Copy configuration files
+# Copy workspace manifests + all packages
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY packages ./packages
 COPY apps ./apps
 
-# Install node dependencies
-RUN pnpm install
+# Install all workspace dependencies (web is in the workspace but is NOT built/run here —
+# it deploys to Vercel separately; we still install to keep lockfile resolution honest).
+RUN pnpm install --frozen-lockfile
 
-# Setup Python virtual environment and dependencies for workers
+# Setup Python virtual environment for the scrapling-based maps scraper
 RUN cd apps/workers && \
     python3 -m venv .venv && \
-    .venv/bin/pip install -r requirements.txt
+    .venv/bin/pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers (if needed by scrapling/playwright inside python)
-# RUN npx playwright install --with-deps chromium
+# Build ONLY api + workers (and their workspace deps). apps/web builds on Vercel.
+RUN pnpm turbo build --filter=api --filter=workers
 
-# Build all applications via Turborepo
-RUN pnpm build
-
-# Copy ecosystem config
+# Copy PM2 ecosystem (api + workers only — see ecosystem.config.js)
 COPY ecosystem.config.js ./
 
-# Expose Web and API ports
-EXPOSE 3000 3001
+# Only expose the NestJS API port (workers have no public port)
+EXPOSE 3001
 
-# Start all processes using PM2
 CMD ["pm2-runtime", "start", "ecosystem.config.js"]
