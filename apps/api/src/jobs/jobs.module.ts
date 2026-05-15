@@ -11,8 +11,18 @@ import { JobsService } from './jobs.service';
     BullModule.registerQueue({
       name: 'orchestrated-ai-queue',
     }),
+    BullModule.registerQueue({
+      name: 'finance-simulation-queue',
+    }),
+    BullModule.registerQueue({
+      name: 'market-analysis-queue',
+    }),
+    BullModule.registerQueue({
+      name: 'market-scrape-queue',
+    }),
   ],
   controllers: [JobsController],
   providers: [JobsService],
+  exports: [JobsService],
 })
 export class JobsModule {}
