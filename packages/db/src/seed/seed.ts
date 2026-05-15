@@ -2,12 +2,12 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
-import * as schema from '../schema';
+import * as schema from '../schema/all';
 import type {
   NewTransaction,
   SimulationScenarioParams,
   CashflowForecastPoint,
-} from '../schema';
+} from '../schema/all';
 
 /**
  * Demo seed for hackathon.
@@ -49,7 +49,7 @@ async function main() {
 async function ensureWorkspace() {
   await db
     .insert(schema.workspaces)
-    .values({ id: WORKSPACE_ID, name: 'Demo Cofounder Workspace' })
+    .values({ id: WORKSPACE_ID, name: 'Demo Workspace' })
     .onConflictDoNothing();
   console.log('  · workspace ready');
 }
