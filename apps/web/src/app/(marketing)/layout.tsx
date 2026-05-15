@@ -3,9 +3,9 @@ import "lenis/dist/lenis.css";
 import LenisProvider from "@/components/landing/LenisProvider";
 
 export const metadata: Metadata = {
-  title: "Cofounder — Run an entire company with agents",
+  title: "uTune AI — B2B Business Finder & Mapped CRM",
   description:
-    "Cofounder is an agent orchestration platform designed to help you run an entire business.",
+    "Find millions of B2B leads on a map, enrich with AI reviews and emails, and manage your pipeline. The map-first CRM built for field sales teams in Indonesia and SEA.",
 };
 
 export default function MarketingLayout({
