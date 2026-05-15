@@ -150,9 +150,8 @@ See `COMPETITION.md` for full architecture explanation.
 **State:** Zustand for client state (map store at `apps/web/src/features/map/store.ts`)
 
 **Routes:**
-- Landing: `/` (root)
-- Dashboard: `/(app)/dashboard/` (route group)
-- Sub-routes: `/dashboard/pipelines`, `/dashboard/reports`
+- Marketing landing: `/` and `/start` — route group `(marketing)` (Cofounder brand, smooth-scroll via Lenis)
+- Dashboard app: `/dashboard`, `/dashboard/pipelines`, `/dashboard/reports` — route group `(app)`
 
 **Map:** MapLibre GL JS (`maplibre-gl` + `react-map-gl` wrapper)
 
@@ -204,6 +203,19 @@ Dockerfile installs Node 22 + Python 3 + venv for scraper. See `DEPLOY.md` for p
 - Python scraper path resolved at runtime — don't move `apps/workers/src/python/` without updating worker spawn call
 - Workspace package imports must use `exports` map — e.g., `@repo/shared`, `@repo/shared/env`, `@repo/shared/errors` (no deep path imports)
 - `.env` loaded from repo root for API/workers — verify `dotenv -e ../../.env` wrapper exists in package.json scripts
+
+## Marketing Landing (Cofounder brand)
+
+The Cofounder marketing site is folded into `apps/web` under the `(marketing)` route group:
+
+- `apps/web/src/app/(marketing)/page.tsx` — home (`/`)
+- `apps/web/src/app/(marketing)/start/page.tsx` — `/start` long-form chapter page
+- `apps/web/src/app/(marketing)/layout.tsx` — mounts `LenisProvider` and preconnects to Google Fonts (Inter, JetBrains Mono, Lora)
+- `apps/web/src/components/landing/` — `HeroScene`, `SkyScene`, `RocketScene`, `TopNav`, `LenisProvider`
+
+`TopNav.tsx` references `/build`, `/sell`, `/scale` which are not yet implemented (404s by design — placeholders for future chapters).
+
+**Styling note:** landing relies heavily on CSS gradients (sky scenes, chapter covers). The dashboard's "ban all gradients" rule from `globals.css` is scoped to the `.brutalist` class, which is applied on the `(app)/dashboard/` wrapper. Do not remove the `brutalist` class on the dashboard layout, and do not re-globalize the gradient ban.
 
 ## Related Docs
 
