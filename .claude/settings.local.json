@@ -5,7 +5,13 @@
       "Bash(pnpm typecheck *)",
       "Bash(pnpm tsc *)",
       "Bash(pnpm build *)",
-      "Bash(pnpm exec *)"
+      "Bash(pnpm exec *)",
+      "Read(//Users/finetune-ft2/.nvm/versions/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(corepack enable *)",
+      "Bash(corepack prepare *)",
+      "Bash(corepack pnpm *)"
     ]
   }
 }
