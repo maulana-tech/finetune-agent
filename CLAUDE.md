@@ -98,33 +98,77 @@ Current tables:
 - Default: `meta/llama-3.1-70b-instruct` (finance, marketing, strategy)
 - Fast: `meta/llama-3.1-8b-instruct` (extractor)
 
-**Multi-Agent System:**
-This is a **collaborative agent architecture** where 4 agents work in sequence, passing context forward:
+**Two multi-agent systems run on this stack — they share the `agent_logs` table for reasoning transparency but use independent orchestrators with different topologies.**
+
+### A. Lead-scoring pipeline — sequential, context-passing
+
+4 agents work in sequence, each receiving the accumulated context from previous steps:
 
 1. **Extractor Agent** → Extracts structured business data
 2. **Finance Agent** → Receives extractor context, analyzes financial health
 3. **Marketing Agent** → Receives extractor + finance context, determines messaging fit
 4. **Strategy Agent** → Synthesizes ALL previous agents, provides final recommendation
 
-**Key files:**
-- `packages/ai/src/orchestrator.ts` — Coordinates agent sequence and context passing
-- `packages/ai/src/agents/*.ts` — Individual agents (each returns reasoning + confidence)
-- `packages/ai/src/types.ts` — Shared interfaces (AgentContext, AgentResponse)
-- `packages/db/src/schema/agent_logs.ts` — Logs every agent execution with reasoning
-- `packages/db/src/schema/lead_scores.ts` — Final aggregated scores
+Key files:
+- `packages/ai/src/orchestrator.ts` — `runMultiAgentWorkflow(input)`
+- `packages/ai/src/agents/{extractor,finance,marketing,strategy}.ts`
+- `packages/db/src/schema/lead_scores.ts` — final aggregated scores per lead
 
-**Workflow:**
+Workflow:
 ```
-Lead scraped → orchestrated-ai-queue → Orchestrator runs:
-  Step 1: Extractor (context: raw text)
-  Step 2: Finance (context: + extractor output)
-  Step 3: Marketing (context: + extractor + finance)
-  Step 4: Strategy (context: + ALL previous)
-→ Logs to agent_logs (reasoning transparency)
-→ Writes to lead_scores (final recommendation)
+Lead scraped → orchestrated-ai-queue → Orchestrator:
+  Step 1: Extractor → Step 2: Finance → Step 3: Marketing → Step 4: Strategy
+→ Logs to agent_logs → Writes to lead_scores
 ```
 
-See `COMPETITION.md` for full architecture explanation.
+### B. Finance simulation pipeline — parallel stakeholders + synthesizer
+
+Inspired by fiswarm's swarm-intelligence cashflow forecasting. 4 stakeholder agents run **in parallel** (independent perspectives on the same scenario), then a synthesizer reconciles them into a unified forecast:
+
+```
+      ┌── Owner ────┐
+      ├── Supplier ─┤  (parallel)
+      ├── Customer ─┤
+      └── Bank ─────┘
+              │
+              ▼
+         Synthesizer  → cashflow forecast + risk level
+```
+
+1. **Owner Agent** — revenue strategy, margin, hiring, growth ambition
+2. **Supplier Agent** — supply chain cost pressure, lead time, inventory adequacy
+3. **Customer Agent** — price sensitivity, demand elasticity, churn
+4. **Bank Agent** — runway, debt service, credit recommendation
+5. **Synthesizer** — reconciles all 4 → produces monthly forecast + `risk_level` (low/medium/high/critical)
+
+Why parallel (vs the lead-scoring sequential pattern)? Finance perspectives are independent lenses on the same scenario — they reason better standalone, then the synthesizer reconciles disagreements. Parallel is also ~4× faster.
+
+Key files:
+- `packages/ai/src/finance-orchestrator.ts` — `runFinanceSimulation(input)` (Promise.all over 4 stakeholders, then synthesizer)
+- `packages/ai/src/agents/finance-sim/{owner,supplier,customer,bank,synthesizer}.ts`
+- `packages/ai/src/agents/finance-sim/_shared.ts` — common scenario-block renderer + rules
+- `packages/db/src/schema/simulations.ts` — simulation row (scenarioParams, cashflowForecast, riskLevel, status)
+- `packages/db/src/schema/transactions.ts` — bookkeeping rows that feed the data seed
+- `agent_logs.simulationId` (nullable FK to simulations) — same log table reused for both pipelines
+
+Workflow:
+```
+User triggers via POST /finance/simulations (NestJS)
+→ FinanceService creates simulations row (status=pending)
+→ JobsService.queueFinanceSimulation → finance-simulation-queue
+→ Worker (apps/workers/src/queues/finance-simulation.worker.ts):
+    1. Marks row 'running'
+    2. Builds FinanceDataSeed from recent transactions (last N months)
+    3. runFinanceSimulation(...)  — 4 parallel + 1 synthesizer
+    4. Logs each agent step to agent_logs
+    5. Writes monthly forecast + riskLevel back to simulations row, status='completed'
+```
+
+API surface (`apps/api/src/finance/finance.controller.ts`):
+- `POST /finance/transactions`, `GET /finance/transactions`, `DELETE /finance/transactions/:id`
+- `POST /finance/simulations` (triggers run), `GET /finance/simulations`, `GET /finance/simulations/:id` (returns simulation + full agent reasoning trace)
+
+See `COMPETITION.md` for the lead-scoring architecture explanation.
 
 ## Queue Architecture
 
@@ -132,7 +176,8 @@ See `COMPETITION.md` for full architecture explanation.
 
 **Queues:**
 - `scrape-map` — triggers Python scraper for lead extraction
-- `ai-agent-queue` — runs AI analysis on extracted leads
+- `orchestrated-ai-queue` — runs lead-scoring multi-agent pipeline
+- `finance-simulation-queue` — runs finance multi-agent simulation pipeline
 
 **Flow:**
 1. `POST /jobs/scrape` → API validates + pushes to `scrape-map`
@@ -219,6 +264,8 @@ The Cofounder marketing site is folded into `apps/web` under the `(marketing)` r
 
 ## Related Docs
 
+- `docs/tech-stack.md` — authoritative tech-stack reference (libraries, services, tools by layer)
+- `docs/roadmap.md` — hackathon roadmap (5 features A-E with file touchpoints + time estimates)
 - `CONTEXT.md` — full product vision and feature roadmap
 - `AGENTS.md` — detailed technical guidance for AI agents (overlaps with this file, but includes more granular notes)
-- `DEPLOY.md` — SumoPod deployment walkthrough (Indonesian)
+- `DEPLOY.md` — Vercel + SumoPod split deploy walkthrough (Indonesian)
