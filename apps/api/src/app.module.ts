@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { JobsModule } from './jobs/jobs.module';
 import { WorkflowsModule } from './workflows/workflows.module';
+import { FinanceModule } from './finance/finance.module';
+import { MarketModule } from './market/market.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { WorkflowsModule } from './workflows/workflows.module';
     }),
     JobsModule,
     WorkflowsModule,
+    FinanceModule,
+    MarketModule,
   ],
   controllers: [],
   providers: [],
