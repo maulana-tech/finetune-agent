@@ -11,7 +11,9 @@
       "Read(//usr/local/bin/**)",
       "Bash(corepack enable *)",
       "Bash(corepack prepare *)",
-      "Bash(corepack pnpm *)"
+      "Bash(corepack pnpm *)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
