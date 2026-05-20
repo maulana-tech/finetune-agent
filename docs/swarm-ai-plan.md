@@ -193,7 +193,7 @@ export interface SwarmTool {
 /** Agent definition (registered) */
 export interface SwarmAgent {
   name: string;
-  instructions: string;          // System prompt/instructions
+  instructions: string;          
   model: LanguageModel;          // Per-agent model
   schema: z.ZodObject<any>;      // Structured output schema
   handoffs: HandoffTarget[];     // Agents this one can delegate to
