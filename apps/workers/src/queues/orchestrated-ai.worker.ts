@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq';
-import { runMultiAgentWorkflow } from '@repo/ai';
+import { runMultiAgentWorkflow, runLeadScoringSwarm, type SwarmRunResult } from '@repo/ai';
 import { db, agentLogs, leadScores, leads } from '@repo/db';
 import { eq } from 'drizzle-orm';
 
@@ -21,27 +21,33 @@ export const startOrchestratedAiWorker = () => {
       console.log(`[OrchestratedAI] Processing lead ${leadId} in execution workflow`);
 
       try {
-        // Run the full multi-agent orchestration
-        const result = await runMultiAgentWorkflow({
-          leadId,
-          workspaceId,
-          rawText,
-          ourProduct,
-        });
+        // Run the full multi-agent orchestration (swarm or legacy)
+        const useSwarm = process.env.USE_SWARM_AGENTS === 'true';
+        const result = useSwarm
+          ? await runLeadScoringSwarm({ leadId, workspaceId, rawText, ourProduct })
+          : await runMultiAgentWorkflow({ leadId, workspaceId, rawText, ourProduct });
 
-        console.log(`[OrchestratedAI] Workflow completed. Execution ID: ${result.executionId}`);
+        const steps = useSwarm ? swarmStepsToOrchestratorSteps(result as SwarmRunResult) : (result as Awaited<ReturnType<typeof runMultiAgentWorkflow>>).steps;
+        const finalRecommendation = useSwarm
+          ? swarmOutputToFinalRec(result as SwarmRunResult)
+          : (result as Awaited<ReturnType<typeof runMultiAgentWorkflow>>).finalRecommendation;
+        const executionId = result.executionId;
+        const totalDurationMs = result.totalDurationMs;
+        const totalTokensUsed = result.totalTokensUsed;
+
+        console.log(`[OrchestratedAI] Workflow completed. Execution ID: ${executionId}`);
 
         // Log each agent's execution to agent_logs
-        for (const step of result.steps) {
+        for (const step of steps) {
           const contextFromPrevious =
             step.stepNumber > 1
-              ? result.steps
+              ? steps
                   .filter((s) => s.stepNumber < step.stepNumber)
                   .reduce((acc, s) => ({ ...acc, [s.agentName]: s.output }), {})
               : null;
 
           const contextToNext =
-            step.stepNumber < result.steps.length
+            step.stepNumber < steps.length
               ? { [step.agentName]: step.output }
               : null;
 
@@ -50,7 +56,7 @@ export const startOrchestratedAiWorker = () => {
             leadId,
             agentName: step.agentName,
             agentRole: getAgentRole(step.agentName),
-            executionId: result.executionId,
+            executionId,
             stepNumber: step.stepNumber,
             input: { rawText: step.stepNumber === 1 ? rawText : null },
             output: step.output,
@@ -68,9 +74,9 @@ export const startOrchestratedAiWorker = () => {
         }
 
         // Write final scores to lead_scores table
-        const finalRec = result.finalRecommendation;
-        const financeStep = result.steps.find((s) => s.agentName === 'finance');
-        const marketingStep = result.steps.find((s) => s.agentName === 'marketing');
+        const finalRec = finalRecommendation;
+        const financeStep = steps.find((s) => s.agentName === 'finance');
+        const marketingStep = steps.find((s) => s.agentName === 'marketing');
 
         await db
           .insert(leadScores)
@@ -107,7 +113,7 @@ export const startOrchestratedAiWorker = () => {
         );
 
         // Update lead with extracted data from Step 1
-        const extractorOutput = result.steps[0].output;
+        const extractorOutput = steps[0].output;
         await db
           .update(leads)
           .set({
@@ -122,10 +128,10 @@ export const startOrchestratedAiWorker = () => {
 
         return {
           success: true,
-          executionId: result.executionId,
+          executionId,
           recommendation: finalRec,
-          totalDurationMs: result.totalDurationMs,
-          totalTokensUsed: result.totalTokensUsed,
+          totalDurationMs,
+          totalTokensUsed,
         };
       } catch (error: any) {
         console.error(`[OrchestratedAI] Workflow failed for lead ${leadId}:`, error);
@@ -149,6 +155,35 @@ export const startOrchestratedAiWorker = () => {
 
   console.log('[OrchestratedAI] Worker started - listening to orchestrated-ai-queue');
 };
+
+/** Adapt SwarmRunResult steps to look like OrchestratorOutput steps (with stepNumber). */
+function swarmStepsToOrchestratorSteps(
+  result: SwarmRunResult,
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+  return result.steps.map((s, i) => ({
+    agentName: s.agentName,
+    stepNumber: i + 1,
+    output: s.output as Record<string, unknown>,
+    reasoning: s.reasoning,
+    confidence: s.confidence,
+    durationMs: s.durationMs,
+    tokensUsed: s.tokensUsed,
+  }));
+}
+
+/** Extract final recommendation from SwarmRunResult (strategy agent output). */
+function swarmOutputToFinalRec(result: SwarmRunResult) {
+  const out = (result.finalOutput ?? result.steps[result.steps.length - 1]?.output) as Record<string, unknown> | undefined;
+  return {
+    priorityScore: (out?.priority_score as number) ?? 0,
+    conversionProbability: (out?.conversion_probability as number) ?? 0,
+    estimatedDealValue: (out?.estimated_deal_value as number) ?? 0,
+    priorityTier: (out?.priority_tier as 'A' | 'B' | 'C' | 'D') ?? 'D',
+    recommendedAction: (out?.recommended_action as 'immediate_outreach' | 'nurture' | 'disqualify') ?? 'nurture',
+    strategicAlignmentScore: (out?.strategic_alignment_score as number) ?? 0,
+    reasoning: (out?.reasoning as string) ?? '',
+  };
+}
 
 function getAgentRole(agentName: string): string {
   const roles: Record<string, string> = {
