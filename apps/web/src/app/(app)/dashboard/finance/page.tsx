@@ -20,6 +20,8 @@ import { ImportTransactionsButton } from '@/features/finance/ImportTransactionsD
 import { RunSimulationButton } from '@/features/finance/RunSimulationDialog';
 import { ExportPdfButton } from '@/features/finance/ExportPdfButton';
 
+export const dynamic = 'force-dynamic';
+
 type KpiTone = 'positive' | 'negative' | 'neutral';
 type Trend = 'up' | 'down';
 
@@ -168,7 +170,7 @@ export default async function FinancePage() {
             <div>Status</div>
             <div className="text-right">Action</div>
           </div>
-          {sims.map((s) => (
+          {sims.map((s: Simulation) => (
             <SimulationHistoryRow key={s.id} sim={s} />
           ))}
         </div>
@@ -574,7 +576,7 @@ function StatusBadge({ status }: { status: Simulation['status'] }) {
     completed: { Icon: CheckCircle2, text: 'Completed', cls: 'bg-accent text-primary', spin: false },
     failed: { Icon: CircleAlert, text: 'Failed', cls: 'bg-destructive text-destructive-foreground', spin: false },
   } as const;
-  const cfg = map[status];
+  const cfg = map[status as keyof typeof map];
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${cfg.cls}`}
@@ -594,7 +596,7 @@ function RiskBadge({ level }: { level: NonNullable<Simulation['riskLevel']> }) {
   } as const;
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level]}`}
+      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level as keyof typeof map]}`}
     >
       Risk: {level}
     </span>
