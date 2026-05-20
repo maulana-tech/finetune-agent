@@ -2,6 +2,8 @@ import { Worker } from 'bullmq';
 import { eq, and, desc } from 'drizzle-orm';
 import {
   runMarketAnalysis,
+  runMarketAnalysisSwarm,
+  type SwarmRunResult,
   MarketSeed,
   MarketScenario,
 } from '@repo/ai';
@@ -57,20 +59,38 @@ export const startMarketAnalysisWorker = () => {
       try {
         const seed = await buildMarketSeed(workspaceId);
 
-        const result = await runMarketAnalysis({
-          marketAnalysisId,
-          workspaceId,
-          scenario: row.scenarioParams as MarketScenario,
-          seed,
-        });
+        const useSwarm = process.env.USE_SWARM_AGENTS === 'true';
+        const result = useSwarm
+          ? await runMarketAnalysisSwarm({
+              marketAnalysisId,
+              workspaceId,
+              scenario: row.scenarioParams as any,
+              seed,
+            })
+          : await runMarketAnalysis({
+              marketAnalysisId,
+              workspaceId,
+              scenario: row.scenarioParams as MarketScenario,
+              seed,
+            });
 
-        for (const step of result.steps) {
+        const steps = useSwarm
+          ? swarmStepsToOrchestratorSteps(result as SwarmRunResult)
+          : (result as Awaited<ReturnType<typeof runMarketAnalysis>>).steps;
+        const finalView = useSwarm
+          ? swarmOutputToFinalView(result as SwarmRunResult)
+          : (result as Awaited<ReturnType<typeof runMarketAnalysis>>).finalView;
+        const executionId = result.executionId;
+        const totalDurationMs = result.totalDurationMs;
+        const totalTokensUsed = result.totalTokensUsed;
+
+        for (const step of steps) {
           await db.insert(agentLogs).values({
             workspaceId,
             marketAnalysisId,
             agentName: step.agentName,
             agentRole: AGENT_ROLES[step.agentName] ?? 'Unknown agent role',
-            executionId: result.executionId,
+            executionId,
             stepNumber: step.stepNumber,
             input: {
               scenario: row.scenarioParams,
@@ -82,7 +102,7 @@ export const startMarketAnalysisWorker = () => {
             contextFromPreviousAgent:
               step.agentName === 'synthesizer'
                 ? {
-                    perspectives: result.steps
+                    perspectives: steps
                       .filter((s) => s.stepNumber === 1)
                       .reduce(
                         (acc, s) => ({ ...acc, [s.agentName]: s.output }),
@@ -98,41 +118,41 @@ export const startMarketAnalysisWorker = () => {
         }
 
         const resultPayload: MarketAnalysisResult = {
-          opportunity_score: result.finalView.opportunity_score,
-          positioning_recommendation: result.finalView.positioning_recommendation,
-          top_opportunities: result.finalView.top_opportunities,
-          top_threats: result.finalView.top_threats,
-          primary_drivers: result.finalView.primary_drivers,
+          opportunity_score: finalView.opportunity_score,
+          positioning_recommendation: finalView.positioning_recommendation,
+          top_opportunities: finalView.top_opportunities,
+          top_threats: finalView.top_threats,
+          primary_drivers: finalView.primary_drivers,
         };
 
         await db
           .update(marketAnalyses)
           .set({
             status: 'completed',
-            executionId: result.executionId,
+            executionId,
             dataSeedSize: seed.totalRecords,
             result: resultPayload,
-            riskLevel: result.finalView.risk_level,
-            summary: result.finalView.summary,
-            finalReasoning: result.finalView.reasoning,
-            confidence: result.finalView.confidence,
-            totalDurationMs: result.totalDurationMs,
-            totalTokensUsed: result.totalTokensUsed,
+            riskLevel: finalView.risk_level,
+            summary: finalView.summary,
+            finalReasoning: finalView.reasoning,
+            confidence: finalView.confidence,
+            totalDurationMs,
+            totalTokensUsed,
             completedAt: new Date(),
           })
           .where(eq(marketAnalyses.id, marketAnalysisId));
 
         console.log(
-          `[MarketAnalysis] Completed ${marketAnalysisId} opp=${result.finalView.opportunity_score} risk=${result.finalView.risk_level}`,
+          `[MarketAnalysis] Completed ${marketAnalysisId} opp=${finalView.opportunity_score} risk=${finalView.risk_level}`,
         );
 
         return {
           success: true,
-          executionId: result.executionId,
-          opportunityScore: result.finalView.opportunity_score,
-          riskLevel: result.finalView.risk_level,
-          totalDurationMs: result.totalDurationMs,
-          totalTokensUsed: result.totalTokensUsed,
+          executionId,
+          opportunityScore: finalView.opportunity_score,
+          riskLevel: finalView.risk_level,
+          totalDurationMs,
+          totalTokensUsed,
         };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -158,6 +178,39 @@ export const startMarketAnalysisWorker = () => {
 
   console.log('[MarketAnalysis] Worker started - listening to market-analysis-queue');
 };
+
+/* =============================================================
+   Swarm adapters
+   ============================================================= */
+
+function swarmStepsToOrchestratorSteps(
+  result: SwarmRunResult,
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+  return result.steps.map((s, i) => ({
+    agentName: s.agentName,
+    stepNumber: i + 1,
+    output: s.output as Record<string, unknown>,
+    reasoning: s.reasoning,
+    confidence: s.confidence,
+    durationMs: s.durationMs,
+    tokensUsed: s.tokensUsed,
+  }));
+}
+
+function swarmOutputToFinalView(result: SwarmRunResult) {
+  const out = (result.finalOutput ?? result.steps[result.steps.length - 1]?.output) as Record<string, unknown> | undefined;
+  return {
+    risk_level: (out?.risk_level as 'low' | 'medium' | 'high' | 'critical') ?? 'medium',
+    opportunity_score: (out?.opportunity_score as number) ?? 0,
+    positioning_recommendation: (out?.positioning_recommendation as string) ?? '',
+    summary: (out?.summary as string) ?? '',
+    top_opportunities: (out?.top_opportunities as string[]) ?? [],
+    top_threats: (out?.top_threats as string[]) ?? [],
+    primary_drivers: (out?.primary_drivers as string[]) ?? [],
+    reasoning: (out?.reasoning as string) ?? '',
+    confidence: (out?.confidence as number) ?? 0,
+  };
+}
 
 /* =============================================================
    Build a compact seed from recent market_data rows
