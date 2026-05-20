@@ -79,8 +79,8 @@ export default async function MarketAnalysisDetailPage({
     .where(eq(agentLogs.marketAnalysisId, id))
     .orderBy(asc(agentLogs.stepNumber), asc(agentLogs.createdAt));
 
-  const perspectiveLogs = logs.filter((l) => l.stepNumber === 1);
-  const synthesizerLog = logs.find((l) => l.agentName === 'synthesizer');
+  const perspectiveLogs = logs.filter((l: AgentLog) => l.stepNumber === 1);
+  const synthesizerLog = logs.find((l: AgentLog) => l.agentName === 'synthesizer');
   const isWorking = analysis.status === 'pending' || analysis.status === 'running';
   const isFailed = analysis.status === 'failed';
   const isCompleted = analysis.status === 'completed';
@@ -165,7 +165,7 @@ export default async function MarketAnalysisDetailPage({
                 Perspectives · parallel phase
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {perspectiveLogs.map((log) => (
+                {perspectiveLogs.map((log: AgentLog) => (
                   <AgentCard key={log.id} log={log} />
                 ))}
               </div>
@@ -385,7 +385,7 @@ function StatusBadge({ status }: { status: MarketAnalysis['status'] }) {
     completed: { Icon: CheckCircle2, text: 'Completed', cls: 'bg-accent text-primary', spin: false },
     failed: { Icon: CircleAlert, text: 'Failed', cls: 'bg-destructive text-destructive-foreground', spin: false },
   } as const;
-  const cfg = map[status];
+  const cfg = map[status as keyof typeof map];
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-border ${cfg.cls}`}
@@ -405,7 +405,7 @@ function RiskBadge({ level }: { level: NonNullable<MarketAnalysis['riskLevel']> 
   } as const;
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level]}`}
+      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level as keyof typeof map]}`}
     >
       Risk: {level}
     </span>
