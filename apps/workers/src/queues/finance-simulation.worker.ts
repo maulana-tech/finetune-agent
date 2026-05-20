@@ -2,6 +2,8 @@ import { Worker } from 'bullmq';
 import { eq, and, gte } from 'drizzle-orm';
 import {
   runFinanceSimulation,
+  runFinanceSimulationSwarm,
+  type SwarmRunResult,
   FinanceDataSeed,
   FinanceScenario,
 } from '@repo/ai';
@@ -65,23 +67,42 @@ export const startFinanceSimulationWorker = () => {
         // 3. Build data seed from historical transactions
         const seed = await buildDataSeed(workspaceId, sim.dataSeedMonths);
 
-        // 4. Run orchestrator
-        const result = await runFinanceSimulation({
-          simulationId,
-          workspaceId,
-          scenario: sim.scenarioParams as FinanceScenario,
-          forecastMonths: sim.forecastMonths,
-          seed,
-        });
+        // 4. Run orchestrator (swarm or legacy)
+        const useSwarm = process.env.USE_SWARM_AGENTS === 'true';
+        const result = useSwarm
+          ? await runFinanceSimulationSwarm({
+              simulationId,
+              workspaceId,
+              scenario: sim.scenarioParams as any,
+              forecastMonths: sim.forecastMonths,
+              seed,
+            })
+          : await runFinanceSimulation({
+              simulationId,
+              workspaceId,
+              scenario: sim.scenarioParams as FinanceScenario,
+              forecastMonths: sim.forecastMonths,
+              seed,
+            });
+
+        const steps = useSwarm
+          ? swarmStepsToOrchestratorSteps(result as SwarmRunResult)
+          : (result as Awaited<ReturnType<typeof runFinanceSimulation>>).steps;
+        const finalForecast = useSwarm
+          ? swarmOutputToFinalForecast(result as SwarmRunResult)
+          : (result as Awaited<ReturnType<typeof runFinanceSimulation>>).finalForecast;
+        const executionId = result.executionId;
+        const totalDurationMs = result.totalDurationMs;
+        const totalTokensUsed = result.totalTokensUsed;
 
         // 5. Log every agent execution
-        for (const step of result.steps) {
+        for (const step of steps) {
           await db.insert(agentLogs).values({
             workspaceId,
             simulationId,
             agentName: step.agentName,
             agentRole: AGENT_ROLES[step.agentName] ?? 'Unknown agent role',
-            executionId: result.executionId,
+            executionId,
             stepNumber: step.stepNumber,
             input: {
               scenario: sim.scenarioParams,
@@ -94,7 +115,7 @@ export const startFinanceSimulationWorker = () => {
             contextFromPreviousAgent:
               step.agentName === 'synthesizer'
                 ? {
-                    stakeholders: result.steps
+                    stakeholders: steps
                       .filter((s) => s.stepNumber === 1)
                       .reduce(
                         (acc, s) => ({ ...acc, [s.agentName]: s.output }),
@@ -111,7 +132,7 @@ export const startFinanceSimulationWorker = () => {
 
         // 6. Write final result back to simulation row
         const forecast: CashflowForecastPoint[] =
-          result.finalForecast.monthly_forecast.map((p) => ({
+          finalForecast.monthly_forecast.map((p) => ({
             month: monthOffsetToISO(p.month_offset),
             projectedIncome: p.projected_income,
             projectedExpense: p.projected_expense,
@@ -122,28 +143,28 @@ export const startFinanceSimulationWorker = () => {
           .update(simulations)
           .set({
             status: 'completed',
-            executionId: result.executionId,
+            executionId,
             cashflowForecast: forecast,
-            riskLevel: result.finalForecast.risk_level,
-            summary: result.finalForecast.summary,
-            finalReasoning: result.finalForecast.reasoning,
-            confidence: result.finalForecast.confidence,
-            totalDurationMs: result.totalDurationMs,
-            totalTokensUsed: result.totalTokensUsed,
+            riskLevel: finalForecast.risk_level,
+            summary: finalForecast.summary,
+            finalReasoning: finalForecast.reasoning,
+            confidence: finalForecast.confidence,
+            totalDurationMs,
+            totalTokensUsed,
             completedAt: new Date(),
           })
           .where(eq(simulations.id, simulationId));
 
         console.log(
-          `[FinanceSim] Completed ${simulationId} risk=${result.finalForecast.risk_level}`
+          `[FinanceSim] Completed ${simulationId} risk=${finalForecast.risk_level}`
         );
 
         return {
           success: true,
-          executionId: result.executionId,
-          riskLevel: result.finalForecast.risk_level,
-          totalDurationMs: result.totalDurationMs,
-          totalTokensUsed: result.totalTokensUsed,
+          executionId,
+          riskLevel: finalForecast.risk_level,
+          totalDurationMs,
+          totalTokensUsed,
         };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -169,6 +190,35 @@ export const startFinanceSimulationWorker = () => {
 
   console.log('[FinanceSim] Worker started - listening to finance-simulation-queue');
 };
+
+/* =============================================================
+   Swarm adapters
+   ============================================================= */
+
+function swarmStepsToOrchestratorSteps(
+  result: SwarmRunResult,
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+  return result.steps.map((s, i) => ({
+    agentName: s.agentName,
+    stepNumber: i + 1,
+    output: s.output as Record<string, unknown>,
+    reasoning: s.reasoning,
+    confidence: s.confidence,
+    durationMs: s.durationMs,
+    tokensUsed: s.tokensUsed,
+  }));
+}
+
+function swarmOutputToFinalForecast(result: SwarmRunResult) {
+  const out = (result.finalOutput ?? result.steps[result.steps.length - 1]?.output) as Record<string, unknown> | undefined;
+  return {
+    risk_level: (out?.risk_level as 'low' | 'medium' | 'high' | 'critical') ?? 'medium',
+    summary: (out?.summary as string) ?? '',
+    monthly_forecast: (out?.monthly_forecast as { month_offset: number; projected_income: number; projected_expense: number; projected_net: number }[]) ?? [],
+    reasoning: (out?.reasoning as string) ?? '',
+    confidence: (out?.confidence as number) ?? 0,
+  };
+}
 
 /* =============================================================
    Helpers
