@@ -21,3 +21,9 @@ export { trendAgent } from './agents/market-sim/trend';
 export { riskAgent } from './agents/market-sim/risk';
 export { demandAgent } from './agents/market-sim/demand';
 export { marketSynthesizerAgent } from './agents/market-sim/synthesizer';
+
+// Swarm AI Agent System (v2 — replaces old orchestrators)
+export * from './swarm';
+export { runLeadScoringSwarm } from './swarm/workflows/lead-scoring.workflow';
+export { runFinanceSimulationSwarm } from './swarm/workflows/finance-simulation.workflow';
+export { runMarketAnalysisSwarm } from './swarm/workflows/market-analysis.workflow';
