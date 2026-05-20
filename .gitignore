@@ -62,3 +62,4 @@ lerna-debug.log*
 
 # Drizzle
 packages/db/drizzle/
+.vercel
