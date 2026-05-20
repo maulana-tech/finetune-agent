@@ -94,8 +94,8 @@ export default async function SimulationDetailPage({
     .where(eq(agentLogs.simulationId, id))
     .orderBy(asc(agentLogs.stepNumber), asc(agentLogs.createdAt));
 
-  const stakeholderLogs = logs.filter((l) => l.stepNumber === 1);
-  const synthesizerLog = logs.find((l) => l.agentName === 'synthesizer');
+  const stakeholderLogs = logs.filter((l: AgentLog) => l.stepNumber === 1);
+  const synthesizerLog = logs.find((l: AgentLog) => l.agentName === 'synthesizer');
   const isWorking = sim.status === 'pending' || sim.status === 'running';
   const isFailed = sim.status === 'failed';
   const isCompleted = sim.status === 'completed';
@@ -178,7 +178,7 @@ export default async function SimulationDetailPage({
                 Stakeholders · parallel phase
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {stakeholderLogs.map((log) => (
+                {stakeholderLogs.map((log: AgentLog) => (
                   <AgentCard key={log.id} log={log} />
                 ))}
               </div>
@@ -542,7 +542,7 @@ function StatusBadge({ status }: { status: Simulation['status'] }) {
     completed: { Icon: CheckCircle2, text: 'Completed', cls: 'bg-accent text-primary', spin: false },
     failed: { Icon: CircleAlert, text: 'Failed', cls: 'bg-destructive text-destructive-foreground', spin: false },
   } as const;
-  const cfg = map[status];
+  const cfg = map[status as keyof typeof map];
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border border-border ${cfg.cls}`}
@@ -562,7 +562,7 @@ function RiskBadge({ level }: { level: NonNullable<Simulation['riskLevel']> }) {
   } as const;
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level]}`}
+      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level as keyof typeof map]}`}
     >
       Risk: {level}
     </span>
