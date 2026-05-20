@@ -24,6 +24,8 @@ import {
   RunMarketScrapeButton,
 } from '@/features/market/RunMarketAnalysisDialog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MarketPage() {
   const [dataRows, analyses] = await Promise.all([
     db
@@ -87,7 +89,7 @@ export default async function MarketPage() {
             <div>Status</div>
             <div className="text-right">Action</div>
           </div>
-          {analyses.map((a) => (
+          {analyses.map((a: MarketAnalysis) => (
             <AnalysisRow key={a.id} analysis={a} />
           ))}
         </div>
@@ -288,7 +290,7 @@ function StatusBadge({ status }: { status: MarketAnalysis['status'] }) {
     completed: { Icon: CheckCircle2, text: 'Completed', cls: 'bg-accent text-primary', spin: false },
     failed: { Icon: CircleAlert, text: 'Failed', cls: 'bg-destructive text-destructive-foreground', spin: false },
   } as const;
-  const cfg = map[status];
+  const cfg = map[status as keyof typeof map];
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${cfg.cls}`}
@@ -308,7 +310,7 @@ function RiskBadge({ level }: { level: NonNullable<MarketAnalysis['riskLevel']> 
   } as const;
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level]}`}
+      className={`inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-border ${map[level as keyof typeof map]}`}
     >
       Risk: {level}
     </span>
