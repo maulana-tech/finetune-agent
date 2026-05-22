@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { spawn } from 'child_process';
 import path from 'path';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db, leads, scrapeSchedules } from '@repo/db';
 
 export const startScrapeWorker = () => {
@@ -27,7 +27,7 @@ export const startScrapeWorker = () => {
             .set({
               lastRunAt: new Date(),
               lastRunStatus: 'failed',
-              retryCount: db.$count(scrapeSchedules, eq(scrapeSchedules.id, scheduleId)) as any,
+              retryCount: sql`COALESCE(${scrapeSchedules.retryCount}, 0)`,
               updatedAt: new Date(),
             })
             .where(eq(scrapeSchedules.id, scheduleId));
