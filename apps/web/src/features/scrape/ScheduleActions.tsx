@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
-import { apiUrl, DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 
 interface ScheduleActionsProps {
   id: string;
@@ -10,6 +11,7 @@ interface ScheduleActionsProps {
 }
 
 export function ScheduleActions({ id, isActive }: ScheduleActionsProps) {
+  const workspaceId = useWorkspaceId();
   const [loading, setLoading] = useState<'run' | 'toggle' | null>(null);
   const [active, setActive] = useState(isActive);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export function ScheduleActions({ id, isActive }: ScheduleActionsProps) {
     setError(null);
     try {
       const res = await fetch(
-        `${apiUrl()}/scrape-schedules/${id}/run-now?workspaceId=${DEV_WORKSPACE_ID}`,
+        `${apiUrl()}/scrape-schedules/${id}/run-now?workspaceId=${workspaceId}`,
         { method: 'POST' },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -35,7 +37,7 @@ export function ScheduleActions({ id, isActive }: ScheduleActionsProps) {
     setError(null);
     try {
       const res = await fetch(
-        `${apiUrl()}/scrape-schedules/${id}?workspaceId=${DEV_WORKSPACE_ID}`,
+        `${apiUrl()}/scrape-schedules/${id}?workspaceId=${workspaceId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

@@ -1,12 +1,12 @@
-import { MapContainer } from '../../../features/map/MapContainer';
-import { LeadsPanel } from '../../../features/leads/LeadsPanel';
+import { DashboardClient } from '../../../features/dashboard/DashboardClient';
 import { db, leads } from '@repo/db';
 import { eq } from 'drizzle-orm';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
+  const workspaceId = await getWorkspaceId();
   const allLeads = await db
     .select({
       id: leads.id,
@@ -18,16 +18,10 @@ export default async function DashboardPage() {
       category: leads.category,
       mapsUrl: leads.mapsUrl,
       phone: leads.phone,
+      pipelineStage: leads.pipelineStage,
     })
     .from(leads)
-    .where(eq(leads.workspaceId, DEV_WORKSPACE_ID));
+    .where(eq(leads.workspaceId, workspaceId));
 
-  return (
-    <div className="w-full h-full flex overflow-hidden">
-      <div className="flex-1 relative">
-        <MapContainer leads={allLeads} />
-      </div>
-      <LeadsPanel leads={allLeads} />
-    </div>
-  );
+  return <DashboardClient leads={allLeads} />;
 }

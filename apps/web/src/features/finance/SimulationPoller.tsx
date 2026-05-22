@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 
 /**
  * Polls the simulation status until it flips to 'completed' or 'failed',
@@ -17,6 +18,7 @@ export function SimulationPoller({
   simulationId: string;
   intervalMs?: number;
 }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const startedAt = useRef<number>(Date.now());
   const stopped = useRef(false);
@@ -27,7 +29,7 @@ export function SimulationPoller({
     const tick = async () => {
       if (stopped.current) return;
       try {
-        const url = `${apiUrl()}/finance/simulations/${simulationId}?workspaceId=${DEV_WORKSPACE_ID}`;
+        const url = `${apiUrl()}/finance/simulations/${simulationId}?workspaceId=${workspaceId}`;
         const res = await fetch(url, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();

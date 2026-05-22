@@ -18,7 +18,7 @@ import {
   type MarketAnalysis,
   type MarketData,
 } from '@repo/db';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import {
   RunMarketAnalysisButton,
   RunMarketScrapeButton,
@@ -27,16 +27,18 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function MarketPage() {
+  const workspaceId = await getWorkspaceId();
   const [dataRows, analyses] = await Promise.all([
     db
       .select()
       .from(marketData)
-      .where(eq(marketData.workspaceId, DEV_WORKSPACE_ID))
-      .orderBy(desc(marketData.scrapedAt)),
+      .where(eq(marketData.workspaceId, workspaceId))
+      .orderBy(desc(marketData.scrapedAt))
+      .limit(100),
     db
       .select()
       .from(marketAnalyses)
-      .where(eq(marketAnalyses.workspaceId, DEV_WORKSPACE_ID))
+      .where(eq(marketAnalyses.workspaceId, workspaceId))
       .orderBy(desc(marketAnalyses.createdAt)),
   ]);
 

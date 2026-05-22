@@ -1,6 +1,6 @@
 import { db, leads } from '@repo/db';
 import { eq, desc } from 'drizzle-orm';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import { MoveStageButton } from '@/features/leads/MoveStageButton';
 
 export const dynamic = 'force-dynamic';
@@ -27,6 +27,7 @@ type Lead = {
 };
 
 export default async function PipelinesPage() {
+  const workspaceId = await getWorkspaceId();
   const rows = await db
     .select({
       id: leads.id,
@@ -37,7 +38,7 @@ export default async function PipelinesPage() {
       pipelineStage: leads.pipelineStage,
     })
     .from(leads)
-    .where(eq(leads.workspaceId, DEV_WORKSPACE_ID))
+    .where(eq(leads.workspaceId, workspaceId))
     .orderBy(desc(leads.createdAt));
 
   // Group by stage — leads with null/unrecognized stage fall into Prospecting

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { db, transactions, simulations, type Simulation, type Transaction } from '@repo/db';
 import { eq, desc, gte, and } from 'drizzle-orm';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import { AddTransactionButton } from '@/features/finance/AddTransactionDialog';
 import { ImportTransactionsButton } from '@/features/finance/ImportTransactionsDialog';
 import { RunSimulationButton } from '@/features/finance/RunSimulationDialog';
@@ -39,10 +39,11 @@ const compactCurrency = (n: number) =>
   }).format(n);
 
 export default async function FinancePage() {
-  // Fetch last 6 months of transactions for KPIs + chart series
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  const sixMonthsAgoStr = sixMonthsAgo.toISOString().slice(0, 10);
+  const workspaceId = await getWorkspaceId();
+  const now = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const sinceStr = threeMonthsAgo.toISOString().slice(0, 10);
 
   const [txns, sims] = await Promise.all([
     db
@@ -50,15 +51,15 @@ export default async function FinancePage() {
       .from(transactions)
       .where(
         and(
-          eq(transactions.workspaceId, DEV_WORKSPACE_ID),
-          gte(transactions.txDate, sixMonthsAgoStr)
-        )
+          eq(transactions.workspaceId, workspaceId),
+          gte(transactions.txDate, sinceStr),
+        ),
       )
       .orderBy(desc(transactions.txDate)),
     db
       .select()
       .from(simulations)
-      .where(eq(simulations.workspaceId, DEV_WORKSPACE_ID))
+      .where(eq(simulations.workspaceId, workspaceId))
       .orderBy(desc(simulations.createdAt))
       .limit(5),
   ]);

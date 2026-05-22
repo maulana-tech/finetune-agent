@@ -21,7 +21,7 @@ import {
   type CashflowForecastPoint,
   type SimulationScenarioParams,
 } from '@repo/db';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import { SimulationPoller } from '@/features/finance/SimulationPoller';
 import { ExportPdfButton } from '@/features/finance/ExportPdfButton';
 
@@ -77,11 +77,11 @@ export default async function SimulationDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
+  const workspaceId = await getWorkspaceId();
   const [sim] = await db
     .select()
     .from(simulations)
-    .where(and(eq(simulations.id, id), eq(simulations.workspaceId, DEV_WORKSPACE_ID)))
+    .where(and(eq(simulations.id, id), eq(simulations.workspaceId, workspaceId)))
     .limit(1);
 
   if (!sim) {

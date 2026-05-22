@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, Loader2, FileText, CheckCircle2, AlertTriangle, X } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 import { Modal } from './AddTransactionDialog';
 
 interface ImportResult {
@@ -30,6 +31,7 @@ export function ImportTransactionsButton() {
 }
 
 function ImportTransactionsDialog({ onClose }: { onClose: () => void }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
@@ -61,7 +63,7 @@ function ImportTransactionsDialog({ onClose }: { onClose: () => void }) {
     startTransition(async () => {
       try {
         const fd = new FormData();
-        fd.append('workspaceId', DEV_WORKSPACE_ID);
+        fd.append('workspaceId', workspaceId);
         fd.append('file', file);
         const res = await fetch(`${apiUrl()}/finance/transactions/import`, {
           method: 'POST',

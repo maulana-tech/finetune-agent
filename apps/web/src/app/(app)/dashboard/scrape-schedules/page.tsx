@@ -1,16 +1,17 @@
 import { eq, desc } from 'drizzle-orm';
 import { Clock, Calendar, Database, Plus } from 'lucide-react';
 import { db, scrapeSchedules, type ScrapeSchedule } from '@repo/db';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import { ScheduleActions } from '@/features/scrape/ScheduleActions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ScrapeSchedulesPage() {
+  const workspaceId = await getWorkspaceId();
   const schedules = await db
     .select()
     .from(scrapeSchedules)
-    .where(eq(scrapeSchedules.workspaceId, DEV_WORKSPACE_ID))
+    .where(eq(scrapeSchedules.workspaceId, workspaceId))
     .orderBy(desc(scrapeSchedules.createdAt));
 
   const totalCount = schedules.length;

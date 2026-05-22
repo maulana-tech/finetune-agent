@@ -18,11 +18,12 @@ import {
   agentLogs,
   type MarketAnalysis,
 } from '@repo/db';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ReportsPage() {
+  const workspaceId = await getWorkspaceId();
   const [
     [leadCountRow],
     [analysisCountRow],
@@ -32,21 +33,21 @@ export default async function ReportsPage() {
     db
       .select({ value: count() })
       .from(leads)
-      .where(eq(leads.workspaceId, DEV_WORKSPACE_ID)),
+      .where(eq(leads.workspaceId, workspaceId)),
     db
       .select({ value: count() })
       .from(marketAnalyses)
-      .where(eq(marketAnalyses.workspaceId, DEV_WORKSPACE_ID)),
+      .where(eq(marketAnalyses.workspaceId, workspaceId)),
     // avg opportunity_score is inside jsonb — we fetch completed rows and compute in JS
     // (drizzle can't avg a jsonb sub-field directly)
     db
       .select({ value: count() })
       .from(marketAnalyses)
-      .where(eq(marketAnalyses.workspaceId, DEV_WORKSPACE_ID)),
+      .where(eq(marketAnalyses.workspaceId, workspaceId)),
     db
       .select()
       .from(marketAnalyses)
-      .where(eq(marketAnalyses.workspaceId, DEV_WORKSPACE_ID))
+      .where(eq(marketAnalyses.workspaceId, workspaceId))
       .orderBy(desc(marketAnalyses.createdAt)),
   ]);
 

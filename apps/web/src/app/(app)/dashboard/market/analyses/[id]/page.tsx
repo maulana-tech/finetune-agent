@@ -20,7 +20,7 @@ import {
   type MarketAnalysis,
   type MarketAnalysisScenarioParams,
 } from '@repo/db';
-import { DEV_WORKSPACE_ID } from '@/lib/workspace';
+import { getWorkspaceId } from '@/lib/get-workspace';
 import { MarketAnalysisPoller } from '@/features/market/MarketAnalysisPoller';
 
 type AgentLog = typeof agentLogs.$inferSelect;
@@ -62,11 +62,11 @@ export default async function MarketAnalysisDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
+  const workspaceId = await getWorkspaceId();
   const [analysis] = await db
     .select()
     .from(marketAnalyses)
-    .where(and(eq(marketAnalyses.id, id), eq(marketAnalyses.workspaceId, DEV_WORKSPACE_ID)))
+    .where(and(eq(marketAnalyses.id, id), eq(marketAnalyses.workspaceId, workspaceId)))
     .limit(1);
 
   if (!analysis) {

@@ -3,7 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Loader2 } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 
 type TxType = 'income' | 'expense' | 'invoice';
 
@@ -61,6 +62,7 @@ export function AddTransactionButton({
 }
 
 function AddTransactionDialog({ onClose }: { onClose: () => void }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +95,7 @@ function AddTransactionDialog({ onClose }: { onClose: () => void }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: DEV_WORKSPACE_ID,
+            workspaceId,
             type,
             category,
             description: description || undefined,

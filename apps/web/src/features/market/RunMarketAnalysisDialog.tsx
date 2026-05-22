@@ -3,7 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, Loader2, ChevronRight, Search } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 import { Field, Modal } from '@/features/finance/AddTransactionDialog';
 
 interface Scenario {
@@ -46,6 +47,7 @@ export function RunMarketAnalysisButton() {
 }
 
 function RunMarketAnalysisDialog({ onClose }: { onClose: () => void }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,7 @@ function RunMarketAnalysisDialog({ onClose }: { onClose: () => void }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: DEV_WORKSPACE_ID,
+            workspaceId,
             title: title.trim(),
             scenarioParams: scenario,
           }),
@@ -242,6 +244,7 @@ export function RunMarketScrapeButton() {
 }
 
 function RunMarketScrapeDialog({ onClose }: { onClose: () => void }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -257,7 +260,7 @@ function RunMarketScrapeDialog({ onClose }: { onClose: () => void }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: DEV_WORKSPACE_ID,
+            workspaceId,
             industry,
             region,
             limit,

@@ -3,7 +3,7 @@
 import { Search, Bell, User, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-export function Topbar() {
+export function Topbar({ workspaceId }: { workspaceId: string }) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +21,7 @@ export function Topbar() {
         body: JSON.stringify({ 
           query, 
           limit: 10,
-          workspaceId: '00000000-0000-0000-0000-000000000000' // dummy for local dev
+          workspaceId,
         }),
       });
       

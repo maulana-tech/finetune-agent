@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 
 /**
  * Polls market_analyses status until it flips to completed/failed,
@@ -16,6 +17,7 @@ export function MarketAnalysisPoller({
   analysisId: string;
   intervalMs?: number;
 }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const startedAt = useRef<number>(Date.now());
   const stopped = useRef(false);
@@ -27,7 +29,7 @@ export function MarketAnalysisPoller({
       if (stopped.current) return;
       try {
         const res = await fetch(
-          `${apiUrl()}/market/analyses/${analysisId}?workspaceId=${DEV_WORKSPACE_ID}`,
+          `${apiUrl()}/market/analyses/${analysisId}?workspaceId=${workspaceId}`,
           { cache: 'no-store' },
         );
         if (res.ok) {

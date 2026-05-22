@@ -12,3 +12,4 @@ export * from './agent_logs';
 export * from './lead_scores';
 export * from './swarm_runs';
 export * from './scrape_schedules';
+export * from './lead_notes';

@@ -6,6 +6,8 @@ import { FinanceModule } from './finance/finance.module';
 import { MarketModule } from './market/market.module';
 import { ScrapeSchedulesModule } from './scrape-schedules/scrape-schedules.module';
 import { LeadsModule } from './leads/leads.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
+import { AssistantModule } from './assistant/assistant.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { LeadsModule } from './leads/leads.module';
     MarketModule,
     ScrapeSchedulesModule,
     LeadsModule,
+    WorkspacesModule,
+    AssistantModule,
   ],
   controllers: [],
   providers: [],

@@ -3,7 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, Loader2, ChevronRight } from 'lucide-react';
-import { DEV_WORKSPACE_ID, apiUrl } from '@/lib/workspace';
+import { apiUrl } from '@/lib/workspace';
+import { useWorkspaceId } from '@/lib/workspace-context';
 import { Field, Modal } from './AddTransactionDialog';
 
 type ForecastMonths = 1 | 2 | 3 | 6;
@@ -72,6 +73,7 @@ export function RunSimulationButton({
 }
 
 function RunSimulationDialog({ onClose }: { onClose: () => void }) {
+  const workspaceId = useWorkspaceId();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +96,7 @@ function RunSimulationDialog({ onClose }: { onClose: () => void }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            workspaceId: DEV_WORKSPACE_ID,
+            workspaceId,
             title: title.trim(),
             scenarioParams: scenario,
             forecastMonths,

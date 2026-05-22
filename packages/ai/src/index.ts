@@ -22,6 +22,10 @@ export { riskAgent } from './agents/market-sim/risk';
 export { demandAgent } from './agents/market-sim/demand';
 export { marketSynthesizerAgent } from './agents/market-sim/synthesizer';
 
+// Sales agents
+export { analyzeLeadForSales } from './agents/smart-sales';
+export { generateColdEmail } from './agents/cold-email';
+
 // SQL search agent (natural-language → SQL for leads table)
 export { generateLeadsSearchSql } from './agents/sql-search';
 
