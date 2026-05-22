@@ -9,6 +9,8 @@ const nextConfig = {
           '**/node_modules/**',
           '**/.next/**',
           '**/.pnpm/**',
+          '**/dist/**',
+          '**/.cache/**',
         ],
       },
     },
