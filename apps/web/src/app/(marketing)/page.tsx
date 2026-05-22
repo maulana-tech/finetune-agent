@@ -4,6 +4,7 @@ import HeroScene from "@/components/landing/HeroScene";
 import SkyScene from "@/components/landing/SkyScene";
 import TopNav from "@/components/landing/TopNav";
 import Footer from "@/components/landing/Footer";
+import StickyFeatureSection from "@/components/landing/StickyFeatureSection";
 
 /* Every <Section> fills exactly one viewport and centers its content. */
 function Section({
@@ -268,76 +269,8 @@ export default function Page() {
         </div>
       </Section>
 
-      {/* =============== BUILD A REAL COMPANY — INTRO (1 viewport) =============== */}
-      <Section className="bg-[#fbfaf6]">
-        <div className="grid md:grid-cols-[1fr_1.1fr] gap-16 items-center">
-          <div>
-            <h2 className="font-display text-[clamp(28px,3.2vw,42px)] text-[#0f1115]">
-              Millions of businesses at
-              <br />
-              <span className="text-[#6b7180]">your fingertips, ready to prospect</span>
-            </h2>
-            <p className="text-[14px] text-[#6b7180] mt-3 max-w-[480px] leading-relaxed">
-              From searching businesses on a map to closing deals — uTune AI supports your entire sales workflow with AI-powered tools.
-            </p>
-
-            <div className="mt-8 grid grid-cols-2 gap-y-6 gap-x-8">
-              {[
-                { value: "10M+", label: "Businesses indexed" },
-                { value: "50K+", label: "Cities & districts" },
-                { value: "26+", label: "Supported languages" },
-                { value: "1,000", label: "Leads per job" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <div className="text-[clamp(28px,2.8vw,36px)] font-display text-[#0f1115] tracking-tight">{s.value}</div>
-                  <div className="text-[12px] text-[#6b7180] mt-0.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <Link href="/start" className="mt-8 inline-flex items-center gap-2 bg-[#0f1115] text-white text-[13px] font-medium rounded-xl px-5 py-3 hover:opacity-90 transition-all">
-              Start prospecting
-              <ChevronRight className="size-4" />
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            <div className="card p-4">
-              <div className="flex items-center gap-2 text-[11px] text-[#9aa0aa] mb-3">
-                <div className="w-2 h-2 rounded-full bg-blue-500" /> Your workflow
-              </div>
-              <div className="space-y-4">
-                {[
-                  { step: "01", icon: Search, title: "Search", desc: "Find businesses by industry, location, or draw a polygon" },
-                  { step: "02", icon: Star, title: "Enrich", desc: "Pull Google reviews, emails, WhatsApp, and social links" },
-                  { step: "03", icon: Sparkles, title: "Analyze", desc: "AI summarizes pain points, strengths, and opportunities" },
-                  { step: "04", icon: Map, title: "Close", desc: "Import to CRM, assign stages, and send personalized emails" },
-                ].map((s) => (
-                  <div key={s.step} className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-md bg-[#f0f0f0] flex items-center justify-center text-[10px] font-medium text-[#6b7180] shrink-0">
-                      {s.step}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-medium text-[#0f1115] flex items-center gap-1.5">
-                        <s.icon className="size-3.5 text-[#6b7180]" />
-                        {s.title}
-                      </div>
-                      <div className="text-[12px] text-[#6b7180] mt-0.5">{s.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="card p-4 bg-[#f3faff] border-[#dfeeff]">
-              <div className="flex items-center gap-2 text-[12px]">
-                <Globe className="size-4 text-[#3d8de0]" />
-                <span className="text-[#3b3f48]">Searching <strong className="font-medium">dental clinics in Jakarta</strong> returned <strong className="font-medium">184 leads</strong> in 12 seconds.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
+      {/* =============== STICKY SCROLL — SEARCH › ENRICH › ANALYZE › CLOSE =============== */}
+      <StickyFeatureSection />
 
       {/* =============== FEATURE 1: BUSINESS FINDER =============== */}
       <Section className="bg-[#fbfaf6]">
