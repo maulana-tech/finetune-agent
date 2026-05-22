@@ -10,3 +10,5 @@ export * from './market_data';
 export * from './market_analyses';
 export * from './agent_logs';
 export * from './lead_scores';
+export * from './swarm_runs';
+export * from './scrape_schedules';

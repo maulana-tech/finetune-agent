@@ -1,6 +1,6 @@
 import { Worker } from 'bullmq';
 import { runMultiAgentWorkflow, runLeadScoringSwarm, type SwarmRunResult } from '@repo/ai';
-import { db, agentLogs, leadScores, leads } from '@repo/db';
+import { db, agentLogs, leadScores, leads, swarmRuns } from '@repo/db';
 import { eq } from 'drizzle-orm';
 
 /**
@@ -66,6 +66,8 @@ export const startOrchestratedAiWorker = () => {
             contextSharedToNextAgent: contextToNext,
             durationMs: step.durationMs,
             tokensUsed: step.tokensUsed,
+            handoffFrom: step.handoffFrom ?? null,
+            parallelGroup: step.parallelGroup ?? null,
           });
 
           console.log(
@@ -111,6 +113,21 @@ export const startOrchestratedAiWorker = () => {
         console.log(
           `[OrchestratedAI] Lead score saved: ${finalRec.priorityTier} tier, ${finalRec.priorityScore}/100, action: ${finalRec.recommendedAction}`
         );
+
+        // Record the swarm run for observability
+        if (useSwarm) {
+          await db.insert(swarmRuns).values({
+            workspaceId,
+            executionId,
+            workflowName: 'lead-scoring',
+            entryAgent: 'extractor',
+            leadId,
+            totalSteps: steps.length,
+            totalDurationMs,
+            totalTokensUsed,
+            status: 'completed',
+          });
+        }
 
         // Update lead with extracted data from Step 1
         const extractorOutput = steps[0].output;
@@ -159,7 +176,7 @@ export const startOrchestratedAiWorker = () => {
 /** Adapt SwarmRunResult steps to look like OrchestratorOutput steps (with stepNumber). */
 function swarmStepsToOrchestratorSteps(
   result: SwarmRunResult,
-): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number; handoffFrom?: string; parallelGroup?: string }[] {
   return result.steps.map((s, i) => ({
     agentName: s.agentName,
     stepNumber: i + 1,
@@ -168,6 +185,8 @@ function swarmStepsToOrchestratorSteps(
     confidence: s.confidence,
     durationMs: s.durationMs,
     tokensUsed: s.tokensUsed,
+    handoffFrom: s.handoffFrom,
+    parallelGroup: s.parallelGroup,
   }));
 }
 

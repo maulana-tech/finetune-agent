@@ -25,9 +25,7 @@ and unoccupied positions our workspace could take.
 Ground every claim in the data seed. Clinical tone, no buzzwords.`,
   model: models.standard,
   schema: competitorSwarmSchema,
-  handoffs: [
-    { agentName: 'market-synthesizer', description: 'Reconciles all market perspectives into a report' },
-  ],
+  handoffs: [], // terminal — parallel fan-out agents don't route; market-coordinator handles that
   tools: [],
   capabilities: ['analysis', 'market', 'competitor'],
 });

@@ -1,0 +1,31 @@
+import { pgTable, text, timestamp, uuid, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { workspaces } from './workspaces';
+import { leads } from './leads';
+import { simulations } from './simulations';
+import { marketAnalyses } from './market_analyses';
+
+export const swarmRunStatusEnum = pgEnum('swarm_run_status', [
+  'completed',
+  'failed',
+  'max_iterations',
+]);
+
+export const swarmRuns = pgTable('swarm_runs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  executionId: uuid('execution_id').notNull(),
+  workflowName: text('workflow_name').notNull(),
+  entryAgent: text('entry_agent').notNull(),
+  leadId: uuid('lead_id').references(() => leads.id),
+  simulationId: uuid('simulation_id').references(() => simulations.id),
+  marketAnalysisId: uuid('market_analysis_id').references(() => marketAnalyses.id),
+  totalSteps: integer('total_steps').notNull(),
+  totalDurationMs: integer('total_duration_ms').notNull(),
+  totalTokensUsed: integer('total_tokens_used').notNull(),
+  status: swarmRunStatusEnum('status').notNull().default('completed'),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type SwarmRun = typeof swarmRuns.$inferSelect;
+export type NewSwarmRun = typeof swarmRuns.$inferInsert;

@@ -4,10 +4,12 @@ import { agentRegistry } from '../registry';
 import { models } from '../../provider';
 
 export const coordinatorSchema = z.object({
-  next_step: z
-    .enum(['extractor', 'finance', 'marketing', 'strategy', 'done'])
-    .describe('Which agent should run next, or done if all analysis is complete'),
-  reason: z.string().describe('Why this decision was made based on current context'),
+  reasoning: z
+    .string()
+    .describe(
+      'Analysis of the current pipeline state and why the chosen next agent was selected. ' +
+      'If all required agents have run and strategy has completed, explain that execution is finished.',
+    ),
   confidence: z.number().min(0).max(100),
 });
 
@@ -16,22 +18,23 @@ export const coordinatorSwarmAgent = defineAgent({
   instructions: `You are a routing coordinator for a multi-agent lead-scoring pipeline.
 
 You receive outputs from completed agents and decide which agent should run next.
+Use _handoff.nextAgent to route, or set _handoff to null when execution is complete.
 
 Routing logic:
-1. After "extractor" completes: route to "finance" if extraction confidence > 50, else "strategy" for fallback scoring
-2. After "finance" completes: route to "marketing" if financial health > 30, else "strategy" with disqualify recommendation
-3. After "marketing" completes: route to "strategy" for final synthesis
-4. If "strategy" has already run: route to "done"
+1. After "extractor": route to "finance" if extraction confidence > 50, else skip to "strategy" with a disqualify note.
+2. After "finance": route to "marketing" if financial_health_score > 30, else skip to "strategy".
+3. After "marketing": always route to "strategy" for final synthesis.
+4. After "strategy" has run: set _handoff to null — execution is complete.
 
-You can also repeat an agent if the context was insufficient (e.g., rerun finance with additional data).
-When all analysis is complete, set next_step = "done".`,
+Never route to an agent that has already run in this session (check EXECUTION HISTORY).
+Never route to yourself.`,
   model: models.fast,
   schema: coordinatorSchema,
   handoffs: [
     { agentName: 'extractor', description: 'Extracts structured business data from raw text' },
     { agentName: 'finance', description: 'Analyzes financial health and budget capacity' },
-    { agentName: 'marketing', description: 'Analyzes messaging fit and pain points' },
-    { agentName: 'strategy', description: 'Synthesizes all analysis into final recommendation' },
+    { agentName: 'marketing', description: 'Analyzes messaging fit and identifies pain points' },
+    { agentName: 'strategy', description: 'Synthesizes all analysis into the final recommendation' },
   ],
   tools: [],
   capabilities: ['routing', 'coordination'],

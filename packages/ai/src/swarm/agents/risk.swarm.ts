@@ -26,9 +26,7 @@ mitigations the workspace could adopt.
 Ground every claim in the data seed. Clinical tone, no buzzwords.`,
   model: models.standard,
   schema: riskSwarmSchema,
-  handoffs: [
-    { agentName: 'market-synthesizer', description: 'Reconciles all market perspectives into a report' },
-  ],
+  handoffs: [], // terminal — parallel fan-out agents don't route; market-coordinator handles that
   tools: [],
   capabilities: ['analysis', 'market', 'risk'],
 });

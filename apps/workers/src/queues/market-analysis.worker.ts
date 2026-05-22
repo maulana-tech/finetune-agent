@@ -12,6 +12,7 @@ import {
   agentLogs,
   marketAnalyses,
   marketData,
+  swarmRuns,
   type MarketAnalysisResult,
 } from '@repo/db';
 import type { MarketAnalysisJobPayload } from '@repo/shared';
@@ -114,6 +115,8 @@ export const startMarketAnalysisWorker = () => {
               step.stepNumber === 1 ? { [step.agentName]: step.output } : null,
             durationMs: step.durationMs,
             tokensUsed: step.tokensUsed,
+            handoffFrom: step.handoffFrom ?? null,
+            parallelGroup: step.parallelGroup ?? null,
           });
         }
 
@@ -141,6 +144,21 @@ export const startMarketAnalysisWorker = () => {
             completedAt: new Date(),
           })
           .where(eq(marketAnalyses.id, marketAnalysisId));
+
+        // Record the swarm run for observability
+        if (useSwarm) {
+          await db.insert(swarmRuns).values({
+            workspaceId,
+            executionId,
+            workflowName: 'market-analysis',
+            entryAgent: 'market-coordinator',
+            marketAnalysisId,
+            totalSteps: steps.length,
+            totalDurationMs,
+            totalTokensUsed,
+            status: 'completed',
+          });
+        }
 
         console.log(
           `[MarketAnalysis] Completed ${marketAnalysisId} opp=${finalView.opportunity_score} risk=${finalView.risk_level}`,
@@ -185,7 +203,7 @@ export const startMarketAnalysisWorker = () => {
 
 function swarmStepsToOrchestratorSteps(
   result: SwarmRunResult,
-): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number; handoffFrom?: string; parallelGroup?: string }[] {
   return result.steps.map((s, i) => ({
     agentName: s.agentName,
     stepNumber: i + 1,
@@ -194,6 +212,8 @@ function swarmStepsToOrchestratorSteps(
     confidence: s.confidence,
     durationMs: s.durationMs,
     tokensUsed: s.tokensUsed,
+    handoffFrom: s.handoffFrom,
+    parallelGroup: s.parallelGroup,
   }));
 }
 

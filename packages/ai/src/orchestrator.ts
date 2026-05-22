@@ -38,6 +38,8 @@ export interface OrchestratorOutput {
     confidence: number;
     durationMs: number;
     tokensUsed?: number;
+    handoffFrom?: string;
+    parallelGroup?: string;
   }[];
   finalRecommendation: {
     priorityScore: number;

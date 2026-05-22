@@ -2,6 +2,7 @@ import { Swarm } from '../run-loop';
 import { agentRegistry } from '../registry';
 import { createSwarmContext } from '../context';
 import { SwarmRunResult } from '../types';
+import '../agents/finsim-coordinator.swarm';
 import '../agents/owner.swarm';
 import '../agents/supplier.swarm';
 import '../agents/customer.swarm';
@@ -30,6 +31,16 @@ export interface FinanceSimulationSwarmInput {
   };
 }
 
+/**
+ * Finance Simulation Swarm
+ *
+ * Topology:
+ *   finsim-coordinator
+ *     ↓ _parallel fan-out
+ *   [owner ∥ supplier ∥ customer ∥ bank]   (4 agents, concurrent)
+ *     ↓ all complete
+ *   finsim-synthesizer                      (terminal)
+ */
 export async function runFinanceSimulationSwarm(
   input: FinanceSimulationSwarmInput,
 ): Promise<SwarmRunResult> {
@@ -44,5 +55,5 @@ export async function runFinanceSimulationSwarm(
   });
 
   const swarm = new Swarm(agentRegistry);
-  return swarm.run('owner', context);
+  return swarm.run('finsim-coordinator', context);
 }

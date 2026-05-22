@@ -25,9 +25,7 @@ external credit or restructuring under the scenario.
 Ground every claim in the scenario parameters. Be clinical, no buzzwords.`,
   model: models.standard,
   schema: bankSwarmSchema,
-  handoffs: [
-    { agentName: 'finsim-synthesizer', description: 'Reconciles all stakeholder views into a unified forecast' },
-  ],
+  handoffs: [], // terminal — parallel fan-out agents don't route; finsim-coordinator handles that
   tools: [],
   capabilities: ['simulation', 'finance', 'stakeholder'],
 });

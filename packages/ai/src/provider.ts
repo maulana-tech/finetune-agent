@@ -13,7 +13,7 @@ export const anthropic = createAnthropic({
 export const defaultModel = nvidia('meta/llama-3.1-70b-instruct');
 export const fastModel = nvidia('meta/llama-3.1-8b-instruct');
 export const heavyModel = process.env.ANTHROPIC_API_KEY
-  ? anthropic('claude-sonnet-4-20250514')
+  ? anthropic('claude-sonnet-4-6')
   : nvidia('meta/llama-3.1-70b-instruct');
 
 export const models = {

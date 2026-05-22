@@ -23,6 +23,11 @@ export class JobsService {
     return { jobId: job.id };
   }
 
+  // Alias used by ScrapeSchedulesService (scheduleId-aware path)
+  async queueScrape(payload: ScrapeJobPayload) {
+    return this.queueMapScrape(payload);
+  }
+
   async queueOrchestratedAI(payload: {
     leadId: string;
     workspaceId: string;

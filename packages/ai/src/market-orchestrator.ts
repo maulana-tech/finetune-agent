@@ -46,6 +46,8 @@ export interface MarketOrchestratorStep {
   confidence: number;
   durationMs: number;
   tokensUsed?: number;
+  handoffFrom?: string;
+  parallelGroup?: string;
 }
 
 export interface MarketOrchestratorResult {

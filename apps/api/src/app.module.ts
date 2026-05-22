@@ -4,6 +4,8 @@ import { JobsModule } from './jobs/jobs.module';
 import { WorkflowsModule } from './workflows/workflows.module';
 import { FinanceModule } from './finance/finance.module';
 import { MarketModule } from './market/market.module';
+import { ScrapeSchedulesModule } from './scrape-schedules/scrape-schedules.module';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { MarketModule } from './market/market.module';
     WorkflowsModule,
     FinanceModule,
     MarketModule,
+    ScrapeSchedulesModule,
+    LeadsModule,
   ],
   controllers: [],
   providers: [],

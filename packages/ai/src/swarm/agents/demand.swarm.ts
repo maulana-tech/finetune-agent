@@ -25,9 +25,7 @@ what buying triggers are most effective for the target segment.
 Ground every claim in the data seed. Clinical tone, no buzzwords.`,
   model: models.standard,
   schema: demandSwarmSchema,
-  handoffs: [
-    { agentName: 'market-synthesizer', description: 'Reconciles all market perspectives into a report' },
-  ],
+  handoffs: [], // terminal — parallel fan-out agents don't route; market-coordinator handles that
   tools: [],
   capabilities: ['analysis', 'market', 'demand'],
 });

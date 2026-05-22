@@ -28,6 +28,17 @@ export interface SwarmAgent {
   maxIterations?: number;
 }
 
+/**
+ * Parallel fan-out instruction emitted by coordinator agents.
+ * The run-loop runs all listed agents concurrently via Promise.all,
+ * stores results under `groupKey`, then routes to `nextAfterAll`.
+ */
+export interface ParallelFanOut {
+  agents: string[];
+  groupKey: string;
+  nextAfterAll: string;
+}
+
 export interface SwarmContext {
   executionId: string;
   workspaceId: string;
@@ -63,6 +74,12 @@ export interface SwarmRunResult {
     durationMs: number;
     tokensUsed?: number;
     handoff?: string;
+    /** Which agent handed off to this one. */
+    handoffFrom?: string;
+    /** Set for agents run inside a parallel fan-out group. */
+    parallelGroup?: string;
+    /** Tool calls made during this step. */
+    toolCalls?: { toolName: string; result: unknown }[];
   }[];
   finalOutput: unknown;
   totalDurationMs: number;

@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import * as schema from '../schema/all';
 import type {
   NewTransaction,
+  NewScrapeSchedule,
   SimulationScenarioParams,
   CashflowForecastPoint,
 } from '../schema/all';
@@ -37,6 +38,7 @@ async function main() {
   await seedTransactions();
   await seedLeads();
   await seedSimulations();
+  await seedScrapeSchedules();
 
   console.log('✅ Seed complete');
   await pool.end();
@@ -679,6 +681,44 @@ async function insertAgentLogs(
       tokensUsed: r.data.tokensUsed,
     })),
   );
+}
+
+/* =============================================================
+   Scrape schedules — 12 UMKM categories for Jakarta
+   ============================================================= */
+const SCRAPE_SCHEDULE_DEFS: { category: string; query: string; intervalMinutes: number }[] = [
+  { category: 'Kesehatan',         query: 'klinik jakarta',            intervalMinutes: 720 },
+  { category: 'Kuliner',           query: 'warung makan jakarta',      intervalMinutes: 720 },
+  { category: 'Otomotif',          query: 'bengkel motor jakarta',     intervalMinutes: 1440 },
+  { category: 'Pendidikan',        query: 'bimbel jakarta',            intervalMinutes: 1440 },
+  { category: 'Kecantikan',        query: 'salon kecantikan jakarta',  intervalMinutes: 720 },
+  { category: 'Ritel Pakaian',     query: 'toko baju jakarta',         intervalMinutes: 1440 },
+  { category: 'Percetakan',        query: 'percetakan jakarta',        intervalMinutes: 1440 },
+  { category: 'Properti',          query: 'agen properti jakarta',     intervalMinutes: 2880 },
+  { category: 'Logistik',          query: 'jasa pengiriman jakarta',   intervalMinutes: 1440 },
+  { category: 'Teknologi',         query: 'service laptop jakarta',    intervalMinutes: 1440 },
+  { category: 'Kopi & Minuman',    query: 'coffee shop jakarta',       intervalMinutes: 720 },
+  { category: 'Furnitur & Dekor',  query: 'toko furnitur jakarta',     intervalMinutes: 2880 },
+];
+
+async function seedScrapeSchedules() {
+  await db
+    .delete(schema.scrapeSchedules)
+    .where(eq(schema.scrapeSchedules.workspaceId, WORKSPACE_ID));
+
+  const rows: NewScrapeSchedule[] = SCRAPE_SCHEDULE_DEFS.map((def) => ({
+    workspaceId: WORKSPACE_ID,
+    category: def.category,
+    query: def.query,
+    limitPerRun: 30,
+    isActive: true,
+    intervalMinutes: def.intervalMinutes,
+    maxRetries: 3,
+    retryDelayMinutes: 60,
+  }));
+
+  await db.insert(schema.scrapeSchedules).values(rows);
+  console.log(`  · ${rows.length} scrape schedules inserted`);
 }
 
 /* =============================================================

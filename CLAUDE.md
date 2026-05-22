@@ -84,7 +84,14 @@ Current tables:
 - `leads` — business records (name, address, lat/lng, category, pipeline stage)
 - `jobs` — scrape job queue metadata
 - `ai_insights` — AI-generated sales analysis per lead
-- `market_reports` — aggregated insights
+- `lead_scores` — final aggregated scores from lead-scoring pipeline
+- `agent_logs` — reasoning trace for all agent pipelines (shared; nullable FKs to leadId/simulationId/marketAnalysisId; `handoffFrom` + `parallelGroup` for swarm observability)
+- `simulations` — finance simulation rows (scenarioParams, cashflowForecast, riskLevel, status)
+- `transactions` — bookkeeping rows that seed finance simulations
+- `market_analyses` — market analysis runs (status enum: pending/running/completed/failed; riskLevel enum: low/medium/high/critical)
+- `market_data` — scraped market data points (source enum: google_maps/web_scrape/manual/news_feed/social; type enum tags each record)
+- `market_reports` — aggregated market insights
+- `swarm_runs` — 1 row per swarm workflow execution (executionId, workflowName, entryAgent, totalSteps, status; nullable FKs to leadId/simulationId/marketAnalysisId)
 
 **Important:** All UUIDs use `uuid().defaultRandom()` (UUID v4). Foreign keys enforce referential integrity. Every tenant table has `workspaceId` column.
 
@@ -98,7 +105,7 @@ Current tables:
 - Default: `meta/llama-3.1-70b-instruct` (finance, marketing, strategy)
 - Fast: `meta/llama-3.1-8b-instruct` (extractor)
 
-**Two multi-agent systems run on this stack — they share the `agent_logs` table for reasoning transparency but use independent orchestrators with different topologies.**
+**Three multi-agent pipelines plus a Swarm runtime — all share the `agent_logs` table for reasoning transparency.**
 
 ### A. Lead-scoring pipeline — sequential, context-passing
 
@@ -168,6 +175,72 @@ API surface (`apps/api/src/finance/finance.controller.ts`):
 - `POST /finance/transactions`, `GET /finance/transactions`, `DELETE /finance/transactions/:id`
 - `POST /finance/simulations` (triggers run), `GET /finance/simulations`, `GET /finance/simulations/:id` (returns simulation + full agent reasoning trace)
 
+### C. Market Analysis pipeline — parallel perspectives + synthesizer
+
+4 perspective agents run **in parallel**, then a synthesizer produces an opportunity score + positioning recommendation:
+
+```
+      ┌── Competitor ─┐
+      ├── Trend ──────┤  (parallel)
+      ├── Risk ───────┤
+      └── Demand ─────┘
+              │
+              ▼
+         Synthesizer  → opportunity score + risk level + positioning
+```
+
+Key files:
+- `packages/ai/src/market-orchestrator.ts` — `runMarketAnalysis(input)` (Promise.all over 4 agents, then synthesizer)
+- `packages/ai/src/agents/market-sim/{competitor,trend,risk,demand,synthesizer}.ts`
+- `packages/db/src/schema/market_analyses.ts` — analysis row (scenarioParams, opportunityScore, riskLevel, status)
+- `packages/db/src/schema/market_data.ts` — scraped market data that feeds the analysis
+
+API surface (`apps/api/src/market/market.controller.ts`):
+- `POST /market/data`, `GET /market/data`, `DELETE /market/data/:id`
+- `POST /market/scrape` — triggers market scrape worker
+- `POST /market/analyses`, `GET /market/analyses`, `GET /market/analyses/:id`
+
+### D. Swarm runtime — dynamic handoff architecture
+
+`packages/ai/src/swarm/` replaces the three hardcoded orchestrators above. It enables dynamic routing (agents decide who runs next), parallel fan-out, per-agent tool use, and per-agent model selection.
+
+Key abstractions:
+- `Swarm` class (`run-loop.ts`) — main execution loop; calls `generateObject`, reads `_handoff`/`_parallel`/`_toolCall` control fields, routes accordingly
+- `AgentRegistry` (`registry.ts`) — global registry; agents self-register with name, instructions, Zod schema, handoff targets, tools, and model
+- `withHandoff` (`handoff.ts`) — injects `_handoff: { nextAgent, contextToPass, reason } | null` into any Zod schema for routing
+- `withToolCall` (`run-loop.ts`) — injects `_toolCall: { toolName, params } | null`; only added when agent declares tools and tool budget not exhausted
+- `SwarmContext` (`types.ts`) — shared mutable context (executionId, agentOutputs Map, tokenUsage, iterationCount)
+
+**Routing modes (run-loop handles all three):**
+1. **Sequential handoff** — agent emits `_handoff.nextAgent`; run-loop routes there, passing optional `contextToPass`
+2. **Parallel fan-out** — coordinator emits `_parallel: { agents, groupKey, nextAfterAll }`; run-loop executes all agents via `Promise.all`, stores results under `groupKey` in accumulated context, then routes to `nextAfterAll`
+3. **Tool sub-loop** — agent emits `_toolCall`; run-loop executes the tool, merges result into `_tool_results`, re-runs the agent (up to `agent.maxIterations ?? 3` times), then proceeds
+
+**Observability fields on every step:**
+- `handoffFrom` — which agent handed off to this one (enables full trace reconstruction)
+- `parallelGroup` — set for agents run inside a parallel fan-out group
+
+Swarm agents live in `packages/ai/src/swarm/agents/*.swarm.ts`. Coordinator agents for parallel workflows:
+- `coordinator.swarm.ts` — lead-scoring coordinator (routes to extractor entry)
+- `finsim-coordinator.swarm.ts` — emits `_parallel` for `[owner, supplier, customer, bank]`
+- `market-coordinator.swarm.ts` — emits `_parallel` for `[competitor, trend, risk, demand]`
+
+Swarm workflows in `packages/ai/src/swarm/workflows/*.workflow.ts`:
+- `lead-scoring.workflow.ts` → `runLeadScoringSwarm(input)`
+- `finance-simulation.workflow.ts` → `runFinanceSimulationSwarm(input)` — entry: `finsim-coordinator`
+- `market-analysis.workflow.ts` → `runMarketAnalysisSwarm(input)` — entry: `market-coordinator`
+
+`MAX_SWARM_ITERATIONS` in `types.ts` guards against infinite loops.
+
+Toggle via `USE_SWARM_AGENTS=true` env var — all 3 workers fall back to legacy orchestrators when unset.
+
+**DB observability (written per-run when swarm is active):**
+- `swarm_runs` table — 1 row per workflow run (executionId, workflowName, entryAgent, totalSteps, status, nullable FKs to leadId/simulationId/marketAnalysisId)
+- `agent_logs.handoffFrom` — which agent handed off to this one
+- `agent_logs.parallelGroup` — set for parallel fan-out agents
+
+See `docs/swarm-ai-plan.md` for full migration plan and multi-model strategy (8B/70B/405B tiers).
+
 See `COMPETITION.md` for the lead-scoring architecture explanation.
 
 ## Queue Architecture
@@ -178,6 +251,16 @@ See `COMPETITION.md` for the lead-scoring architecture explanation.
 - `scrape-map` — triggers Python scraper for lead extraction
 - `orchestrated-ai-queue` — runs lead-scoring multi-agent pipeline
 - `finance-simulation-queue` — runs finance multi-agent simulation pipeline
+- `market-analysis-queue` — runs market analysis multi-agent pipeline
+- `market-scrape-queue` — triggers market data scraping
+
+**Workers** (`apps/workers/src/queues/`):
+- `scrape.worker.ts` — spawns Python scraper, writes leads to DB
+- `ai.worker.ts` — runs AI agents per lead, writes `ai_insights`
+- `orchestrated-ai.worker.ts` — runs lead-scoring pipeline
+- `finance-simulation.worker.ts` — runs finance simulation pipeline
+- `market-analysis.worker.ts` — runs market analysis pipeline
+- `market-scrape.worker.ts` — runs market data scraping
 
 **Flow:**
 1. `POST /jobs/scrape` → API validates + pushes to `scrape-map`
@@ -196,7 +279,7 @@ See `COMPETITION.md` for the lead-scoring architecture explanation.
 
 **Routes:**
 - Marketing landing: `/` and `/start` — route group `(marketing)` (Cofounder brand, smooth-scroll via Lenis)
-- Dashboard app: `/dashboard`, `/dashboard/pipelines`, `/dashboard/reports` — route group `(app)`
+- Dashboard app: `/dashboard`, `/dashboard/pipelines`, `/dashboard/reports`, `/dashboard/finance`, `/dashboard/market` — route group `(app)`
 
 **Map:** MapLibre GL JS (`maplibre-gl` + `react-map-gl` wrapper)
 
@@ -266,6 +349,7 @@ The Cofounder marketing site is folded into `apps/web` under the `(marketing)` r
 
 - `docs/tech-stack.md` — authoritative tech-stack reference (libraries, services, tools by layer)
 - `docs/roadmap.md` — hackathon roadmap (5 features A-E with file touchpoints + time estimates)
+- `docs/swarm-ai-plan.md` — full Swarm migration plan: multi-model strategy, per-phase implementation steps, risk/mitigation
 - `CONTEXT.md` — full product vision and feature roadmap
 - `AGENTS.md` — detailed technical guidance for AI agents (overlaps with this file, but includes more granular notes)
 - `DEPLOY.md` — Vercel + SumoPod split deploy walkthrough (Indonesian)

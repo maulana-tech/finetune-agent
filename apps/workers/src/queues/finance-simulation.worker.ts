@@ -11,6 +11,7 @@ import {
   db,
   agentLogs,
   simulations,
+  swarmRuns,
   transactions,
   type CashflowForecastPoint,
 } from '@repo/db';
@@ -127,6 +128,8 @@ export const startFinanceSimulationWorker = () => {
               step.stepNumber === 1 ? { [step.agentName]: step.output } : null,
             durationMs: step.durationMs,
             tokensUsed: step.tokensUsed,
+            handoffFrom: step.handoffFrom ?? null,
+            parallelGroup: step.parallelGroup ?? null,
           });
         }
 
@@ -154,6 +157,21 @@ export const startFinanceSimulationWorker = () => {
             completedAt: new Date(),
           })
           .where(eq(simulations.id, simulationId));
+
+        // Record the swarm run for observability
+        if (useSwarm) {
+          await db.insert(swarmRuns).values({
+            workspaceId,
+            executionId,
+            workflowName: 'finance-simulation',
+            entryAgent: 'finsim-coordinator',
+            simulationId,
+            totalSteps: steps.length,
+            totalDurationMs,
+            totalTokensUsed,
+            status: 'completed',
+          });
+        }
 
         console.log(
           `[FinanceSim] Completed ${simulationId} risk=${finalForecast.risk_level}`
@@ -197,7 +215,7 @@ export const startFinanceSimulationWorker = () => {
 
 function swarmStepsToOrchestratorSteps(
   result: SwarmRunResult,
-): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number }[] {
+): { agentName: string; stepNumber: number; output: any; reasoning: string; confidence: number; durationMs: number; tokensUsed?: number; handoffFrom?: string; parallelGroup?: string }[] {
   return result.steps.map((s, i) => ({
     agentName: s.agentName,
     stepNumber: i + 1,
@@ -206,6 +224,8 @@ function swarmStepsToOrchestratorSteps(
     confidence: s.confidence,
     durationMs: s.durationMs,
     tokensUsed: s.tokensUsed,
+    handoffFrom: s.handoffFrom,
+    parallelGroup: s.parallelGroup,
   }));
 }
 

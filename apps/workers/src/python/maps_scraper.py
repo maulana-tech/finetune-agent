@@ -40,24 +40,22 @@ def scrape_maps(query: str, limit: int):
             lat, lng = None, None
             snippet = ''
 
+            maps_url = ''
             try:
                 link = card.query_selector('a.hfpxzc')
                 if link:
                     href = link.get_attribute('href') or ''
                     lat, lng = coords_from_href(href)
+                    maps_url = href.split('?')[0] if href else ''
             except Exception:
                 pass
-
-            try:
-                detail = card.query_selector('[role="article"] > div > div > div')
-            except Exception:
-                detail = None
 
             results.append({
                 "name": name,
                 "address": '',
                 "phone": '',
                 "website": '',
+                "maps_url": maps_url,
                 "lat": lat,
                 "lng": lng,
                 "category": query,

@@ -22,6 +22,9 @@ export { riskAgent } from './agents/market-sim/risk';
 export { demandAgent } from './agents/market-sim/demand';
 export { marketSynthesizerAgent } from './agents/market-sim/synthesizer';
 
+// SQL search agent (natural-language → SQL for leads table)
+export { generateLeadsSearchSql } from './agents/sql-search';
+
 // Swarm AI Agent System (v2 — replaces old orchestrators)
 export * from './swarm';
 export { runLeadScoringSwarm } from './swarm/workflows/lead-scoring.workflow';

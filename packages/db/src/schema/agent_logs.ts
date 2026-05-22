@@ -35,5 +35,9 @@ export const agentLogs = pgTable('agent_logs', {
   durationMs: integer('duration_ms'), // execution time
   tokensUsed: integer('tokens_used'), // LLM token consumption
 
+  // Swarm observability
+  handoffFrom: text('handoff_from'), // which agent handed off to this one
+  parallelGroup: text('parallel_group'), // set for agents run in parallel fan-out
+
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

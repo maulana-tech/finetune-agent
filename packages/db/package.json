@@ -13,7 +13,7 @@
     "migrate": "dotenv -e ../../.env -- drizzle-kit migrate",
     "push": "dotenv -e ../../.env -- drizzle-kit push",
     "studio": "dotenv -e ../../.env -- drizzle-kit studio",
-    "seed": "tsx src/seed/seed.ts"
+    "seed": "dotenv -e ../../.env -- tsx src/seed/seed.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

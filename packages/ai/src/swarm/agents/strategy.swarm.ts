@@ -28,7 +28,7 @@ Synthesize all signals and provide:
 
 Use clinical strategic tone. NO buzzwords.
 If agents gave contradictory signals, explain how you resolved them.`,
-  model: models.standard,
+  model: models.heavy,
   schema: strategySwarmSchema,
   handoffs: [], // terminal agent
   tools: [],

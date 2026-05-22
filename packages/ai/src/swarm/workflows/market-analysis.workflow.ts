@@ -2,6 +2,7 @@ import { Swarm } from '../run-loop';
 import { agentRegistry } from '../registry';
 import { createSwarmContext } from '../context';
 import { SwarmRunResult } from '../types';
+import '../agents/market-coordinator.swarm';
 import '../agents/competitor.swarm';
 import '../agents/trend.swarm';
 import '../agents/risk.swarm';
@@ -31,6 +32,16 @@ export interface MarketAnalysisSwarmInput {
   };
 }
 
+/**
+ * Market Analysis Swarm
+ *
+ * Topology:
+ *   market-coordinator
+ *     ↓ _parallel fan-out
+ *   [competitor ∥ trend ∥ risk ∥ demand]   (4 agents, concurrent)
+ *     ↓ all complete
+ *   market-synthesizer                      (terminal)
+ */
 export async function runMarketAnalysisSwarm(
   input: MarketAnalysisSwarmInput,
 ): Promise<SwarmRunResult> {
@@ -44,5 +55,5 @@ export async function runMarketAnalysisSwarm(
   });
 
   const swarm = new Swarm(agentRegistry);
-  return swarm.run('competitor', context);
+  return swarm.run('market-coordinator', context);
 }

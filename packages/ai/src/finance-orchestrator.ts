@@ -51,6 +51,8 @@ export interface FinanceOrchestratorStep {
   confidence: number;
   durationMs: number;
   tokensUsed?: number;
+  handoffFrom?: string;
+  parallelGroup?: string;
 }
 
 export interface FinanceOrchestratorResult {
