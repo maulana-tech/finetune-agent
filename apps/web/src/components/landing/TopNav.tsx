@@ -2,11 +2,8 @@ import Link from "next/link";
 
 const navItems: { label: string; href: string }[] = [
   { label: "Home", href: "/" },
-  { label: "Finder", href: "#" },
-  { label: "CRM", href: "#" },
-  { label: "Reviews", href: "#" },
-  { label: "Pricing", href: "#" },
-  { label: "Log in", href: "#" },
+  { label: "Finder", href: "/start" },
+  { label: "Log in", href: "/login" },
 ];
 
 export default function TopNav({ variant = "light" }: { variant?: "light" | "dark" }) {
@@ -38,7 +35,7 @@ export default function TopNav({ variant = "light" }: { variant?: "light" | "dar
             </Link>
           ))}
           <Link
-            href="#"
+            href="/login"
             className="ml-1 bg-white text-[#0f1115] text-[12.5px] font-medium rounded-full px-3 py-1.5 border border-black/5"
           >
             Find leads
