@@ -3,6 +3,7 @@ import { Search, Map, Star, Mail, Sparkles, Target, Globe, ChevronRight } from "
 import HeroScene from "@/components/landing/HeroScene";
 import SkyScene from "@/components/landing/SkyScene";
 import TopNav from "@/components/landing/TopNav";
+import Footer from "@/components/landing/Footer";
 
 /* Every <Section> fills exactly one viewport and centers its content. */
 function Section({
@@ -516,76 +517,7 @@ export default function Page() {
         <WordSearch />
       </Section>
 
-      {/* =============== FOOTER (1 viewport) =============== */}
-      <section className="bg-[#fbfaf6] border-t border-[#efede6] min-h-screen flex flex-col justify-center">
-        <div className="max-w-[1100px] mx-auto px-6 w-full">
-          <div className="grid md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-10">
-            <div>
-              <h3 className="font-display text-[26px] leading-snug">
-                Find and close more
-                <br />
-                <span className="text-[#6b7180]">B2B deals with uTune AI</span>
-              </h3>
-              <div className="mt-8 flex items-center gap-3 text-[11px] text-[#9aa0aa]">
-                <Link className="font-medium text-[#0f1115]" href="#">Finder</Link>
-                <Link href="#">CRM</Link>
-                <Link href="#">Reviews</Link>
-                <Link href="#">Emails</Link>
-              </div>
-              <div className="mt-3 flex flex-col gap-1.5 text-[12px] text-[#6b7180]">
-                <Link href="/">Homepage</Link>
-                <Link href="#">Pricing</Link>
-              </div>
-            </div>
-            <div className="space-y-2 text-[12px] text-[#6b7180]">
-              <div className="text-[#0f1115] text-[11px] uppercase tracking-wider mb-2">Company</div>
-              <Link className="block" href="#">Privacy Policy</Link>
-              <Link className="block" href="#">Terms of Service</Link>
-              <Link className="block" href="#">Docs</Link>
-            </div>
-            <div className="space-y-2 text-[12px] text-[#6b7180]">
-              <div className="text-[#0f1115] text-[11px] uppercase tracking-wider mb-2">Social</div>
-              <Link className="block" href="#">X</Link>
-              <Link className="block" href="#">in</Link>
-            </div>
-            <Link href="#" className="rounded-xl overflow-hidden relative h-[200px] flex flex-col justify-end">
-              <svg viewBox="0 0 240 180" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
-                <defs>
-                  <linearGradient id="footerSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6cbfff" />
-                    <stop offset="100%" stopColor="#cdeeff" />
-                  </linearGradient>
-                </defs>
-                <rect width="240" height="180" fill="url(#footerSky)" />
-                <ellipse cx="60" cy="40" rx="30" ry="8" fill="#fff" />
-                <ellipse cx="200" cy="60" rx="22" ry="6" fill="#fff" />
-                <path d="M0,140 C60,120 120,160 240,130 L240,180 L0,180 Z" fill="#5fa84d" />
-                <g transform="translate(165,80)">
-                  <rect x="-1" y="18" width="3" height="50" fill="#3d7a2e" />
-                  {Array.from({ length: 12 }).map((_, i) => {
-                    const a = (i * 30 * Math.PI) / 180;
-                    const x = Math.cos(a) * 18;
-                    const y = Math.sin(a) * 18;
-                    return <ellipse key={i} cx={x} cy={y} rx="10" ry="5" transform={`rotate(${i * 30})`} fill="#ffcc3a" />;
-                  })}
-                  <circle r="10" fill="#7a4a1a" />
-                </g>
-              </svg>
-              <div className="relative p-3 text-white text-[11px] leading-snug">
-                <div className="font-medium">uTune AI is a B2B lead generation platform</div>
-                <div className="text-white/90">designed for field sales teams.</div>
-                <span className="inline-block mt-2 bg-white text-[#0f1115] rounded px-2 py-1 text-[10px]">Find leads</span>
-              </div>
-            </Link>
-          </div>
-
-          <div className="mt-16 flex items-center justify-between text-[11px] text-[#9aa0aa]">
-            <div>© uTune AI 2026. Built for field sales teams.</div>
-            <div>Made by KonaKorp</div>
-          </div>
-        </div>
-        <div className="grass-strip mt-8" />
-      </section>
+      <Footer />
     </main>
   );
 }
