@@ -555,7 +555,7 @@ function TeamSection() {
       badgeColor: "bg-blue-100 text-blue-700",
     },
     {
-      name: "Fitri Ayu R",
+      name: "Fitri Ayu Raharjo",
       role: "Product Designer",
       initials: "FA",
       gradient: "from-pink-400 to-rose-500",
