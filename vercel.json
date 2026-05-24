@@ -2,11 +2,5 @@
   "buildCommand": "cd ../.. && pnpm build",
   "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "rewrites": [
-    {
-      "source": "/api-proxy/(.*)",
-      "destination": "http://43.129.54.139:3001/$1"
-    }
-  ]
+  "outputDirectory": ".next"
 }
