@@ -1,6 +1,8 @@
-# Deployment Strategy (Vercel + SumoPod Split)
+# Deployment Strategy (Vercel + VPS)
 
-Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di Vercel (gratis), backend di SumoPod (pakai voucher). Ini memisahkan workload sesuai karakteristiknya: static-ish Next.js cocok di edge serverless, sementara API + AI worker butuh container long-running.
+Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di Vercel (gratis), backend di VPS SumoPod (pakai voucher). Frontend di edge serverless, backend long-running process buat API + AI workers.
+
+**Budget:** Rp 1.550.000 → Rp 90.000/bulan = **~17 bulan** hosting.
 
 ## Arsitektur
 
@@ -10,33 +12,33 @@ Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di V
 │   • Landing: /  /start                       │
 │   • Dashboard: /dashboard/...                │
 │   • /dashboard/finance + /simulations/[id]   │
-│                                              │
-│  Server Components → Supabase Pooler         │
-│  Client Components → SumoPod API (CORS)      │
-└──────────────────────────────────────────────┘
+│                                               │
+│  Server Components → Supabase Pooler          │
+│  Client Components → VPS API (CORS)           │
+└───────────────────────────────────────────────┘
         │                              │
         │ pg pooler :6543              │ HTTPS
         ▼                              ▼
 ┌─────────────┐                ┌─────────────────────────┐
-│  Supabase   │                │  SumoPod (1 container)  │
+│  Supabase   │                │  VPS (Ubuntu 24.04)     │
 │  Postgres   │◄───────────────┤  • apps/api  :3001      │
 │  + Auth     │                │  • apps/workers (BullMQ)│
 └─────────────┘                │    - scrape-map (Python)│
-                               │    - orchestrated-ai    │
-                               │    - finance-simulation │
-                               └─────────┬───────────────┘
-                                         │ outbound HTTPS
-                          ┌──────────────┼──────────────┐
-                          ▼              ▼              ▼
-                     Upstash Redis   NVIDIA NIM   OpenFreeMap
-                     (BullMQ)        (9 agents)   (map tiles)
+                                │    - orchestrated-ai    │
+                                │    - finance-simulation │
+                                └─────────┬───────────────┘
+                                          │ outbound HTTPS
+                           ┌──────────────┼──────────────┐
+                           ▼              ▼              ▼
+                      Upstash Redis   NVIDIA NIM   OpenFreeMap
+                      (BullMQ)        (9 agents)   (map tiles)
 ```
 
 **Workload per platform:**
 | Platform | Berisi | Kenapa di sini |
 |---|---|---|
 | Vercel | Next.js web only | Gratis Hobby, edge cache, CDN otomatis, deploy from git instan |
-| SumoPod | NestJS API + BullMQ workers + Python scraper | Butuh long-running process untuk worker AI + Playwright scraper |
+| VPS | NestJS API + BullMQ workers + Python scraper | Butuh long-running process untuk worker AI + Playwright scraper |
 | Supabase | Postgres + Auth | Sudah managed, free tier 500MB |
 | Upstash | Redis (BullMQ queue) | Free tier 10k commands/day |
 | NVIDIA NIM | LLM inference (9 agents) | External API, gratis untuk dev quota |
@@ -48,24 +50,24 @@ Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di V
 ### 1.1 Connect repo
 
 1. Buka https://vercel.com → Sign in dengan GitHub.
-2. **Add New** → **Project** → pilih repo `finetune-agent` kamu.
+2. **Add New** → **Project** → pilih repo `finetune-agent`.
 3. Di **Configure Project**:
    - **Framework Preset**: Next.js (auto-detect)
-   - **Root Directory**: klik **Edit** → pilih `apps/web` ⚠️ wajib
-   - **Build Command**: biarkan default (Vercel detect Turborepo otomatis dan jalankan `pnpm turbo build --filter=web...`)
-   - **Output Directory**: default (`apps/web/.next`)
-   - **Install Command**: `pnpm install` di root (default)
+   - **Root Directory**: klik **Edit** → pilih `apps/web`
+   - **Build Command**: biarkan default (atau kosongkan manual override, biar `vercel.json` yang handle)
+   - **Output Directory**: default
+   - **Install Command**: default
 
 ### 1.2 Environment Variables di Vercel
 
-Tambahkan via **Settings → Environment Variables** (apply ke Production + Preview + Development):
+via **Settings → Environment Variables** (apply ke Production + Preview + Development):
 
 | Variable | Value | Catatan |
 |---|---|---|
-| `DATABASE_URL` | `postgresql://...pooler.supabase.co:6543/postgres?pgbouncer=true` | ⚠️ **Wajib pakai Pooler URL port 6543**, bukan direct 5432. Lihat catatan di bawah. |
+| `DATABASE_URL` | `postgresql://postgres.xxx:[PASSWORD]@aws-0-region.pooler.supabase.co:6543/postgres?pgbouncer=true` | **Pooler URL port 6543**, wajib pakai pgBouncer biar gak kebanjiran koneksi dari serverless |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` | dari Supabase dashboard |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | dari Supabase dashboard (anon public key) |
-| `NEXT_PUBLIC_API_URL` | `https://api-your-app.sumopod.io` | URL publik SumoPod app kamu (isi setelah Bagian 2 selesai) |
+| `NEXT_PUBLIC_API_URL` | `http://<VPS-IP>:3001` | IP VPS (isi setelah Bagian 2 selesai) |
 
 #### Kenapa Pooler URL?
 Vercel functions = serverless (Lambda). Tiap function instance punya pg pool sendiri. Tanpa pooler, ratusan concurrent Lambda → ribuan koneksi Postgres → Supabase reject. **Supabase Transaction Pooler** (pgBouncer port 6543) handle ini natively.
@@ -78,208 +80,264 @@ Cara dapat Pooler URL:
 
 ### 1.3 Deploy
 
-Klik **Deploy**. First build ~3-5 menit (Vercel install full monorepo, lalu build cuma `apps/web`).
-
-Hasil: URL `https://your-app.vercel.app` (atau custom domain).
-
-### 1.4 Custom Domain (opsional)
-
-**Settings → Domains** → tambahkan domain → ikut instruksi DNS-nya. Free SSL otomatis.
+Klik **Deploy**. Build pertama ~3-5 menit.
 
 ---
 
-## Bagian 2 — Deploy Backend ke SumoPod
+## Bagian 2 — Deploy Backend ke VPS (SumoPod VPS)
 
-### 2.1 Persiapan
+### 2.1 Pilih VPS Plan
 
-File yang sudah disesuaikan untuk split deploy:
-- `Dockerfile` — hanya build `apps/api` + `apps/workers` (skip `apps/web`, lebih cepat ~50%)
-- `ecosystem.config.js` — PM2 cuma jalankan `api` (port 3001) + `workers` (no port)
-- `apps/api/src/main.ts` — CORS sudah env-driven via `ALLOWED_ORIGINS`
+Di dashboard SumoPod → **Infrastructure → VPS → Create VPS**:
 
-### 2.2 Buat App di SumoPod
+| Setting | Pilihan |
+|---|---|
+| Provider | Tencent |
+| Region | Singapore 🇸🇬 |
+| OS | Ubuntu Server 24.04 LTS |
+| Plan | **2 vCPU, 4 GB RAM, 60 GB SSD — Rp 90.000/bulan** |
 
-1. Dashboard SumoPod → **Create App** → connect GitHub → pilih repo.
-2. SumoPod auto-detect `Dockerfile` di root.
-3. **Pilih tier**:
-   - Rekomendasi: **1 vCPU, 1 GB RAM** (cukup untuk api + workers + scrape sesekali)
-   - Jangan paling kecil (512MB) — worker AI bisa OOM saat finance simulation paralel
-4. **Port mapping**: expose `3001` publik (atau pakai feature SumoPod routing).
-5. **Tidak perlu expose port 3000** — Vercel handle web.
+> **Kenapa 4 GB RAM?** Workers perlu memory buat 4 concurrent workers + Python scraper + AI agents. 2 GB cukup untuk coba-coba tapi riskan OOM pas finance simulation paralel.
 
-### 2.3 Environment Variables di SumoPod
+### 2.2 Setup Awal VPS
 
-| Variable | Value | Catatan |
+Setelah VPS aktif, dapat IP + password via dashboard. SSH masuk:
+
+```bash
+ssh root@<VPS-IP>
+# Masukin password dari dashboard
+```
+
+**Update system & install dependencies:**
+
+```bash
+apt update && apt upgrade -y
+apt install -y curl wget git python3 python3-pip python3-venv
+
+# Install Node.js 22 LTS
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
+node -v    # should be v22.x
+
+# Install pnpm
+npm install -g pnpm pm2
+pnpm --version  # should be 9.x
+```
+
+### 2.3 Clone & Build
+
+```bash
+# Clone repo
+git clone https://github.com/maulana-tech/finetune-agent.git /app
+cd /app
+
+# Setup Python virtual environment untuk scraper
+cd apps/workers
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --no-cache-dir -r requirements.txt
+deactivate
+cd /app
+
+# Install semua workspace dependencies
+pnpm install --frozen-lockfile
+
+# Build API + Workers (skip web — nanti di Vercel)
+pnpm turbo build --filter=api --filter=workers
+```
+
+### 2.4 Environment Variables
+
+Buat file `/app/.env`:
+
+```bash
+cat > /app/.env << 'EOF'
+# DB — pakai direct URL port 5432 (VPS long-running, gak butuh pooler)
+DATABASE_URL="postgresql://postgres.xxx:[PASSWORD]@aws-0-region.pooler.supabase.com:5432/postgres"
+
+# Redis (Upstash)
+REDIS_URL="rediss://default:xxx@xxx.upstash.io:6379"
+
+# AI
+NVIDIA_API_KEY="nvapi-..."
+
+# CORS — domain Vercel
+ALLOWED_ORIGINS="https://utune-ai.vercel.app"
+ALLOW_VERCEL_PREVIEWS="true"
+
+# Port API
+PORT=3001
+EOF
+```
+
+### 2.5 Firewall
+
+```bash
+ufw allow 22/tcp        # SSH
+ufw allow 3001/tcp      # API
+ufw enable
+```
+
+### 2.6 Jalankan dengan PM2
+
+```bash
+# Start API
+PORT=3001 NODE_ENV=production pm2 start node --name "api" -- apps/api/dist/main.js
+
+# Start Workers
+NODE_ENV=production pm2 start node --name "workers" -- apps/workers/dist/index.js
+
+# Save PM2 config biar auto-start setelah reboot
+pm2 save
+pm2 startup
+# (ikuti instruksi systemctl yang muncul)
+```
+
+Cek status:
+
+```bash
+pm2 status
+pm2 logs --lines 20
+```
+
+### 2.7 Setup Nginx (Reverse Proxy + SSL — opsional)
+
+Kalo mau akses API via domain (bukan IP:3001):
+
+```bash
+apt install -y nginx certbot python3-certbot-nginx
+```
+
+Buat config `/etc/nginx/sites-available/api`:
+
+```nginx
+server {
+    listen 80;
+    server_name api.domainkamu.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
+ln -s /etc/nginx/sites-available/api /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d api.domainkamu.com
+```
+
+> **Skip step ini kalo mau pake IP langsung** — `NEXT_PUBLIC_API_URL=http://<VPS-IP>:3001` juga works.
+
+### 2.8 Auto-restart Worker (systemd — optional)
+
+Biar worker otomatis restart kalo crash, selain PM2 udah handle ini secara default.
+
+---
+
+## Bagian 3 — Wire-up Vercel → VPS
+
+1. Dapetin IP VPS: `curl ifconfig.me` atau lihat di dashboard SumoPod.
+2. Update **Vercel Environment Variables**:
+   - `NEXT_PUBLIC_API_URL` → `http://<VPS-IP>:3001` (atau `https://api.domainkamu.com` kalo pake SSL)
+3. Di VPS, pastiin `ALLOWED_ORIGINS` di `/app/.env` includes Vercel domain.
+4. Restart API di VPS setelah update `.env`:
+   ```bash
+   pm2 restart api
+   ```
+
+---
+
+## Bagian 4 — Update & Redeploy
+
+### Update code & rebuild di VPS:
+
+```bash
+cd /app
+git pull
+pnpm install --frozen-lockfile
+pnpm turbo build --filter=api --filter=workers
+pm2 restart all
+```
+
+### Update Vercel:
+Push ke GitHub → Vercel auto-deploy.
+
+---
+
+## Verifikasi
+
+### Smoke test
+1. `https://utune-ai.vercel.app/` → landing page render ✓
+2. `https://utune-ai.vercel.app/dashboard` → dashboard render ✓
+3. Cek API: `curl http://<VPS-IP>:3001/api/health` → return JSON ✓
+4. Cek worker log: `pm2 logs workers --lines 20` → worker connected + waiting jobs ✓
+
+### Jika error CORS
+- Pastikan `ALLOWED_ORIGINS` includes `https://utune-ai.vercel.app`
+- Restart API: `pm2 restart api`
+
+### Jika DB connection error
+- Vercel: pastikan pakai **pooler URL port 6543** + `?pgbouncer=true`
+- VPS: bisa pakai direct URL port 5432
+
+---
+
+## Monitoring
+
+```bash
+pm2 status              # status semua process
+pm2 logs api --lines 50 # log API
+pm2 logs workers        # log workers (real-time)
+pm2 monit               # dashboard CPU/memory tiap process
+```
+
+Filter log worker:
+```bash
+pm2 logs workers --lines 100 | grep -E "\[FinanceSim\]|\[OrchestratedAI\]|\[ScrapeWorker\]"
+```
+
+### Cek memory usage:
+```bash
+free -h
+pm2 prettylist | grep -E "name|memory"
+```
+
+---
+
+## Cost Breakdown
+
+| Item | Biaya | Catatan |
 |---|---|---|
-| `DATABASE_URL` | `postgresql://...5432/postgres` | Bisa pakai **direct URL port 5432** karena container long-running — tidak butuh pooler. (Tapi pooler URL juga fine.) |
-| `REDIS_URL` | `rediss://default:xxx@xxx.upstash.io:6379` | Dari Upstash dashboard |
-| `NVIDIA_API_KEY` | `nvapi-...` | Dari https://build.nvidia.com dashboard. **Wajib** — tanpa ini worker AI crash. |
-| `ALLOWED_ORIGINS` | `https://your-app.vercel.app,https://your-app-staging.vercel.app` | ⚠️ **Wajib** untuk Vercel domain bisa call API. Comma-separated. Isi setelah Bagian 1 selesai. |
-| `ALLOW_VERCEL_PREVIEWS` | `true` | Opsional — bolehkan semua `*.vercel.app` preview URL (deploy preview otomatis berfungsi). Set `false` di production untuk lebih ketat. |
-
-### 2.4 Deploy
-
-Klik **Deploy**. Build pertama ~5-8 menit (install Node deps + Python venv + scrapling). 
-
-Setelah jalan, kamu dapat URL `https://api-your-app.sumopod.io`.
-
-### 2.5 Kembali ke Vercel untuk wire-up
-
-1. Copy URL SumoPod (`https://api-your-app.sumopod.io`)
-2. Vercel **Settings → Environment Variables** → update `NEXT_PUBLIC_API_URL` ke URL SumoPod
-3. Vercel **Deployments** → **Redeploy** latest deployment (env var baru effective setelah redeploy)
-
----
-
-## Bagian 3 — Verifikasi Akhir
-
-### 3.1 Smoke test full flow
-1. Buka `https://your-app.vercel.app/` → landing page render ✓
-2. Buka `https://your-app.vercel.app/dashboard/finance` → finance dashboard render (data kosong wajar) ✓
-3. Klik **Add Transaction** → submit → cek di Supabase Studio tabel `transactions` ada row baru ✓
-4. Klik **Run Simulation** → wizard 3 step → submit → otomatis redirect ke `/dashboard/finance/simulations/[id]` ✓
-5. Poller jalan, status `pending` → `running` → `completed` dalam ~30-60 detik ✓
-6. Cek SumoPod **Logs** — harus muncul:
-   ```
-   [FinanceSim] Picked up simulation xxx
-   [FinanceOrchestrator] Running Owner/Supplier/Customer/Bank in parallel
-   [FinanceOrchestrator]   ✓ owner confidence=82% in 12340ms
-   ...
-   [FinanceSim] Completed xxx risk=medium
-   ```
-
-### 3.2 Jika ada error CORS
-- Lihat browser console di Vercel app
-- Pastikan domain Vercel ada di `ALLOWED_ORIGINS` SumoPod env (case-sensitive, include `https://`)
-- Restart SumoPod app setelah update env var
-
-### 3.3 Jika ada error DB connection di Vercel
-- `Too many connections` → ganti `DATABASE_URL` Vercel ke pooler URL (port 6543), bukan direct 5432
-- `getaddrinfo ENOTFOUND` → Supabase project mungkin paused (free tier auto-pause 1 minggu idle), buka dashboard untuk wake-up
+| VPS (2 vCPU, 4GB, 60GB) | Rp 90.000/bulan | Tencent Singapore |
+| Vercel Hobby | Gratis | 100 GB-hours / 1M req |
+| Supabase Free | Gratis | 500MB DB, 2GB bandwidth |
+| Upstash Free | Gratis | 10k cmd/day |
+| NVIDIA NIM | Gratis | Dev quota |
+| **Total/bulan** | **Rp 90.000** | |
+| **Budget** | **Rp 1.550.000** | **≈ 17 bulan** |
 
 ---
 
 ## Tips Hackathon
 
 ### Seed data sebelum demo
-Demo dengan dashboard kosong = boring di mata juri. Sebelum demo:
-1. Run `pnpm db:seed` (kalau seed script sudah ada) — atau insert manual:
-2. Bikin 30-50 transactions realistic (mix income/expense/invoice, span 3-6 bulan terakhir)
-3. Jalankan 1-2 simulations preset (price increase, hiring expansion) supaya history-nya terisi
+Demo dengan dashboard kosong = boring. Sebelum demo:
+1. `pnpm db:seed` (kalau seed script ada) — atau insert manual
+2. Bikin 30-50 transactions realistic (mix income/expense/invoice, span 3-6 bulan)
+3. Jalankan 1-2 simulations preset biar history terisi
 
 ### Iterasi cepat
-- Vercel deploy preview otomatis per PR — manfaatkan untuk demo iterasi
-- SumoPod re-deploy ~5-8 menit — minimize redeploy dengan iterasi lokal dulu
+- Vercel auto-deploy tiap push ke main
+- VPS update: `git pull && pnpm install && pnpm turbo build --filter=api --filter=workers && pm2 restart all`
 
-### Cost monitor
-- SumoPod dashboard → cek **Billing/Usage** weekly. Voucher 150K cukup untuk ~2-3 bulan tier 1GB (verify pricing di panel).
-- Vercel: Hobby tier 100 GB-hours / 1M req/bulan — lebih dari cukup untuk hackathon traffic.
-- NVIDIA NIM: ada quota gratis untuk dev. Bisa habis kalau spam simulation. Cek dashboard NVIDIA Build.
-
-### Yang sengaja TIDAK kita lakukan untuk hackathon
-- ❌ Migrate ke Fly.io / Hetzner — voucher SumoPod cukup
-- ❌ Auth Supabase wiring — dummy `DEV_WORKSPACE_ID` cukup untuk demo
-- ❌ Worker concurrency tuning — default 1 OK untuk demo (judge biasanya trigger 1 simulation, bukan 100)
-- ❌ Caching layer — Next.js edge cache + Supabase query cache sudah cukup
-
----
-
-## Detail Teknis
-
-### Apa yang ada di SumoPod container?
-
-Setelah `Dockerfile` di-update, container berisi:
-
-```
-/app/
-├── node_modules/           ← shared workspace deps
-├── packages/               ← @repo/db, @repo/ai, @repo/shared
-├── apps/
-│   ├── api/dist/           ← NestJS compiled (port 3001)
-│   ├── workers/
-│   │   ├── dist/           ← BullMQ workers compiled
-│   │   └── .venv/          ← Python venv (scrapling + Playwright deps)
-│   └── web/                ← source ada tapi NOT BUILT (Vercel handle)
-└── ecosystem.config.js     ← PM2 starts api + workers only
-```
-
-Saving dari skip web build:
-- Build time: ~50% lebih cepat (Next.js build adalah step terpanjang)
-- Image size: ~150-200MB lebih kecil
-- Iterasi deploy lebih lancar
-
-### Apa yang dijalankan workers?
-
-`apps/workers/src/index.ts` start 4 worker pararel:
-
-```ts
-startScrapeWorker();           // scrape-map (Python scraper)
-startAiWorker();               // legacy (kept for backward compat)
-startOrchestratedAiWorker();   // Lead-scoring: Extractor→Finance→Marketing→Strategy
-startFinanceSimulationWorker();// Finance sim: Owner∥Supplier∥Customer∥Bank → Synthesizer
-```
-
-Total 9 AI agents bisa di-orchestrate, plus scraper Google Maps. Semua jalan dalam 1 process node.js.
-
-### Network egress yang harus diizinkan dari SumoPod
-- `https://integrate.api.nvidia.com` (LLM inference)
-- `https://*.supabase.co` (DB + Auth)
-- `https://*.upstash.io` (Redis BullMQ)
-- `https://www.google.com/maps/*` (scraper — Playwright via scrapling)
-
-Default SumoPod biasanya allow outbound HTTPS. Verify di panel jika ada egress policy.
-
-### Monitoring AI Agents
-
-Selain log PM2 standar, app punya **observability lapisan database** built-in:
-
-#### `agent_logs` — chain-of-thought transparency
-Setiap eksekusi 9 agent di-log dengan: `agentName`, `executionId`, `stepNumber`, `output`, `reasoning`, `confidence`, `durationMs`, `tokensUsed`.
-
-Query token usage harian:
-```sql
-SELECT date_trunc('day', created_at) AS day,
-       agent_name,
-       count(*) AS calls,
-       sum(tokens_used) AS total_tokens,
-       avg(duration_ms) AS avg_ms,
-       avg(confidence) AS avg_conf
-FROM agent_logs
-WHERE created_at > now() - interval '7 days'
-GROUP BY 1, 2
-ORDER BY 1 DESC, 4 DESC;
-```
-
-#### `simulations` & `lead_scores`
-- `simulations.status` (`pending`/`running`/`completed`/`failed`)
-- `simulations.errorMessage` (filled when failed)
-- `simulations.totalDurationMs`, `simulations.totalTokensUsed`
-
-Detect stuck jobs:
-```sql
-SELECT id, title, status, created_at
-FROM simulations
-WHERE status IN ('pending', 'running')
-  AND created_at < now() - interval '5 minutes';
-```
-
-### Manajemen Log di SumoPod
-Buka **Logs** di SumoPod dashboard. Filter prefix:
-- `[OrchestratedAI]` — lead-scoring pipeline
-- `[FinanceSim]` — finance simulation worker
-- `[FinanceOrchestrator]` — per-step orchestrator
-- `[ScrapeWorker]` — Google Maps scraper
-
-Contoh output 1 simulation sukses:
-```
-[FinanceSim] Picked up simulation abc-123
-[FinanceOrchestrator] Starting execution xyz for simulation abc-123
-[FinanceOrchestrator] Running Owner/Supplier/Customer/Bank in parallel
-[FinanceOrchestrator]   ✓ owner confidence=82% in 12340ms
-[FinanceOrchestrator]   ✓ supplier confidence=75% in 14200ms
-[FinanceOrchestrator]   ✓ customer confidence=80% in 11800ms
-[FinanceOrchestrator]   ✓ bank confidence=70% in 15600ms
-[FinanceOrchestrator] Running Synthesizer with 4 stakeholder views
-[FinanceOrchestrator] Done. risk=medium confidence=78% total=32100ms tokens=4820
-[FinanceSim] Completed abc-123 risk=medium
-```
+### Yang sengaja TIDAK dilakukan untuk hackathon
+- ❌ Auth Supabase wiring — dummy `DEV_WORKSPACE_ID` cukup
+- ❌ Worker concurrency tuning — default 1 OK
+- ❌ Caching layer — Next.js edge cache + Supabase query cache cukup
+- ❌ Monitoring infrastructure — PM2 + DB queries cukup
