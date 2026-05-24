@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, Map, Star, Sparkles, Globe, ChevronRight, Database, Cpu, GitBranch, Layers, Zap, Shield } from "lucide-react";
+import { Search, Map, Star, Sparkles, Globe, ChevronRight, Database, Cpu, GitBranch, Layers, Zap, Shield, Target } from "lucide-react";
 import HeroScene from "@/components/landing/HeroScene";
 import SkyScene from "@/components/landing/SkyScene";
 import TopNav from "@/components/landing/TopNav";
