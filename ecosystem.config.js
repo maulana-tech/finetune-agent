@@ -9,8 +9,8 @@ module.exports = {
   apps: [
     {
       name: "api",
-      script: "node",
-      args: "apps/api/dist/main.js",
+      script: "apps/api/dist/main.js",
+      interpreter: "tsx",
       env: {
         NODE_ENV: "production",
         PORT: 3001
@@ -18,8 +18,8 @@ module.exports = {
     },
     {
       name: "workers",
-      script: "node",
-      args: "apps/workers/dist/index.js",
+      script: "apps/workers/dist/index.js",
+      interpreter: "tsx",
       env: {
         NODE_ENV: "production"
       }
