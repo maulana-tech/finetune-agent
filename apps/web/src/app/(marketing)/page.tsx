@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, Map, Star, Mail, Sparkles, Target, Globe, ChevronRight } from "lucide-react";
+import { Search, Map, Star, Sparkles, Globe, ChevronRight, Database, Cpu, GitBranch, Layers, Zap, Shield } from "lucide-react";
 import HeroScene from "@/components/landing/HeroScene";
 import SkyScene from "@/components/landing/SkyScene";
 import TopNav from "@/components/landing/TopNav";
@@ -272,172 +272,34 @@ export default function Page() {
       {/* =============== STICKY SCROLL — SEARCH › ENRICH › ANALYZE › CLOSE =============== */}
       <StickyFeatureSection />
 
-      {/* =============== FEATURE 1: BUSINESS FINDER =============== */}
-      <Section className="bg-[#fbfaf6]">
-        <FeatureRow
-          icon={<Search className="size-[18px]" />}
-          title="Search millions of businesses by industry and location"
-          desc="Search by country, region, province, city — or draw a custom polygon on the map. Run multiple keywords per job and get names, addresses, phones, websites, and hours in seconds."
-          cta="Try Business Finder"
-        >
-          <div className="grid grid-cols-3 gap-2">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="card p-3 h-[88px]">
-                <div className="h-2 w-3/4 bg-[#efede6] rounded mb-2" />
-                <div className="h-1.5 w-1/2 bg-[#efede6] rounded mb-1" />
-                <div className="h-1.5 w-2/3 bg-[#efede6] rounded" />
-              </div>
-            ))}
-          </div>
-        </FeatureRow>
-      </Section>
+      {/* =============== ARCHITECTURE =============== */}
+      <ArchitectureSection />
 
-      {/* =============== FEATURE 2: MAPPED CRM =============== */}
-      <Section className="bg-[#fbfaf6]">
-        <FeatureRow
-          icon={<Map className="size-[18px]" />}
-          title="Every lead is a pin on a real interactive map"
-          desc="Import leads directly to your map. Filter by rating, pipeline stage, assigned rep, or area. Slide open the lead detail panel without leaving the map view."
-          cta="Explore CRM Features"
-        >
-          <div className="grid grid-cols-[1.3fr_1fr] gap-3">
-            <div className="card p-4">
-              <div className="text-[12px] font-medium mb-2">Your leads on a map</div>
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-11/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-10/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-9/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-11/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-7/12 bg-[#efede6] rounded" />
-              </div>
-              <div className="mt-3 rounded-md h-[64px] bg-gradient-to-b from-[#cfeefc] to-[#a8dcff]" />
-            </div>
-            <div className="card p-3">
-              <div className="text-[11px] text-[#9aa0aa] mb-1.5">Lead: Dental Clinic</div>
-              <div className="space-y-1.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <div className="h-1.5 flex-1 bg-[#efede6] rounded" />
-                  </div>
-                ))}
-              </div>
-              <button className="mt-3 w-full bg-[#0f1115] text-white text-[11px] rounded py-1.5">View details</button>
-            </div>
-          </div>
-        </FeatureRow>
-      </Section>
+      {/* =============== TECH STACK =============== */}
+      <TechStackSection />
 
-      {/* =============== FEATURE 3: SMART REVIEWS =============== */}
-      <Section className="bg-[#fbfaf6]">
-        <FeatureRow
-          icon={<Star className="size-[18px]" />}
-          title="AI-powered review analysis per lead"
-          desc="Pull Google reviews for every lead. Sort by rating, detect recurring complaints, and get AI summaries in your chosen language. Know each prospect before you reach out."
-          cta="See Smart Reviews"
-        >
-          <div className="grid grid-cols-[1.2fr_1fr] gap-3">
-            <div className="card p-4">
-              <div className="text-[12px] font-medium mb-2">Review Summary</div>
-              <div className="space-y-1.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex gap-2">
-                    <div className="w-16 h-1.5 bg-[#efede6] rounded" />
-                    <div className="flex-1 h-1.5 bg-[#efede6] rounded" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="card p-4">
-              <div className="text-[11px] text-[#9aa0aa]">Avg rating</div>
-              <div className="text-[28px] font-display">3.8</div>
-              <div className="h-2 rounded-full bg-[#efede6] overflow-hidden mt-2">
-                <div className="h-full w-[76%] bg-amber-400" />
-              </div>
-              <div className="mt-3 space-y-1.5">
-                <div className="h-1.5 w-11/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-9/12 bg-[#efede6] rounded" />
-                <div className="h-1.5 w-10/12 bg-[#efede6] rounded" />
-              </div>
-            </div>
-          </div>
-        </FeatureRow>
-      </Section>
+      {/* =============== TEAM =============== */}
+      <TeamSection />
 
-      {/* =============== FEATURE 4: SMART EMAILS =============== */}
-      <Section className="bg-[#fbfaf6]">
-        <FeatureRow
-          icon={<Mail className="size-[18px]" />}
-          title="Personalized cold emails generated from real pain points"
-          desc="Smart Emails drafts personalized cold emails per lead using review-derived insights. Configure tone, CTA, language, and length. Send directly from the CRM."
-          cta="Try Smart Emails"
-        >
-          <div className="grid grid-cols-[1.3fr_1fr] gap-3">
-            <div className="card p-4">
-              <div className="flex items-baseline gap-6 mb-3">
-                <div><div className="text-[10px] text-[#9aa0aa]">Sent</div><div className="text-[18px] font-display">234</div></div>
-                <div><div className="text-[10px] text-[#9aa0aa]">Opens</div><div className="text-[18px] font-display">18.2k</div></div>
-                <div><div className="text-[10px] text-[#9aa0aa]">Replies</div><div className="text-[18px] font-display">49 / 162</div></div>
-              </div>
-              <svg viewBox="0 0 400 120" className="w-full h-[120px]">
-                <polyline fill="none" stroke="#e8e6df" strokeWidth="1" points="0,90 60,80 120,70 180,60 240,40 300,30 360,20 400,15" />
-                <polyline fill="none" stroke="#3d8de0" strokeWidth="2" points="0,100 60,95 120,75 180,72 240,55 300,42 360,30 400,18" />
-              </svg>
-            </div>
-            <div className="card p-3 space-y-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b border-[#efede6] last:border-0 pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-[#efede6]" />
-                    <div className="space-y-1">
-                      <div className="h-1.5 w-20 bg-[#efede6] rounded" />
-                      <div className="h-1.5 w-12 bg-[#efede6] rounded" />
-                    </div>
-                  </div>
-                  <button className="text-[10px] bg-[#0f1115] text-white rounded px-2 py-1">Send</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </FeatureRow>
-      </Section>
-
-      {/* =============== ALL THE TOOLS (1 viewport) =============== */}
-      <section className="relative h-screen overflow-hidden">
+      {/* =============== CTA (sky scene) =============== */}
+      <section className="relative h-[60vh] overflow-hidden">
         <SkyScene />
-        <div className="relative z-10 h-full flex flex-col justify-center max-w-[1100px] mx-auto px-6 text-center">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center max-w-[1100px] mx-auto px-6 text-center">
           <h2 className="font-display text-[clamp(28px,3vw,40px)] text-white">
-            All the tools your
+            Ready to find your first
             <br />
-            <span className="text-white/90">sales team needs</span>
+            <span className="text-white/80">100 leads?</span>
           </h2>
-          <p className="text-white/90 text-[14px] mt-3 max-w-[560px] mx-auto">
-            Search millions of leads, enrich with AI insights, draft emails, and track your pipeline — all on one map.
+          <p className="text-white/70 text-[14px] mt-3 max-w-[400px]">
+            No credit card required. Start prospecting in under 2 minutes.
           </p>
-          <div className="mt-10 max-w-[760px] mx-auto card p-5 text-left">
-            <div className="text-[12px] font-medium mb-3">Lead Profile</div>
-            <div className="grid grid-cols-[120px_1fr] gap-3 text-[12px]">
-              {[
-                ["Business", "Dental Clinic Jakarta"],
-                ["Rating", "★★★★☆ (4.2)"],
-                ["Phone", "+62 21 5555 1234"],
-                ["Industry", "Healthcare"],
-              ].map(([k, v]) => (
-                <div key={k} className="contents">
-                  <div className="text-[#9aa0aa]">{k}</div>
-                  <div className="text-[#0f1115]">{v}</div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 border-t border-[#efede6] pt-3 text-[12px] text-[#6b7180] space-y-1.5">
-              <div className="h-1.5 w-11/12 bg-[#efede6] rounded" />
-              <div className="h-1.5 w-10/12 bg-[#efede6] rounded" />
-              <div className="h-1.5 w-9/12 bg-[#efede6] rounded" />
-            </div>
-            <div className="mt-3 flex justify-end">
-              <button className="btn-dark text-[11px]">Add to pipeline</button>
-            </div>
-          </div>
+          <Link
+            href="/start"
+            className="mt-8 inline-flex items-center gap-2 bg-white text-[#0f1115] text-[14px] font-medium rounded-xl px-6 py-3.5 shadow-lg hover:bg-white/90 transition-all"
+          >
+            <Search className="size-4" />
+            Start for free
+          </Link>
         </div>
       </section>
 
@@ -457,31 +319,313 @@ export default function Page() {
 
 /* ====================== Sub-components ====================== */
 
-function FeatureRow({
-  icon,
-  title,
-  desc,
-  cta,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-  cta: string;
-  children: React.ReactNode;
-}) {
+/* ── Architecture ─────────────────────────────────────────── */
+function ArchitectureSection() {
+  const nodes = [
+    { id: "user",    x: 80,  y: 140, label: "User",          sub: "Next.js 15",        color: "#3b82f6" },
+    { id: "api",     x: 240, y: 140, label: "API",           sub: "NestJS 11",          color: "#8b5cf6" },
+    { id: "queue",   x: 400, y: 80,  label: "Queue",         sub: "BullMQ + Redis",     color: "#f59e0b" },
+    { id: "worker",  x: 400, y: 200, label: "Workers",       sub: "BullMQ Workers",     color: "#f59e0b" },
+    { id: "python",  x: 560, y: 200, label: "Scraper",       sub: "Python + Playwright",color: "#10b981" },
+    { id: "ai",      x: 560, y: 80,  label: "AI Agents",     sub: "NVIDIA NIM / Llama", color: "#ec4899" },
+    { id: "db",      x: 700, y: 140, label: "Database",      sub: "PostgreSQL + Drizzle",color: "#6b7280" },
+  ];
+  const edges = [
+    { x1: 130, y1: 140, x2: 210, y2: 140 },
+    { x1: 290, y1: 130, x2: 370, y2: 90  },
+    { x1: 290, y1: 150, x2: 370, y2: 190 },
+    { x1: 450, y1: 200, x2: 530, y2: 200 },
+    { x1: 450, y1: 90,  x2: 530, y2: 90  },
+    { x1: 610, y1: 200, x2: 670, y2: 155 },
+    { x1: 610, y1: 90,  x2: 670, y2: 130 },
+  ];
+
+  const agents = [
+    { step: "01", name: "Extractor",  model: "Llama 3.1 8B",  role: "Data extraction specialist",  color: "bg-blue-100 text-blue-700" },
+    { step: "02", name: "Finance",    model: "Llama 3.1 70B", role: "Financial analyst",            color: "bg-amber-100 text-amber-700" },
+    { step: "03", name: "Marketing",  model: "Llama 3.1 70B", role: "Messaging strategist",         color: "bg-violet-100 text-violet-700" },
+    { step: "04", name: "Strategy",   model: "Llama 3.1 70B", role: "Strategic advisor (synthesis)",color: "bg-emerald-100 text-emerald-700" },
+  ];
+
   return (
-    <div className="grid md:grid-cols-[1fr_1.4fr] gap-12 items-center">
-      <div>
-        <div className="w-9 h-9 rounded-md bg-[#cfeefc] flex items-center justify-center text-[#0f1115]">{icon}</div>
-        <h3 className="mt-5 text-[clamp(20px,2.2vw,28px)] font-medium text-[#0f1115] leading-snug">{title}</h3>
-        <p className="mt-3 text-[13.5px] text-[#6b7180] leading-relaxed max-w-[420px]">{desc}</p>
-        <Link href="/start" className="mt-4 inline-block text-[11px] text-[#9aa0aa] uppercase tracking-wider hover:text-[#0f1115]">
-          {cta} →
-        </Link>
+    <section className="bg-white py-24 border-t border-[#e8e6df]">
+      <div className="max-w-[1100px] mx-auto px-6">
+        {/* Header */}
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e3e1d8] bg-[#f8f7f3] px-3 py-1 text-[11px] text-[#9aa0aa] mb-4">
+            <GitBranch className="size-3" /> System Architecture
+          </div>
+          <h2 className="font-display text-[clamp(24px,2.8vw,36px)] text-[#0f1115]">
+            How it works under the hood
+          </h2>
+          <p className="mt-2 text-[13.5px] text-[#6b7180] max-w-[560px] leading-relaxed">
+            A fully async pipeline — from user request to AI-scored lead — built on a queue-first architecture with a 4-agent reasoning chain.
+          </p>
+        </div>
+
+        {/* System flow diagram */}
+        <div className="card p-6 mb-8 overflow-x-auto">
+          <div className="text-[11px] text-[#9aa0aa] mb-4 uppercase tracking-wider">System flow</div>
+          <svg viewBox="0 0 780 280" className="w-full min-w-[600px] h-[200px]">
+            <defs>
+              <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#d0cec6" />
+              </marker>
+            </defs>
+            {/* edges */}
+            {edges.map((e, i) => (
+              <line
+                key={i}
+                x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                stroke="#e3e1d8" strokeWidth="1.5"
+                markerEnd="url(#arch-arrow)"
+                strokeDasharray="4 3"
+              />
+            ))}
+            {/* nodes */}
+            {nodes.map((n) => (
+              <g key={n.id}>
+                <rect
+                  x={n.x - 48} y={n.y - 26}
+                  width="96" height="52" rx="8"
+                  fill="white" stroke="#e3e1d8" strokeWidth="1.2"
+                />
+                <rect
+                  x={n.x - 48} y={n.y - 26}
+                  width="4" height="52" rx="2"
+                  fill={n.color}
+                />
+                <text x={n.x + 4} y={n.y - 6} textAnchor="middle" fontSize="11" fontWeight="600" fill="#0f1115" fontFamily="Inter">
+                  {n.label}
+                </text>
+                <text x={n.x + 4} y={n.y + 10} textAnchor="middle" fontSize="9" fill="#9aa0aa" fontFamily="Inter">
+                  {n.sub}
+                </text>
+              </g>
+            ))}
+          </svg>
+        </div>
+
+        {/* Multi-agent chain */}
+        <div className="card p-6">
+          <div className="text-[11px] text-[#9aa0aa] mb-5 uppercase tracking-wider">Multi-agent reasoning chain</div>
+          <div className="grid md:grid-cols-4 gap-3">
+            {agents.map((a, i) => (
+              <div key={a.name} className="relative">
+                {i < agents.length - 1 && (
+                  <div className="hidden md:block absolute top-6 -right-1.5 z-10 text-[#d0cec6] text-[10px]">→</div>
+                )}
+                <div className="rounded-xl border border-[#e8e6df] bg-[#fafaf8] p-4 h-full">
+                  <div className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium mb-3 ${a.color}`}>
+                    {a.step} {a.name}
+                  </div>
+                  <div className="text-[12px] text-[#3b3f48] leading-snug mb-2">{a.role}</div>
+                  <div className="text-[10px] text-[#9aa0aa] bg-[#f0f0f0] rounded px-2 py-1 inline-block">
+                    {a.model}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-lg border border-[#e8e6df] bg-[#f8f7f3] px-4 py-3 text-[12px] text-[#6b7180]">
+            Each agent passes typed context to the next. Every step logs <code className="bg-[#eeece6] rounded px-1 text-[11px]">reasoning</code>, <code className="bg-[#eeece6] rounded px-1 text-[11px]">confidence</code>, and <code className="bg-[#eeece6] rounded px-1 text-[11px]">tokensUsed</code> to PostgreSQL — full audit trail per lead.
+          </div>
+        </div>
       </div>
-      <div>{children}</div>
-    </div>
+    </section>
+  );
+}
+
+/* ── Tech Stack ───────────────────────────────────────────── */
+function TechStackSection() {
+  const stack = [
+    {
+      category: "Frontend",
+      color: "bg-blue-50 border-blue-100",
+      dot: "bg-blue-400",
+      items: [
+        { name: "Next.js 15", detail: "App Router, React 19, RSC" },
+        { name: "MapLibre GL JS", detail: "Interactive map rendering" },
+        { name: "Tailwind v4", detail: "Utility-first styling" },
+        { name: "Zustand", detail: "Client state management" },
+      ],
+    },
+    {
+      category: "Backend",
+      color: "bg-violet-50 border-violet-100",
+      dot: "bg-violet-400",
+      items: [
+        { name: "NestJS 11", detail: "REST API, queue bridge" },
+        { name: "BullMQ + Redis", detail: "Async job processing" },
+        { name: "Python + Playwright", detail: "Google Maps scraper" },
+        { name: "Supabase Auth", detail: "Authentication & sessions" },
+      ],
+    },
+    {
+      category: "Data & AI",
+      color: "bg-emerald-50 border-emerald-100",
+      dot: "bg-emerald-400",
+      items: [
+        { name: "PostgreSQL", detail: "Primary database" },
+        { name: "Drizzle ORM", detail: "Type-safe schema & queries" },
+        { name: "NVIDIA NIM", detail: "Llama 3.1 8B + 70B inference" },
+        { name: "Vercel AI SDK", detail: "Streaming & structured output" },
+      ],
+    },
+    {
+      category: "Infrastructure",
+      color: "bg-amber-50 border-amber-100",
+      dot: "bg-amber-400",
+      items: [
+        { name: "pnpm Workspaces", detail: "Monorepo package manager" },
+        { name: "Turborepo", detail: "Build orchestration & caching" },
+        { name: "Docker + PM2", detail: "Single-container deployment" },
+        { name: "TypeScript strict", detail: "End-to-end type safety" },
+      ],
+    },
+  ];
+
+  return (
+    <section className="bg-[#fbfaf6] py-24 border-t border-[#e8e6df]">
+      <div className="max-w-[1100px] mx-auto px-6">
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e3e1d8] bg-[#f0ede6] px-3 py-1 text-[11px] text-[#9aa0aa] mb-4">
+            <Layers className="size-3" /> Tech Stack
+          </div>
+          <h2 className="font-display text-[clamp(24px,2.8vw,36px)] text-[#0f1115]">
+            Built with production-grade tools
+          </h2>
+          <p className="mt-2 text-[13.5px] text-[#6b7180] max-w-[520px] leading-relaxed">
+            Every technology choice was deliberate — optimized for developer velocity, type safety, and real-world scale.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {stack.map((cat) => (
+            <div key={cat.category} className={`rounded-xl border p-5 ${cat.color}`}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className={`w-2 h-2 rounded-full ${cat.dot}`} />
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#6b7180]">
+                  {cat.category}
+                </div>
+              </div>
+              <div className="space-y-3">
+                {cat.items.map((item) => (
+                  <div key={item.name}>
+                    <div className="text-[13px] font-medium text-[#0f1115]">{item.name}</div>
+                    <div className="text-[11px] text-[#9aa0aa] mt-0.5">{item.detail}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Key design decisions */}
+        <div className="mt-6 grid md:grid-cols-3 gap-4">
+          {[
+            { icon: Zap,      title: "Queue-first API",       desc: "NestJS controllers only validate and enqueue. No long-running work in request handlers — everything is async via BullMQ." },
+            { icon: Shield,   title: "Full audit trail",      desc: "Every AI agent logs reasoning, confidence score, and token usage to PostgreSQL. Full traceability per lead, per execution." },
+            { icon: Database, title: "Typed end-to-end",      desc: "Drizzle schema → shared Zod types → NestJS DTOs → React components. One source of truth, zero runtime surprises." },
+          ].map((d) => (
+            <div key={d.title} className="card p-5">
+              <div className="w-8 h-8 rounded-lg bg-[#f0ede6] flex items-center justify-center text-[#6b7180] mb-3">
+                <d.icon className="size-4" />
+              </div>
+              <div className="text-[13px] font-semibold text-[#0f1115] mb-1.5">{d.title}</div>
+              <p className="text-[12px] text-[#6b7180] leading-relaxed">{d.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Team ─────────────────────────────────────────────────── */
+function TeamSection() {
+  const team = [
+    {
+      name: "Muhammad Maulana Firdaussyah",
+      role: "Lead Developer & Fullstack Engineer",
+      initials: "MF",
+      gradient: "from-blue-400 to-violet-500",
+      contributions: ["NestJS API + BullMQ pipeline", "Python scraper (Playwright)", "Multi-agent AI orchestration", "Next.js frontend + MapLibre"],
+      badge: "Lead Dev",
+      badgeColor: "bg-blue-100 text-blue-700",
+    },
+    {
+      name: "Fitri Ayu R",
+      role: "Product Designer",
+      initials: "FA",
+      gradient: "from-pink-400 to-rose-500",
+      contributions: ["Product vision & UX flow", "UI design system", "Landing page design", "User research & wireframes"],
+      badge: "Design",
+      badgeColor: "bg-pink-100 text-pink-700",
+    },
+  ];
+
+  return (
+    <section className="bg-white py-24 border-t border-[#e8e6df]">
+      <div className="max-w-[1100px] mx-auto px-6">
+        <div className="mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#e3e1d8] bg-[#f8f7f3] px-3 py-1 text-[11px] text-[#9aa0aa] mb-4">
+            <Cpu className="size-3" /> The Team
+          </div>
+          <h2 className="font-display text-[clamp(24px,2.8vw,36px)] text-[#0f1115]">
+            Built by{" "}
+            <span className="text-[#6b7180]">Team FTune</span>
+          </h2>
+          <p className="mt-2 text-[13.5px] text-[#6b7180] max-w-[480px] leading-relaxed">
+            Two people, one shared obsession — making B2B prospecting fast, intelligent, and actually enjoyable.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 max-w-[760px]">
+          {team.map((member) => (
+            <div key={member.name} className="card p-6">
+              {/* Avatar */}
+              <div className="flex items-start gap-4 mb-5">
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-[20px] font-display shrink-0 shadow-sm`}>
+                  {member.initials}
+                </div>
+                <div className="min-w-0 pt-1">
+                  <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium mb-1.5 ${member.badgeColor}`}>
+                    {member.badge}
+                  </div>
+                  <div className="text-[15px] font-semibold text-[#0f1115] leading-snug">{member.name}</div>
+                  <div className="text-[12px] text-[#9aa0aa] mt-0.5">{member.role}</div>
+                </div>
+              </div>
+
+              {/* Contributions */}
+              <div className="border-t border-[#f0ede6] pt-4">
+                <div className="text-[10px] text-[#9aa0aa] uppercase tracking-wider mb-2.5">Contributions</div>
+                <div className="space-y-1.5">
+                  {member.contributions.map((c) => (
+                    <div key={c} className="flex items-center gap-2 text-[12px] text-[#3b3f48]">
+                      <div className="w-1 h-1 rounded-full bg-[#d0cec6] shrink-0" />
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Hackathon note */}
+        <div className="mt-8 max-w-[760px] rounded-xl border border-[#e8e6df] bg-[#f8f7f3] px-5 py-4 flex items-start gap-3">
+          <div className="text-[18px] mt-0.5">🏆</div>
+          <div>
+            <div className="text-[13px] font-medium text-[#0f1115] mb-1">Built for hackathon — production-ready code</div>
+            <p className="text-[12px] text-[#6b7180] leading-relaxed">
+              Every feature shown is working code, not a mockup. The scraper runs, the AI agents reason, the database persists. We can demo live reasoning traces and real lead data during Q&A.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
