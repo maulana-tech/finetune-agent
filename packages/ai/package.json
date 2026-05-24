@@ -2,13 +2,8 @@
   "name": "@repo/ai",
   "version": "1.0.0",
   "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc"
+    ".": "./src/index.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.78",
