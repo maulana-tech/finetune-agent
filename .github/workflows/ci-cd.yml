@@ -28,9 +28,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm turbo build --filter=api --filter=workers --filter=db
-        env:
-          DATABASE_URL: postgresql://dummy:pass@localhost:5432/db
+      - run: pnpm turbo build --filter=api --filter=workers --filter=@repo/db
 
   deploy:
     name: Deploy to VPS
