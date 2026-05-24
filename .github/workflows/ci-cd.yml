@@ -1,0 +1,63 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PNPM_VERSION: 9.15.0
+  NODE_VERSION: 22
+
+jobs:
+  ci:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=api --filter=workers --filter=db
+        env:
+          DATABASE_URL: postgresql://dummy:pass@localhost:5432/db
+
+  deploy:
+    name: Deploy to VPS
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            echo "=== Updating code ==="
+            cd ~/app
+            git pull
+
+            echo "=== Installing deps ==="
+            export PNPM_HOME=~/.local/share/pnpm
+            export PATH=$PNPM_HOME:$PATH
+            pnpm install --frozen-lockfile
+
+            echo "=== Building ==="
+            pnpm turbo build --filter=api --filter=workers
+
+            echo "=== Restarting PM2 ==="
+            DOTENV_CONFIG_PATH=/home/ubuntu/app/.env pm2 restart all
+
+            echo "=== Done ==="

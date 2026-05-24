@@ -104,7 +104,6 @@ Dockerfile installs Python 3 + venv for the scraper. See `DEPLOY.md` for SumoPod
 These are mentioned in CONTEXT.md or the existing AGENTS.md but do not exist yet. Do not assume they are present:
 
 - Tests (Vitest, Playwright, Supertest — zero test files exist)
-- GitHub Actions CI / `.github/` directory
 - `nestjs-zod` for DTO validation
 - `@nestjs/throttler` rate limiting
 - `WorkspaceContext` decorator and `@Public()` decorator
