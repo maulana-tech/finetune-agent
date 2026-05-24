@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e ../../.env -- tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc && cp -r src/python dist/python"
   },
   "dependencies": {
     "@repo/ai": "workspace:*",
