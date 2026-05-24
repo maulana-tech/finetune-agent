@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Controller, Get } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { JobsModule } from './jobs/jobs.module';
 import { WorkflowsModule } from './workflows/workflows.module';
@@ -8,6 +8,15 @@ import { ScrapeSchedulesModule } from './scrape-schedules/scrape-schedules.modul
 import { LeadsModule } from './leads/leads.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { AssistantModule } from './assistant/assistant.module';
+import { AiModule } from './ai/ai.module';
+
+@Controller()
+class HealthController {
+  @Get('health')
+  check() {
+    return { status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() };
+  }
+}
 
 @Module({
   imports: [
@@ -24,8 +33,9 @@ import { AssistantModule } from './assistant/assistant.module';
     LeadsModule,
     WorkspacesModule,
     AssistantModule,
+    AiModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}

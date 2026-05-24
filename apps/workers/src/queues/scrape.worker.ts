@@ -1,8 +1,15 @@
-import { Worker } from 'bullmq';
+import { Worker, Queue } from 'bullmq';
 import { spawn } from 'child_process';
 import path from 'path';
 import { eq, sql } from 'drizzle-orm';
 import { db, leads, scrapeSchedules } from '@repo/db';
+
+const aiQueue = new Queue('orchestrated-ai-queue', {
+  connection: { url: process.env.REDIS_URL || 'redis://localhost:6379' },
+});
+
+const ourProduct =
+  'UTUNE AI — B2B lead intelligence platform. Kami menyediakan AI-powered lead scoring, financial simulation, market analysis, dan scraping otomatis untuk sales team B2B di Indonesia.';
 
 export const startScrapeWorker = () => {
   const worker = new Worker(
@@ -37,21 +44,42 @@ export const startScrapeWorker = () => {
 
       console.log(`[Scrape] Scraped ${rawResults.length} results for "${query}"`);
 
-      // Insert leads — skip duplicates by name+workspaceId (best-effort: no unique constraint,
-      // so we just insert and let the scheduler control frequency).
+      let insertedCount = 0;
       for (const res of rawResults) {
-        await db.insert(leads).values({
+        const [inserted] = await db
+          .insert(leads)
+          .values({
+            workspaceId,
+            name: (res.name as string) || 'Unknown',
+            address: (res.address as string) || null,
+            phone: (res.phone as string) || null,
+            website: (res.website as string) || null,
+            mapsUrl: (res.maps_url as string) || null,
+            lat: (res.lat as number) || null,
+            lng: (res.lng as number) || null,
+            category: (res.category as string) || query,
+          })
+          .returning();
+
+        const rawText = [
+          `Name: ${inserted.name}`,
+          inserted.address && `Address: ${inserted.address}`,
+          inserted.phone && `Phone: ${inserted.phone}`,
+          inserted.website && `Website: ${inserted.website}`,
+          inserted.category && `Category: ${inserted.category}`,
+        ]
+          .filter(Boolean)
+          .join('\n');
+
+        await aiQueue.add('orchestrated-workflow', {
+          leadId: inserted.id,
           workspaceId,
-          name: (res.name as string) || 'Unknown',
-          address: (res.address as string) || null,
-          phone: (res.phone as string) || null,
-          website: (res.website as string) || null,
-          mapsUrl: (res.maps_url as string) || null,
-          lat: (res.lat as number) || null,
-          lng: (res.lng as number) || null,
-          category: (res.category as string) || query,
+          rawText,
+          ourProduct,
         });
+        insertedCount++;
       }
+      console.log(`[Scrape] Inserted ${insertedCount} leads + queued AI for each`);
 
       // Update schedule status on success
       if (scheduleId) {
