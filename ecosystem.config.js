@@ -11,17 +11,21 @@ module.exports = {
       name: "api",
       script: "apps/api/dist/main.js",
       interpreter: "tsx",
+      node_args: "-r dotenv/config",
       env: {
         NODE_ENV: "production",
-        PORT: 3001
+        PORT: 3001,
+        DOTENV_CONFIG_PATH: "/home/ubuntu/app/.env"
       }
     },
     {
       name: "workers",
       script: "apps/workers/dist/index.js",
       interpreter: "tsx",
+      node_args: "-r dotenv/config",
       env: {
-        NODE_ENV: "production"
+        NODE_ENV: "production",
+        DOTENV_CONFIG_PATH: "/home/ubuntu/app/.env"
       }
     }
   ]
