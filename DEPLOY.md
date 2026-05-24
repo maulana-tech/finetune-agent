@@ -1,47 +1,27 @@
-# Deployment Strategy (Vercel + VPS)
+# Deployment Guide (Vercel + VPS)
 
-Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di Vercel (gratis), backend di VPS SumoPod (pakai voucher). Frontend di edge serverless, backend long-running process buat API + AI workers.
+Frontend di Vercel (gratis), backend di VPS (Ubuntu 24.04 — Cloudeka Jakarta, Rp 75k/bln).
 
 **Budget:** Rp 1.550.000 → Rp 90.000/bulan = **~17 bulan** hosting.
+
+---
 
 ## Arsitektur
 
 ```
-┌──────────── Vercel (Hobby, free) ────────────┐
-│  apps/web (Next.js 15)                       │
-│   • Landing: /  /start                       │
-│   • Dashboard: /dashboard/...                │
-│   • /dashboard/finance + /simulations/[id]   │
-│                                               │
-│  Server Components → Supabase Pooler          │
-│  Client Components → VPS API (CORS)           │
-└───────────────────────────────────────────────┘
-        │                              │
-        │ pg pooler :6543              │ HTTPS
-        ▼                              ▼
-┌─────────────┐                ┌─────────────────────────┐
-│  Supabase   │                │  VPS (Ubuntu 24.04)     │
-│  Postgres   │◄───────────────┤  • apps/api  :3001      │
-│  + Auth     │                │  • apps/workers (BullMQ)│
-└─────────────┘                │    - scrape-map (Python)│
-                                │    - orchestrated-ai    │
-                                │    - finance-simulation │
-                                └─────────┬───────────────┘
-                                          │ outbound HTTPS
-                           ┌──────────────┼──────────────┐
-                           ▼              ▼              ▼
-                      Upstash Redis   NVIDIA NIM   OpenFreeMap
-                      (BullMQ)        (9 agents)   (map tiles)
+User → Vercel (Next.js) → Supabase (DB + Auth)
+                       ↘ VPS API (NestJS :3001) → Redis (BullMQ)
+                                                  → Workers (AI agents)
+                                                  → Python scraper
 ```
 
-**Workload per platform:**
-| Platform | Berisi | Kenapa di sini |
+| Platform | Berisi | Biaya |
 |---|---|---|
-| Vercel | Next.js web only | Gratis Hobby, edge cache, CDN otomatis, deploy from git instan |
-| VPS | NestJS API + BullMQ workers + Python scraper | Butuh long-running process untuk worker AI + Playwright scraper |
-| Supabase | Postgres + Auth | Sudah managed, free tier 500MB |
-| Upstash | Redis (BullMQ queue) | Free tier 10k commands/day |
-| NVIDIA NIM | LLM inference (9 agents) | External API, gratis untuk dev quota |
+| Vercel Hobby | Frontend Next.js | Gratis |
+| VPS (Cloudeka Jakarta) | API + Workers + Python scraper | Rp 75.000/bln |
+| Supabase Free | PostgreSQL + Auth | Gratis |
+| Upstash Free | Redis (BullMQ queue) | Gratis |
+| NVIDIA NIM | LLM inference (9 agents) | Gratis (dev quota) |
 
 ---
 
@@ -49,110 +29,124 @@ Untuk hackathon ini kita pakai **2-platform split deployment** — frontend di V
 
 ### 1.1 Connect repo
 
-1. Buka https://vercel.com → Sign in dengan GitHub.
-2. **Add New** → **Project** → pilih repo `finetune-agent`.
-3. Di **Configure Project**:
-   - **Framework Preset**: Next.js (auto-detect)
-   - **Root Directory**: klik **Edit** → pilih `apps/web`
-   - **Build Command**: biarkan default (atau kosongkan manual override, biar `vercel.json` yang handle)
-   - **Output Directory**: default
-   - **Install Command**: default
+1. Buka https://vercel.com → **Add New → Project** → pilih repo `finetune-agent`
+2. **Framework Preset:** Next.js (auto)
+3. **Root Directory:** `apps/web`
+4. **Build & Output:** default
 
-### 1.2 Environment Variables di Vercel
+### 1.2 Environment Variables
 
-via **Settings → Environment Variables** (apply ke Production + Preview + Development):
+via **Settings → Environment Variables** (Production + Preview + Development):
 
-| Variable | Value | Catatan |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://postgres.xxx:[PASSWORD]@aws-0-region.pooler.supabase.co:6543/postgres?pgbouncer=true` | **Pooler URL port 6543**, wajib pakai pgBouncer biar gak kebanjiran koneksi dari serverless |
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` | dari Supabase dashboard |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | dari Supabase dashboard (anon public key) |
-| `NEXT_PUBLIC_API_URL` | `http://<VPS-IP>:3001` | IP VPS (isi setelah Bagian 2 selesai) |
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Pooler URL port 6543 + `?pgbouncer=true` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key |
+| `NEXT_PUBLIC_API_URL` | `http://43.129.54.139:3001` |
 
-#### Kenapa Pooler URL?
-Vercel functions = serverless (Lambda). Tiap function instance punya pg pool sendiri. Tanpa pooler, ratusan concurrent Lambda → ribuan koneksi Postgres → Supabase reject. **Supabase Transaction Pooler** (pgBouncer port 6543) handle ini natively.
+> Vercel functions itu serverless — pakai **Supabase Transaction Pooler** (port 6543, pgBouncer) biar gak overload koneksi DB.
 
-Cara dapat Pooler URL:
-1. Supabase dashboard → project → **Settings → Database**
-2. Cari **Connection pooling** → mode **Transaction**
-3. Copy URL — bentuknya `postgresql://postgres.xxx:[PASSWORD]@aws-0-region.pooler.supabase.com:6543/postgres`
-4. Tambahkan `?pgbouncer=true` di akhir
+### 1.3 Build fix
 
-### 1.3 Deploy
+Buat `vercel.json` di root repo:
 
-Klik **Deploy**. Build pertama ~3-5 menit.
+```json
+{
+  "buildCommand": "cd ../.. && pnpm build",
+  "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
+  "outputDirectory": ".next"
+}
+```
+
+Rootnya di `apps/web`, tapi build harus dari root biar turbo workspaces jalan.
+
+**Penting:** API proxy rewrites harus ditulis di `apps/web/next.config.mjs`, BUKAN di `vercel.json` — Vercel mengabaikan rewrites di `vercel.json` untuk Next.js projects.
+
+```js
+// apps/web/next.config.mjs
+const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/api-proxy/:path*',
+        destination: 'http://43.129.54.139:3001/:path*',
+      },
+    ];
+  },
+};
+```
+
+### 1.4 Deploy
+
+Klik **Deploy**. Build pertama ~3-5 menit. Setelah itu auto-deploy tiap push ke `main`.
 
 ---
 
-## Bagian 2 — Deploy Backend ke VPS (SumoPod VPS)
+## Bagian 2 — Deploy Backend ke VPS
 
-### 2.1 Pilih VPS Plan
+### 2.1 Setup VPS
 
-Di dashboard SumoPod → **Infrastructure → VPS → Create VPS**:
+Beli di SumoPod → **Infrastructure → VPS → Create VPS**:
 
 | Setting | Pilihan |
 |---|---|
-| Provider | Tencent |
-| Region | Singapore 🇸🇬 |
+| Provider | Cloudeka |
+| Region | Jakarta |
 | OS | Ubuntu Server 24.04 LTS |
-| Plan | **2 vCPU, 4 GB RAM, 60 GB SSD — Rp 90.000/bulan** |
-
-> **Kenapa 4 GB RAM?** Workers perlu memory buat 4 concurrent workers + Python scraper + AI agents. 2 GB cukup untuk coba-coba tapi riskan OOM pas finance simulation paralel.
-
-### 2.2 Setup Awal VPS
-
-Setelah VPS aktif, dapat IP + password via dashboard. SSH masuk:
+| Plan | 2 vCPU, 2 GB RAM, 50 GB SSD |
 
 ```bash
-ssh root@<VPS-IP>
-# Masukin password dari dashboard
+ssh ubuntu@<IP-VPS>
+# masukin password dari dashboard
+
+# System update + dependencies
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl wget git python3 python3-pip python3-venv
+
+# Node.js 22 LTS
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -
+sudo apt install -y nodejs
+
+# Tools
+sudo npm install -g pnpm pm2
 ```
 
-**Update system & install dependencies:**
+### 2.2 Clone & Build
 
 ```bash
-apt update && apt upgrade -y
-apt install -y curl wget git python3 python3-pip python3-venv
+# SSH key (biar gak perlu password tiap pull)
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+# tambahin ke GitHub → Settings → SSH keys
 
-# Install Node.js 22 LTS
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install -y nodejs
-node -v    # should be v22.x
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+git clone git@github.com:maulana-tech/finetune-agent.git ~/app
 
-# Install pnpm
-npm install -g pnpm pm2
-pnpm --version  # should be 9.x
-```
-
-### 2.3 Clone & Build
-
-```bash
-# Clone repo
-git clone https://github.com/maulana-tech/finetune-agent.git /app
-cd /app
-
-# Setup Python virtual environment untuk scraper
-cd apps/workers
+# Python venv untuk scraper
+cd ~/app/apps/workers
 python3 -m venv .venv
 source .venv/bin/activate
-pip install --no-cache-dir -r requirements.txt
+pip install -r requirements.txt
+playwright install chromium
+playwright install-deps chromium
 deactivate
-cd /app
 
-# Install semua workspace dependencies
+# Workspace deps
+cd ~/app
 pnpm install --frozen-lockfile
+cp .env.example .env  # lalu isi env vars
 
-# Build API + Workers (skip web — nanti di Vercel)
+# Build (skip web)
 pnpm turbo build --filter=api --filter=workers
 ```
 
-### 2.4 Environment Variables
+### 2.3 Environment Variables
 
-Buat file `/app/.env`:
+Isi file `~/app/.env`:
 
 ```bash
-cat > /app/.env << 'EOF'
-# DB — pakai direct URL port 5432 (VPS long-running, gak butuh pooler)
+# DB — direct URL port 5432 (VPS long-running, gak butuh pooler)
 DATABASE_URL="postgresql://postgres.xxx:[PASSWORD]@aws-0-region.pooler.supabase.com:5432/postgres"
 
 # Redis (Upstash)
@@ -161,130 +155,110 @@ REDIS_URL="rediss://default:xxx@xxx.upstash.io:6379"
 # AI
 NVIDIA_API_KEY="nvapi-..."
 
-# CORS — domain Vercel
+# CORS
 ALLOWED_ORIGINS="https://utune-ai.vercel.app"
-ALLOW_VERCEL_PREVIEWS="true"
 
 # Port API
 PORT=3001
-EOF
 ```
 
-### 2.5 Firewall
+### 2.4 Firewall
 
 ```bash
-ufw allow 22/tcp        # SSH
-ufw allow 3001/tcp      # API
-ufw enable
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 3001/tcp  # API
+sudo ufw --force enable
 ```
 
-### 2.6 Jalankan dengan PM2
+### 2.5 PM2 dengan tsx Runtime
+
+`@repo/ai` export `.ts` langsung → butuh `tsx` runtime untuk production:
 
 ```bash
-# Start API
-PORT=3001 NODE_ENV=production pm2 start node --name "api" -- apps/api/dist/main.js
+sudo npm install -g tsx
 
-# Start Workers
-NODE_ENV=production pm2 start node --name "workers" -- apps/workers/dist/index.js
+# Copy ecosystem.config.js udah include interpreter + dotenv preload
+DOTENV_CONFIG_PATH=/home/ubuntu/app/.env pm2 start ecosystem.config.js
+```
 
-# Save PM2 config biar auto-start setelah reboot
+PM2 config (`ecosystem.config.js`):
+
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: 'api',
+      script: 'apps/api/dist/main.js',
+      interpreter: 'tsx',
+      node_args: '-r dotenv/config',
+      env: { DOTENV_CONFIG_PATH: '/home/ubuntu/app/.env', NODE_ENV: 'production' },
+    },
+    {
+      name: 'workers',
+      script: 'apps/workers/dist/index.js',
+      interpreter: 'tsx',
+      node_args: '-r dotenv/config',
+      env: { DOTENV_CONFIG_PATH: '/home/ubuntu/app/.env', NODE_ENV: 'production' },
+    },
+  ],
+};
+```
+
+### 2.6 Auto-start
+
+```bash
 pm2 save
-pm2 startup
-# (ikuti instruksi systemctl yang muncul)
+sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
 ```
 
-Cek status:
+### 2.7 Verify
 
 ```bash
 pm2 status
-pm2 logs --lines 20
+curl http://localhost:3001/  # → 404 (normal)
+curl -X POST http://localhost:3001/jobs/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"workspaceId":"<real-uuid>","query":"test","limit":1}'
 ```
-
-### 2.7 Setup Nginx (Reverse Proxy + SSL — opsional)
-
-Kalo mau akses API via domain (bukan IP:3001):
-
-```bash
-apt install -y nginx certbot python3-certbot-nginx
-```
-
-Buat config `/etc/nginx/sites-available/api`:
-
-```nginx
-server {
-    listen 80;
-    server_name api.domainkamu.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-```bash
-ln -s /etc/nginx/sites-available/api /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-certbot --nginx -d api.domainkamu.com
-```
-
-> **Skip step ini kalo mau pake IP langsung** — `NEXT_PUBLIC_API_URL=http://<VPS-IP>:3001` juga works.
-
-### 2.8 Auto-restart Worker (systemd — optional)
-
-Biar worker otomatis restart kalo crash, selain PM2 udah handle ini secara default.
 
 ---
 
-## Bagian 3 — Wire-up Vercel → VPS
+## Bagian 3 — Update & Redeploy
 
-1. Dapetin IP VPS: `curl ifconfig.me` atau lihat di dashboard SumoPod.
-2. Update **Vercel Environment Variables**:
-   - `NEXT_PUBLIC_API_URL` → `http://<VPS-IP>:3001` (atau `https://api.domainkamu.com` kalo pake SSL)
-3. Di VPS, pastiin `ALLOWED_ORIGINS` di `/app/.env` includes Vercel domain.
-4. Restart API di VPS setelah update `.env`:
-   ```bash
-   pm2 restart api
-   ```
-
----
-
-## Bagian 4 — Update & Redeploy
-
-### Update code & rebuild di VPS:
+### Backend (VPS)
 
 ```bash
-cd /app
+cd ~/app
 git pull
 pnpm install --frozen-lockfile
 pnpm turbo build --filter=api --filter=workers
-pm2 restart all
+DOTENV_CONFIG_PATH=/home/ubuntu/app/.env pm2 restart all
 ```
 
-### Update Vercel:
-Push ke GitHub → Vercel auto-deploy.
+### Frontend (Vercel)
+
+Push ke `main` → auto-deploy.
 
 ---
 
-## Verifikasi
+## Bagian 4 — DB Migrations
 
-### Smoke test
-1. `https://utune-ai.vercel.app/` → landing page render ✓
-2. `https://utune-ai.vercel.app/dashboard` → dashboard render ✓
-3. Cek API: `curl http://<VPS-IP>:3001/api/health` → return JSON ✓
-4. Cek worker log: `pm2 logs workers --lines 20` → worker connected + waiting jobs ✓
+Schema diupdate via Drizzle. Dua mode:
 
-### Jika error CORS
-- Pastikan `ALLOWED_ORIGINS` includes `https://utune-ai.vercel.app`
-- Restart API: `pm2 restart api`
+### Push (cepat, untuk development)
 
-### Jika DB connection error
-- Vercel: pastikan pakai **pooler URL port 6543** + `?pgbouncer=true`
-- VPS: bisa pakai direct URL port 5432
+```bash
+pnpm --filter @repo/db push
+```
+
+### Migration (untuk production)
+
+```bash
+pnpm db:generate    # bikin file SQL baru di packages/db/drizzle/
+pnpm db:migrate     # apply ke database
+```
+
+> Kalo tabel udah ada (dibikin via `push`), pake `push` lagi aja — aman untuk nambah kolom.
 
 ---
 
@@ -294,50 +268,48 @@ Push ke GitHub → Vercel auto-deploy.
 pm2 status              # status semua process
 pm2 logs api --lines 50 # log API
 pm2 logs workers        # log workers (real-time)
-pm2 monit               # dashboard CPU/memory tiap process
-```
+pm2 monit               # dashboard CPU/memory
 
-Filter log worker:
-```bash
-pm2 logs workers --lines 100 | grep -E "\[FinanceSim\]|\[OrchestratedAI\]|\[ScrapeWorker\]"
-```
-
-### Cek memory usage:
-```bash
-free -h
-pm2 prettylist | grep -E "name|memory"
+# Filter log AI pipeline
+pm2 logs workers --lines 100 | grep -E "\[FinanceSim\]|\[OrchestratedAI\]|\[MarketAnalysis\]"
 ```
 
 ---
 
 ## Cost Breakdown
 
-| Item | Biaya | Catatan |
-|---|---|---|
-| VPS (2 vCPU, 4GB, 60GB) | Rp 90.000/bulan | Tencent Singapore |
-| Vercel Hobby | Gratis | 100 GB-hours / 1M req |
-| Supabase Free | Gratis | 500MB DB, 2GB bandwidth |
-| Upstash Free | Gratis | 10k cmd/day |
-| NVIDIA NIM | Gratis | Dev quota |
-| **Total/bulan** | **Rp 90.000** | |
-| **Budget** | **Rp 1.550.000** | **≈ 17 bulan** |
+| Item | Biaya |
+|---|---|
+| VPS (2 vCPU, 2GB, 50GB) | Rp 75.000/bulan |
+| Vercel Hobby | Gratis |
+| Supabase Free | Gratis |
+| Upstash Free | Gratis |
+| NVIDIA NIM | Gratis |
+| **Total** | **Rp 90.000/bulan** |
+| **Budget** | **≈ 17 bulan** |
 
 ---
 
-## Tips Hackathon
+## Troubleshooting
 
-### Seed data sebelum demo
-Demo dengan dashboard kosong = boring. Sebelum demo:
-1. `pnpm db:seed` (kalau seed script ada) — atau insert manual
-2. Bikin 30-50 transactions realistic (mix income/expense/invoice, span 3-6 bulan)
-3. Jalankan 1-2 simulations preset biar history terisi
+### Build gagal karena `@repo/ai` export `.ts`
 
-### Iterasi cepat
-- Vercel auto-deploy tiap push ke main
-- VPS update: `git pull && pnpm install && pnpm turbo build --filter=api --filter=workers && pm2 restart all`
+Solusi: pake `tsx` runtime di PM2 (bukan `node` langsung). Jangan compile `@repo/ai` ke dist — tsx handle transpile on-the-fly.
 
-### Yang sengaja TIDAK dilakukan untuk hackathon
-- ❌ Auth Supabase wiring — dummy `DEV_WORKSPACE_ID` cukup
-- ❌ Worker concurrency tuning — default 1 OK
-- ❌ Caching layer — Next.js edge cache + Supabase query cache cukup
-- ❌ Monitoring infrastructure — PM2 + DB queries cukup
+### Scraper error "Browser not found"
+
+```bash
+cd ~/app/apps/workers
+source .venv/bin/activate
+playwright install chromium
+playwright install-deps chromium
+deactivate
+```
+
+### CORS error dari frontend
+
+Pastiin `ALLOWED_ORIGINS` di `.env` VPS includes `https://utune-ai.vercel.app`, lalu restart API.
+
+### DB connection error di Vercel
+
+Pastikan pakai **pooler URL port 6543** + `?pgbouncer=true`. VPS bisa pake port 5432 langsung.
