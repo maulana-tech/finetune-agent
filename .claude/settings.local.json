@@ -13,7 +13,19 @@
       "Bash(corepack prepare *)",
       "Bash(corepack pnpm *)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pnpm add *)",
+      "Bash(npx tsc *)",
+      "Bash(pnpm db:cleanup-dupes *)",
+      "Bash(pnpm db:verify *)",
+      "Bash(pnpm db:cleanup-orphaned *)",
+      "Bash(pnpm db:migrate-orphaned *)",
+      "Bash(xargs basename *)",
+      "Bash(dotenv *)",
+      "Bash(pnpm dotenv *)",
+      "Bash(pnpm --filter web build)",
+      "Bash(pnpm --filter web next build)",
+      "Bash(git add *)"
     ]
   }
 }

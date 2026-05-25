@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Search, Map, Sparkles, Star, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { ensureWorkspaceProvisioned } from './actions';
 
 /* ── Left panel — branding cover ─────────────────────────── */
 function CoverPanel() {
@@ -103,6 +104,14 @@ function LoginForm() {
         setLoading(false);
         return;
       }
+
+      // Provision workspace if first login (idempotent)
+      const { success, error: provisionError } = await ensureWorkspaceProvisioned();
+      if (!success && provisionError) {
+        console.warn('[login] Workspace provision warning:', provisionError);
+        // Don't block login — getWorkspaceId will handle it as fallback
+      }
+
       router.push(redirectTo);
       router.refresh();
     } else {

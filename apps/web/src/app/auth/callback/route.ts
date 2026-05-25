@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { db, workspaces, users } from '@repo/db';
+import { eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -24,8 +26,11 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { error: authError, data } = await supabase.auth.exchangeCodeForSession(code);
+    if (!authError && data.user?.email) {
+      // Provision workspace + user row if first login
+      await ensureUserWorkspace(data.user.email);
+
       const response = NextResponse.redirect(`${origin}${next}`);
       for (const cookie of request.cookies.getAll()) {
         response.cookies.set(cookie.name, cookie.value);
@@ -35,4 +40,39 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+}
+
+/**
+ * Ensures workspace + user row exist for the given email.
+ * Idempotent — safe to call multiple times.
+ */
+async function ensureUserWorkspace(email: string): Promise<void> {
+  const [existing] = await db
+    .select({ workspaceId: users.workspaceId })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (existing) {
+    return; // Already provisioned
+  }
+
+  try {
+    const [ws] = await db
+      .insert(workspaces)
+      .values({ name: `${email}'s Workspace` })
+      .returning({ id: workspaces.id });
+
+    await db.insert(users).values({
+      workspaceId: ws.id,
+      email,
+      role: 'owner',
+    });
+  } catch (err: any) {
+    // If unique constraint violation, another request beat us — ignore
+    if (err?.code === '23505') {
+      return;
+    }
+    throw err;
+  }
 }

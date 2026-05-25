@@ -15,13 +15,19 @@
     "db:generate": "pnpm --filter @repo/db generate",
     "db:migrate": "pnpm --filter @repo/db migrate",
     "db:studio": "pnpm --filter @repo/db studio",
-    "db:seed": "pnpm --filter @repo/db seed"
+    "db:seed": "pnpm --filter @repo/db seed",
+    "db:cleanup-dupes": "dotenv -e .env -- tsx scripts/cleanup-duplicate-workspaces.ts",
+    "db:cleanup-orphaned": "dotenv -e .env -- tsx scripts/cleanup-orphaned-workspaces.ts",
+    "db:migrate-orphaned": "dotenv -e .env -- tsx scripts/migrate-orphaned-data.ts",
+    "db:verify": "dotenv -e .env -- tsx scripts/verify-database.ts"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.16.0",
     "prettier": "^3.4.0",
+    "tsx": "^4.22.3",
     "turbo": "^2.3.0",
     "typescript": "^5.7.0"
   },
