@@ -30,32 +30,56 @@ export default function Page() {
       <section className="relative h-screen overflow-hidden">
         <HeroScene />
         <TopNav variant="light" />
-        <div className="relative z-10 max-w-[1200px] mx-auto px-6 mt-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur px-3 py-1 text-[11px] text-white/80 mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            AI-powered B2B prospecting
-          </div>
-          <h1 className="font-display text-white text-[clamp(36px,5vw,56px)] leading-[1.05] max-w-[640px] drop-shadow-[0_1px_0_rgba(0,0,0,0.18)]">
-            Find millions of
-            <br /> B2B leads on a map
-          </h1>
-          <p className="text-white/90 text-[15px] mt-4 max-w-[480px] leading-relaxed">
-            Search by industry + location, enrich with AI reviews and emails, and close deals faster — all from one map-powered CRM.
-          </p>
-          <div className="mt-6 flex items-center gap-3">
-            <Link href="#" className="inline-flex items-center gap-2 bg-white text-[#0f1115] text-[14px] font-medium rounded-xl px-5 py-3 shadow-lg hover:bg-white/90 transition-all">
-              <Search className="size-4" />
-              Find leads
-            </Link>
-            <Link href="#" className="inline-flex items-center gap-2 text-white/90 text-[13px] font-medium rounded-xl border border-white/20 bg-white/10 backdrop-blur px-5 py-3 hover:bg-white/20 transition-all">
-              Watch the demo
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-            </Link>
-          </div>
-          <div className="mt-5 flex items-center gap-5 text-[12px] text-white/60">
-            <span className="flex items-center gap-1.5"><Globe className="size-3.5" /> 10M+ businesses</span>
-            <span className="flex items-center gap-1.5"><Map className="size-3.5" /> 50K+ cities</span>
-            <span className="flex items-center gap-1.5"><Sparkles className="size-3.5" /> No credit card</span>
+
+        {/* Hero content — vertically centered in viewport */}
+        <div className="absolute inset-0 z-10 flex items-center">
+          <div className="max-w-[1200px] mx-auto px-8 w-full">
+            <div className="max-w-[620px]">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur px-3.5 py-1.5 text-[12px] text-white/80 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                AI-powered B2B prospecting
+              </div>
+
+              {/* Headline */}
+              <h1 className="font-display text-white text-[clamp(40px,5.5vw,64px)] leading-[1.02] drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]">
+                Find millions of
+                <br />
+                <span className="text-white/75">B2B leads on a map</span>
+              </h1>
+
+              {/* Subtext */}
+              <p className="text-white/80 text-[16px] mt-5 max-w-[460px] leading-relaxed">
+                Search by industry + location, enrich with AI reviews and emails, and close deals faster — all from one map-powered CRM.
+              </p>
+
+              {/* CTAs */}
+              <div className="mt-8 flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 bg-white text-[#0f1115] text-[14px] font-semibold rounded-full px-6 py-3 shadow-lg hover:bg-white/92 transition-all"
+                >
+                  <Search className="size-4" />
+                  Find leads
+                </Link>
+                <Link
+                  href="#"
+                  className="inline-flex items-center gap-2 text-white/85 text-[14px] font-medium rounded-full border border-white/25 bg-white/10 backdrop-blur px-6 py-3 hover:bg-white/18 transition-all"
+                >
+                  Watch the demo
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                </Link>
+              </div>
+
+              {/* Social proof */}
+              <div className="mt-7 flex items-center gap-6 text-[12.5px] text-white/50">
+                <span className="flex items-center gap-1.5"><Globe className="size-3.5" /> 10M+ businesses</span>
+                <span className="h-3 w-px bg-white/20" />
+                <span className="flex items-center gap-1.5"><Map className="size-3.5" /> 50K+ cities</span>
+                <span className="h-3 w-px bg-white/20" />
+                <span className="flex items-center gap-1.5"><Sparkles className="size-3.5" /> No credit card</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -321,25 +345,6 @@ export default function Page() {
 
 /* ── Architecture ─────────────────────────────────────────── */
 function ArchitectureSection() {
-  const nodes = [
-    { id: "user",    x: 80,  y: 140, label: "User",          sub: "Next.js 15",        color: "#3b82f6" },
-    { id: "api",     x: 240, y: 140, label: "API",           sub: "NestJS 11",          color: "#8b5cf6" },
-    { id: "queue",   x: 400, y: 80,  label: "Queue",         sub: "BullMQ + Redis",     color: "#f59e0b" },
-    { id: "worker",  x: 400, y: 200, label: "Workers",       sub: "BullMQ Workers",     color: "#f59e0b" },
-    { id: "python",  x: 560, y: 200, label: "Scraper",       sub: "Python + Playwright",color: "#10b981" },
-    { id: "ai",      x: 560, y: 80,  label: "AI Agents",     sub: "NVIDIA NIM / Llama", color: "#ec4899" },
-    { id: "db",      x: 700, y: 140, label: "Database",      sub: "PostgreSQL + Drizzle",color: "#6b7280" },
-  ];
-  const edges = [
-    { x1: 130, y1: 140, x2: 210, y2: 140 },
-    { x1: 290, y1: 130, x2: 370, y2: 90  },
-    { x1: 290, y1: 150, x2: 370, y2: 190 },
-    { x1: 450, y1: 200, x2: 530, y2: 200 },
-    { x1: 450, y1: 90,  x2: 530, y2: 90  },
-    { x1: 610, y1: 200, x2: 670, y2: 155 },
-    { x1: 610, y1: 90,  x2: 670, y2: 130 },
-  ];
-
   const agents = [
     { step: "01", name: "Extractor",  model: "Llama 3.1 8B",  role: "Data extraction specialist",  color: "bg-blue-100 text-blue-700" },
     { step: "02", name: "Finance",    model: "Llama 3.1 70B", role: "Financial analyst",            color: "bg-amber-100 text-amber-700" },
@@ -366,39 +371,55 @@ function ArchitectureSection() {
         {/* System flow diagram */}
         <div className="card p-6 mb-8 overflow-x-auto">
           <div className="text-[11px] text-[#9aa0aa] mb-4 uppercase tracking-wider">System flow</div>
-          <svg viewBox="0 0 780 280" className="w-full min-w-[600px] h-[200px]">
+          <svg viewBox="0 0 900 320" className="w-full min-w-[700px] h-[320px]">
             <defs>
-              <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                <path d="M0,0 L10,5 L0,10 z" fill="#d0cec6" />
+              <marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#c0bdb5" />
               </marker>
             </defs>
-            {/* edges */}
-            {edges.map((e, i) => (
+            {/* edges — recalculated for new node positions */}
+            {[
+              { x1: 148, y1: 160, x2: 222, y2: 160 },
+              { x1: 318, y1: 145, x2: 392, y2: 100  },
+              { x1: 318, y1: 175, x2: 392, y2: 220  },
+              { x1: 508, y1: 220, x2: 572, y2: 220  },
+              { x1: 508, y1: 100, x2: 572, y2: 100  },
+              { x1: 688, y1: 220, x2: 752, y2: 175  },
+              { x1: 688, y1: 100, x2: 752, y2: 145  },
+            ].map((e, i) => (
               <line
                 key={i}
                 x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
-                stroke="#e3e1d8" strokeWidth="1.5"
+                stroke="#e3e1d8" strokeWidth="1.8"
                 markerEnd="url(#arch-arrow)"
-                strokeDasharray="4 3"
+                strokeDasharray="5 4"
               />
             ))}
-            {/* nodes */}
-            {nodes.map((n) => (
+            {/* nodes — wider, taller, bigger text */}
+            {[
+              { id: "user",   x: 85,  y: 160, label: "User",       sub: "Next.js 15",         color: "#3b82f6" },
+              { id: "api",    x: 270, y: 160, label: "API",        sub: "NestJS 11",           color: "#8b5cf6" },
+              { id: "queue",  x: 450, y: 100, label: "Queue",      sub: "BullMQ + Redis",      color: "#f59e0b" },
+              { id: "worker", x: 450, y: 220, label: "Workers",    sub: "BullMQ Workers",      color: "#f59e0b" },
+              { id: "python", x: 630, y: 220, label: "Scraper",    sub: "Python + Playwright", color: "#10b981" },
+              { id: "ai",     x: 630, y: 100, label: "AI Agents",  sub: "NVIDIA NIM / Llama",  color: "#ec4899" },
+              { id: "db",     x: 810, y: 160, label: "Database",   sub: "PostgreSQL + Drizzle",color: "#6b7280" },
+            ].map((n) => (
               <g key={n.id}>
                 <rect
-                  x={n.x - 48} y={n.y - 26}
-                  width="96" height="52" rx="8"
-                  fill="white" stroke="#e3e1d8" strokeWidth="1.2"
+                  x={n.x - 60} y={n.y - 32}
+                  width="120" height="64" rx="10"
+                  fill="white" stroke="#e3e1d8" strokeWidth="1.4"
                 />
                 <rect
-                  x={n.x - 48} y={n.y - 26}
-                  width="4" height="52" rx="2"
+                  x={n.x - 60} y={n.y - 32}
+                  width="5" height="64" rx="2"
                   fill={n.color}
                 />
-                <text x={n.x + 4} y={n.y - 6} textAnchor="middle" fontSize="11" fontWeight="600" fill="#0f1115" fontFamily="Inter">
+                <text x={n.x + 4} y={n.y - 7} textAnchor="middle" fontSize="13" fontWeight="600" fill="#0f1115" fontFamily="Inter">
                   {n.label}
                 </text>
-                <text x={n.x + 4} y={n.y + 10} textAnchor="middle" fontSize="9" fill="#9aa0aa" fontFamily="Inter">
+                <text x={n.x + 4} y={n.y + 13} textAnchor="middle" fontSize="10.5" fill="#9aa0aa" fontFamily="Inter">
                   {n.sub}
                 </text>
               </g>
