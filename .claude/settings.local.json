@@ -25,7 +25,8 @@
       "Bash(pnpm dotenv *)",
       "Bash(pnpm --filter web build)",
       "Bash(pnpm --filter web next build)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
