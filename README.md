@@ -244,3 +244,5 @@ finetune-agent/
 - [COMPETITION.md](./COMPETITION.md) — Submission document
 - [CONTEXT.md](./CONTEXT.md) — Product vision
 - [AGENTS.md](./AGENTS.md) — AI assistant guide
+
+## Qhomemart AI Agent Challanges
