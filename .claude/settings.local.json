@@ -26,7 +26,9 @@
       "Bash(pnpm --filter web build)",
       "Bash(pnpm --filter web next build)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(mkdir -p /Users/finetune-ft2/WEB/finetune-agent/apps/web/public)",
+      "Bash(cp /Users/finetune-ft2/WEB/finetune-agent/apps/web/src/logo.png /Users/finetune-ft2/WEB/finetune-agent/apps/web/public/logo.png)"
     ]
   }
 }
