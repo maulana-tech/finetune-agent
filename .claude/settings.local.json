@@ -28,7 +28,8 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(mkdir -p /Users/finetune-ft2/WEB/finetune-agent/apps/web/public)",
-      "Bash(cp /Users/finetune-ft2/WEB/finetune-agent/apps/web/src/logo.png /Users/finetune-ft2/WEB/finetune-agent/apps/web/public/logo.png)"
+      "Bash(cp /Users/finetune-ft2/WEB/finetune-agent/apps/web/src/logo.png /Users/finetune-ft2/WEB/finetune-agent/apps/web/public/logo.png)",
+      "Bash(chmod +x *)"
     ]
   }
 }

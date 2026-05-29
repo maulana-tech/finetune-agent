@@ -19,7 +19,8 @@
     "db:cleanup-dupes": "dotenv -e .env -- tsx scripts/cleanup-duplicate-workspaces.ts",
     "db:cleanup-orphaned": "dotenv -e .env -- tsx scripts/cleanup-orphaned-workspaces.ts",
     "db:migrate-orphaned": "dotenv -e .env -- tsx scripts/migrate-orphaned-data.ts",
-    "db:verify": "dotenv -e .env -- tsx scripts/verify-database.ts"
+    "db:verify": "dotenv -e .env -- tsx scripts/verify-database.ts",
+    "redis:monitor": "bash scripts/monitor-redis.sh"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
