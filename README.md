@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="apps/web/src/logo.png" alt="Finetune Agent" width="120" />
+</div>
+
 # Finetune Agent — Multi-Agent B2B Intelligence System
 
 Collaborative AI system dengan 4+ specialized agents untuk scraping, scoring, dan menganalisis prospek B2B — **live production** dengan data real dari Google Maps.
