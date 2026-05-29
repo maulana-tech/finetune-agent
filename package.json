@@ -20,6 +20,7 @@
     "db:cleanup-orphaned": "dotenv -e .env -- tsx scripts/cleanup-orphaned-workspaces.ts",
     "db:migrate-orphaned": "dotenv -e .env -- tsx scripts/migrate-orphaned-data.ts",
     "db:verify": "dotenv -e .env -- tsx scripts/verify-database.ts",
+    "redis:test": "dotenv -e .env -- tsx scripts/test-redis-connection.ts",
     "redis:monitor": "bash scripts/monitor-redis.sh"
   },
   "devDependencies": {
