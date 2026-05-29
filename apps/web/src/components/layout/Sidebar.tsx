@@ -14,6 +14,7 @@ import {
   Settings,
   Home,
   PanelLeft,
+  History,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
       { href: '/dashboard/market',   icon: Globe,     label: 'Market Analysis' },
       { href: '/dashboard/reports',  icon: BarChart2, label: 'Reports'         },
       { href: '/dashboard/finance',  icon: Wallet,    label: 'Finance'         },
+      { href: '/dashboard/history',  icon: History,   label: 'History'         },
     ],
   },
 ];
