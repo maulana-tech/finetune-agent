@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Search } from "lucide-react";
 
 const navItems = [
@@ -18,9 +19,7 @@ export default function TopNav({ variant = "light" }: { variant?: "light" | "dar
           href="/"
           className={`flex items-center gap-2.5 ${isLight ? "text-white" : "text-[#0f1115]"}`}
         >
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${isLight ? "bg-white/15 backdrop-blur" : "bg-[#0f1115]"}`}>
-            <Search className={`size-4 ${isLight ? "text-white" : "text-white"}`} />
-          </div>
+          <Image src="/logo.png" alt="uTune AI" width={36} height={36} className="shrink-0" />
           <span className="font-display text-[17px] tracking-tight">uTune AI</span>
         </Link>
 
