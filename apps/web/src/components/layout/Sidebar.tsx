@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
@@ -11,7 +12,6 @@ import {
   Clock,
   BarChart2,
   Settings,
-  Search,
   Home,
   PanelLeft,
 } from 'lucide-react';
@@ -69,9 +69,7 @@ export function Sidebar() {
       >
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center bg-foreground text-background">
-              <Search className="size-4" />
-            </div>
+            <Image src="/logo.png" alt="uTune AI" width={32} height={32} className="shrink-0" />
             <span className="text-[14px] font-bold uppercase tracking-tighter text-foreground">
               uTune AI
             </span>
