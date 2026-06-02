@@ -15,4 +15,5 @@ export const envSchema = z.object({
   AI_HEAVY_MODEL: z.string().optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM_EMAIL: z.string().email().optional(),
+  RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
 });

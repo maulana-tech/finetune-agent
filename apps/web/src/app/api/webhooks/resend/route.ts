@@ -12,14 +12,22 @@ export async function POST(request: Request) {
   try {
     const payload = await request.json();
 
+    // Get signature header from Resend
+    const signature = request.headers.get('svix-signature');
+    const timestamp = request.headers.get('svix-timestamp');
+    const id = request.headers.get('svix-id');
+
     console.log('[Webhook Forwarder] Received from Resend:', payload.type);
 
-    // Forward to VPS API
+    // Forward to VPS API with signature headers
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://43.129.54.139:3001';
     const response = await fetch(`${apiUrl}/webhooks/resend`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(signature && { 'svix-signature': signature }),
+        ...(timestamp && { 'svix-timestamp': timestamp }),
+        ...(id && { 'svix-id': id }),
       },
       body: JSON.stringify(payload),
     });
