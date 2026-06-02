@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { EmailService } from './email.service';
-import { WebhooksController } from './webhooks.controller';
+import { SmtpService } from './smtp.service';
 import { TemplatesService } from './templates.service';
 import { TemplatesController } from './templates.controller';
 import { SequencesService } from './sequences.service';
 import { SequencesController } from './sequences.controller';
 
 @Module({
-  controllers: [WebhooksController, TemplatesController, SequencesController],
-  providers: [EmailService, TemplatesService, SequencesService],
-  exports: [EmailService, TemplatesService, SequencesService],
+  controllers: [TemplatesController, SequencesController],
+  providers: [SmtpService, TemplatesService, SequencesService],
+  exports: [SmtpService, TemplatesService, SequencesService],
 })
 export class EmailModule {}

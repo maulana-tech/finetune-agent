@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { eq, and, lt } from 'drizzle-orm';
 import { db, emailSequences, sequenceEnrollments, leads, emailOutreach } from '@repo/db';
-import { EmailService } from './email.service';
+import { SmtpService } from './smtp.service';
 import { TemplatesService } from './templates.service';
 
 interface CreateSequenceDto {
@@ -17,7 +17,7 @@ interface CreateSequenceDto {
 @Injectable()
 export class SequencesService {
   constructor(
-    private readonly emailService: EmailService,
+    private readonly emailService: SmtpService,
     private readonly templatesService: TemplatesService,
   ) {}
 
@@ -181,7 +181,7 @@ export class SequencesService {
         .limit(1);
 
       if (lead && lead.emails && lead.emails.length > 0) {
-        const fromEmail = process.env.RESEND_FROM_EMAIL;
+        const fromEmail = process.env.SUMOPOD_FROM_EMAIL || process.env.RESEND_FROM_EMAIL;
         if (fromEmail) {
           await this.emailService.sendEmail({
             leadId: enrollment.leadId,

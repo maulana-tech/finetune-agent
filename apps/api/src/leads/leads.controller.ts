@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Put, Delete, Param, Query, Body } from '@nestjs/common';
 import { LeadsService } from './leads.service';
-import { EmailService } from '../email/email.service';
+import { SmtpService } from '../email/smtp.service';
 
 @Controller('leads')
 export class LeadsController {
   constructor(
     private readonly leads: LeadsService,
-    private readonly email: EmailService,
+    private readonly email: SmtpService,
   ) {}
 
   @Get()
@@ -63,9 +63,9 @@ export class LeadsController {
       scheduledFor?: string; // ISO date string
     },
   ) {
-    const fromEmail = process.env.RESEND_FROM_EMAIL;
+    const fromEmail = process.env.SUMOPOD_FROM_EMAIL || process.env.RESEND_FROM_EMAIL;
     if (!fromEmail) {
-      throw new Error('RESEND_FROM_EMAIL environment variable not set');
+      throw new Error('SUMOPOD_FROM_EMAIL or RESEND_FROM_EMAIL environment variable not set');
     }
 
     return this.email.sendEmail({

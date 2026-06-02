@@ -16,4 +16,9 @@ export const envSchema = z.object({
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM_EMAIL: z.string().email().optional(),
   RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
+  SUMOPOD_SMTP_HOST: z.string().optional(),
+  SUMOPOD_SMTP_PORT: z.string().optional(),
+  SUMOPOD_SMTP_USER: z.string().optional(),
+  SUMOPOD_SMTP_PASS: z.string().optional(),
+  SUMOPOD_FROM_EMAIL: z.string().email().optional(),
 });
