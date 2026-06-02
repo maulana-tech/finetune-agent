@@ -1,9 +1,13 @@
 import { Controller, Get, Post, Put, Delete, Param, Query, Body } from '@nestjs/common';
 import { LeadsService } from './leads.service';
+import { EmailService } from '../email/email.service';
 
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly leads: LeadsService) {}
+  constructor(
+    private readonly leads: LeadsService,
+    private readonly email: EmailService,
+  ) {}
 
   @Get()
   list(@Query('workspaceId') workspaceId: string) {
@@ -46,6 +50,36 @@ export class LeadsController {
     @Query('workspaceId') workspaceId: string,
   ) {
     return this.leads.generateEmail(id, workspaceId);
+  }
+
+  @Post(':id/send-email')
+  async sendEmail(
+    @Param('id') id: string,
+    @Query('workspaceId') workspaceId: string,
+    @Body() body: {
+      toEmail: string;
+      subject: string;
+      body: string;
+    },
+  ) {
+    const fromEmail = process.env.RESEND_FROM_EMAIL;
+    if (!fromEmail) {
+      throw new Error('RESEND_FROM_EMAIL environment variable not set');
+    }
+
+    return this.email.sendEmail({
+      leadId: id,
+      workspaceId,
+      toEmail: body.toEmail,
+      fromEmail,
+      subject: body.subject,
+      body: body.body,
+    });
+  }
+
+  @Get(':id/emails')
+  getEmailHistory(@Param('id') id: string) {
+    return this.email.getEmailHistory(id);
   }
 
   @Get(':id/insights')

@@ -13,4 +13,6 @@ export const envSchema = z.object({
   AI_FAST_MODEL: z.string().optional(),
   AI_STANDARD_MODEL: z.string().optional(),
   AI_HEAVY_MODEL: z.string().optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_FROM_EMAIL: z.string().email().optional(),
 });

@@ -32,7 +32,9 @@
       "Bash(chmod +x *)",
       "Bash(git ls-tree *)",
       "Bash(git push *)",
-      "Bash(bash apps/workers/test-scraper-quick.sh)"
+      "Bash(bash apps/workers/test-scraper-quick.sh)",
+      "Bash(pnpm db:generate)",
+      "Bash(pnpm *)"
     ]
   }
 }

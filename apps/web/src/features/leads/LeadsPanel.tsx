@@ -25,6 +25,17 @@ interface Note {
   createdAt: string;
 }
 
+interface EmailHistory {
+  id: string;
+  toEmail: string;
+  subject: string;
+  status: string;
+  sentAt: string | null;
+  openedAt: string | null;
+  clickedAt: string | null;
+  createdAt: string;
+}
+
 interface Lead {
   id: string;
   name: string;
@@ -85,6 +96,7 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
   const [noteInput, setNoteInput] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [noteSubmitting, setNoteSubmitting] = useState(false);
+  const [emailHistory, setEmailHistory] = useState<EmailHistory[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const selectedLead = leads.find(l => l.id === selectedLeadId);
@@ -105,15 +117,24 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
       .catch(() => setNotes([]));
   }, []);
 
+  const fetchEmailHistory = useCallback(async (leadId: string) => {
+    fetch(`${apiUrl()}/leads/${leadId}/emails`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setEmailHistory)
+      .catch(() => setEmailHistory([]));
+  }, []);
+
   useEffect(() => {
     if (!selectedLeadId) {
       setInsights([]);
       setNotes([]);
+      setEmailHistory([]);
       return;
     }
     fetchInsights(selectedLeadId);
     fetchNotes(selectedLeadId);
-  }, [selectedLeadId, fetchInsights, fetchNotes]);
+    fetchEmailHistory(selectedLeadId);
+  }, [selectedLeadId, fetchInsights, fetchNotes, fetchEmailHistory]);
 
   const handleAddNote = async () => {
     if (!noteInput.trim() || !selectedLeadId) return;
@@ -311,11 +332,53 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
               >
                 {analyzing ? 'Analyzing...' : 'Analyze for My Business'}
               </button>
-              <GenerateEmailButton leadId={selectedLeadId!} onGenerated={() => fetchInsights(selectedLeadId!)} />
+              <GenerateEmailButton
+                leadId={selectedLeadId!}
+                leadEmail={selectedLead.emails?.[0]}
+                onGenerated={() => {
+                  fetchInsights(selectedLeadId!);
+                  fetchEmailHistory(selectedLeadId!);
+                }}
+              />
               <button className="w-full py-2 bg-background border border-border text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors">
                 Analyze Financial Potential
               </button>
             </div>
+
+            {/* Email History */}
+            {emailHistory.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3 text-primary">Email History</h3>
+                <div className="space-y-2">
+                  {emailHistory.map((email) => (
+                    <div key={email.id} className="p-3 border border-border bg-accent/10">
+                      <div className="text-xs font-medium mb-1">{email.subject}</div>
+                      <div className="text-[10px] text-muted-foreground space-y-0.5">
+                        <div>To: {email.toEmail}</div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
+                            email.status === 'sent' || email.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                            email.status === 'failed' || email.status === 'bounced' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {email.status}
+                          </span>
+                          {email.sentAt && (
+                            <span>{new Date(email.sentAt).toLocaleString()}</span>
+                          )}
+                        </div>
+                        {email.openedAt && (
+                          <div className="text-green-600">✓ Opened {new Date(email.openedAt).toLocaleString()}</div>
+                        )}
+                        {email.clickedAt && (
+                          <div className="text-blue-600">✓ Clicked {new Date(email.clickedAt).toLocaleString()}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Notes / Activity */}
             <div className="mt-4">
