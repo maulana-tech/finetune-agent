@@ -25,6 +25,9 @@ export const emailOutreach = pgTable('email_outreach', {
   resendEmailId: text('resend_email_id'), // For webhook matching
   errorMessage: text('error_message'),
 
+  // Scheduling
+  scheduledFor: timestamp('scheduled_for'), // When to send (null = send immediately)
+
   createdAt: timestamp('created_at').defaultNow().notNull(),
   sentAt: timestamp('sent_at'),
 });

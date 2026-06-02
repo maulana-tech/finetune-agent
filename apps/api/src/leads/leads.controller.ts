@@ -60,6 +60,7 @@ export class LeadsController {
       toEmail: string;
       subject: string;
       body: string;
+      scheduledFor?: string; // ISO date string
     },
   ) {
     const fromEmail = process.env.RESEND_FROM_EMAIL;
@@ -74,6 +75,7 @@ export class LeadsController {
       fromEmail,
       subject: body.subject,
       body: body.body,
+      scheduledFor: body.scheduledFor ? new Date(body.scheduledFor) : undefined,
     });
   }
 

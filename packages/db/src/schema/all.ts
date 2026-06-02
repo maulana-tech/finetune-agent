@@ -14,3 +14,5 @@ export * from './swarm_runs';
 export * from './scrape_schedules';
 export * from './lead_notes';
 export * from './email_outreach';
+export * from './email_templates';
+export * from './email_sequences';
