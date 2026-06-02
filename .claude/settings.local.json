@@ -34,7 +34,11 @@
       "Bash(git push *)",
       "Bash(bash apps/workers/test-scraper-quick.sh)",
       "Bash(pnpm db:generate)",
-      "Bash(pnpm *)"
+      "Bash(pnpm *)",
+      "Bash(curl -s http://43.129.54.139:3001/)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(bash /tmp/quick-test-email.sh)"
     ]
   }
 }

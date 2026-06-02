@@ -44,6 +44,32 @@ interface Lead {
   category: string | null;
   mapsUrl: string | null;
   phone: string | null;
+  createdAt: string;
+}
+
+// Helper function to check if lead is new (< 24 hours)
+function isNewLead(createdAt: string): boolean {
+  const created = new Date(createdAt).getTime();
+  const now = Date.now();
+  const hoursDiff = (now - created) / (1000 * 60 * 60);
+  return hoursDiff < 24;
+}
+
+// Helper function to format relative time
+function timeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = Date.now();
+  const seconds = Math.floor((now - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
 }
 
 export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
@@ -433,27 +459,46 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
             {query ? 'No leads match your search.' : 'No leads found yet. Try running a scrape job above.'}
           </div>
         ) : (
-          leads.map(lead => (
-            <div
-              key={lead.id}
-              onClick={() => setSelectedLeadId(lead.id)}
-              className={`p-3 border transition-colors cursor-pointer group ${selectedLeadId === lead.id ? 'border-primary bg-accent/50' : 'border-border bg-accent/10 hover:border-primary/50'}`}
-            >
-              <div className="font-bold text-sm leading-tight mb-1">{lead.name}</div>
-              <div className="text-[10px] text-muted-foreground truncate">{lead.address}</div>
-              <div className="mt-3 flex gap-1 flex-wrap">
-                {lead.emails && lead.emails.length > 0 && (
-                  <span className="px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider">Email</span>
-                )}
-                {lead.category && (
-                  <span className="px-1.5 py-0.5 border border-border text-muted-foreground text-[9px] font-bold uppercase tracking-wider">{lead.category}</span>
-                )}
-                {lead.mapsUrl && (
-                  <span className="px-1.5 py-0.5 border border-border text-muted-foreground text-[9px] font-bold uppercase tracking-wider">Maps</span>
-                )}
+          leads.map(lead => {
+            const isNew = isNewLead(lead.createdAt);
+            return (
+              <div
+                key={lead.id}
+                onClick={() => setSelectedLeadId(lead.id)}
+                className={`p-3 border transition-colors cursor-pointer group ${
+                  selectedLeadId === lead.id
+                    ? 'border-primary bg-accent/50'
+                    : isNew
+                      ? 'border-green-500/50 bg-green-50/10 hover:border-green-500'
+                      : 'border-border bg-accent/10 hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="font-bold text-sm leading-tight">{lead.name}</div>
+                  {isNew && (
+                    <span className="px-1.5 py-0.5 bg-green-500 text-white text-[8px] font-bold uppercase tracking-wider shrink-0 animate-pulse">
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] text-muted-foreground truncate">{lead.address}</div>
+                <div className="text-[9px] text-muted-foreground mt-1">
+                  Added {timeAgo(lead.createdAt)}
+                </div>
+                <div className="mt-3 flex gap-1 flex-wrap">
+                  {lead.emails && lead.emails.length > 0 && (
+                    <span className="px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider">Email</span>
+                  )}
+                  {lead.category && (
+                    <span className="px-1.5 py-0.5 border border-border text-muted-foreground text-[9px] font-bold uppercase tracking-wider">{lead.category}</span>
+                  )}
+                  {lead.mapsUrl && (
+                    <span className="px-1.5 py-0.5 border border-border text-muted-foreground text-[9px] font-bold uppercase tracking-wider">Maps</span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

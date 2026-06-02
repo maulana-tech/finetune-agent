@@ -16,6 +16,7 @@ interface Lead {
   mapsUrl: string | null;
   phone: string | null;
   pipelineStage: string | null;
+  createdAt: string;
 }
 
 export function DashboardClient({ leads }: { leads: Lead[] }) {

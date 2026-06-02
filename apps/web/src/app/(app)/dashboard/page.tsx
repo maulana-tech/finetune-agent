@@ -19,9 +19,16 @@ export default async function DashboardPage() {
       mapsUrl: leads.mapsUrl,
       phone: leads.phone,
       pipelineStage: leads.pipelineStage,
+      createdAt: leads.createdAt,
     })
     .from(leads)
     .where(eq(leads.workspaceId, workspaceId));
 
-  return <DashboardClient leads={allLeads} />;
+  // Convert Date to string for client
+  const leadsWithStringDates = allLeads.map(lead => ({
+    ...lead,
+    createdAt: lead.createdAt.toISOString(),
+  }));
+
+  return <DashboardClient leads={leadsWithStringDates} />;
 }
