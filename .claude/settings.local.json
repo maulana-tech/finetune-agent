@@ -29,7 +29,10 @@
       "Bash(git commit *)",
       "Bash(mkdir -p /Users/finetune-ft2/WEB/finetune-agent/apps/web/public)",
       "Bash(cp /Users/finetune-ft2/WEB/finetune-agent/apps/web/src/logo.png /Users/finetune-ft2/WEB/finetune-agent/apps/web/public/logo.png)",
-      "Bash(chmod +x *)"
+      "Bash(chmod +x *)",
+      "Bash(git ls-tree *)",
+      "Bash(git push *)",
+      "Bash(bash apps/workers/test-scraper-quick.sh)"
     ]
   }
 }

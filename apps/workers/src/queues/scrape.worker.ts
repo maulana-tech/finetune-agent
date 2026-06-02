@@ -46,6 +46,8 @@ export const startScrapeWorker = () => {
 
       let insertedCount = 0;
       for (const res of rawResults) {
+        const emails = (res.emails as string[]) || [];
+
         const [inserted] = await db
           .insert(leads)
           .values({
@@ -54,6 +56,7 @@ export const startScrapeWorker = () => {
             address: (res.address as string) || null,
             phone: (res.phone as string) || null,
             website: (res.website as string) || null,
+            emails: emails.length > 0 ? emails : undefined,
             mapsUrl: (res.maps_url as string) || null,
             lat: (res.lat as number) || null,
             lng: (res.lng as number) || null,
@@ -66,6 +69,7 @@ export const startScrapeWorker = () => {
           inserted.address && `Address: ${inserted.address}`,
           inserted.phone && `Phone: ${inserted.phone}`,
           inserted.website && `Website: ${inserted.website}`,
+          emails.length > 0 && `Emails: ${emails.join(', ')}`,
           inserted.category && `Category: ${inserted.category}`,
         ]
           .filter(Boolean)
