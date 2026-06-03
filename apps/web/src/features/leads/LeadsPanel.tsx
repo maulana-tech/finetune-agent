@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useMapStore } from '../map/store';
 import { apiUrl } from '@/lib/workspace';
 import { useWorkspaceId } from '@/lib/workspace-context';
@@ -45,6 +45,43 @@ interface Lead {
   mapsUrl: string | null;
   phone: string | null;
   createdAt: string;
+}
+
+function renderInsightValue(val: unknown): React.ReactNode {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (Array.isArray(val)) {
+    if (val.length === 0) return null;
+    return (
+      <ul className="mt-0.5 space-y-0.5 pl-3">
+        {val.map((item, i) => (
+          <li key={i} className="list-disc list-inside">
+            {typeof item === 'string'
+              ? item
+              : typeof item === 'object' && item !== null
+              ? Object.entries(item as Record<string, unknown>)
+                  .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+                  .join(' · ')
+              : String(item)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  if (typeof val === 'object') {
+    return (
+      <div className="mt-0.5 pl-3 space-y-0.5 border-l border-border">
+        {Object.entries(val as Record<string, unknown>).map(([k, v]) => (
+          <div key={k}>
+            <span className="text-foreground/60 capitalize">{k.replace(/_/g, ' ')}: </span>
+            <span>{typeof v === 'string' ? v : String(v)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return String(val);
 }
 
 // Helper function to check if lead is new (< 24 hours)
@@ -96,9 +133,21 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
     }
   }, []);
 
-  const [viewMode, setViewMode] = useState<'list' | 'scores'>('list');
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+  const recentLeads = useMemo(
+    () => leads.filter((l) => Date.now() - new Date(l.createdAt).getTime() < SEVEN_DAYS_MS),
+    [leads],
+  );
+  const olderLeads = useMemo(
+    () => leads.filter((l) => Date.now() - new Date(l.createdAt).getTime() >= SEVEN_DAYS_MS),
+    [leads],
+  );
+
+  const [viewMode, setViewMode] = useState<'terbaru' | 'lama' | 'scores'>('terbaru');
   const [scoredLeads, setScoredLeads] = useState<any[]>([]);
   const [scoresLoading, setScoresLoading] = useState(false);
+
+  const displayedLeads = viewMode === 'terbaru' ? recentLeads : olderLeads;
 
   useEffect(() => {
     const timer = setTimeout(() => search(query), 300);
@@ -190,35 +239,51 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
           {selectedLead ? 'Lead Details' : `Leads (${leads.length})`}
         </div>
         {!selectedLead ? (
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                placeholder="Search leads..."
-                className="w-full px-3 py-1.5 text-xs border border-border bg-accent/20 focus:outline-none focus:border-primary placeholder:text-muted-foreground"
-              />
-              {searching && (
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground uppercase tracking-widest">
-                  ...
-                </span>
-              )}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search leads..."
+                  className="w-full px-3 py-1.5 text-xs border border-border bg-accent/20 focus:outline-none focus:border-primary placeholder:text-muted-foreground"
+                />
+                {searching && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground uppercase tracking-widest">
+                    ...
+                  </span>
+                )}
+              </div>
+              <AddLeadButton />
             </div>
             <div className="flex gap-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`h-7 px-2 text-[9px] font-bold uppercase tracking-widest border transition-colors ${viewMode === 'list' ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border hover:border-primary/50'}`}
-              >
-                List
-              </button>
-              <button
-                onClick={() => setViewMode('scores')}
-                className={`h-7 px-2 text-[9px] font-bold uppercase tracking-widest border transition-colors ${viewMode === 'scores' ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border hover:border-primary/50'}`}
-              >
-                Scores
-              </button>
-              <AddLeadButton />
+              {(['terbaru', 'lama', 'scores'] as const).map((mode) => {
+                const active = viewMode === mode;
+                const count = mode === 'terbaru' ? recentLeads.length : mode === 'lama' ? olderLeads.length : null;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`flex-1 h-7 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-widest border transition-colors ${
+                      active
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+                    }`}
+                  >
+                    {mode}
+                    {count !== null && (
+                      <span
+                        className={`min-w-[16px] px-1 text-[8px] font-bold leading-4 text-center ${
+                          active ? 'bg-background/20 text-background' : 'bg-accent text-muted-foreground'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -326,12 +391,12 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
                           {new Date(insight.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <div className="text-muted-foreground space-y-1">
+                      <div className="text-muted-foreground space-y-1.5">
                         {Object.entries(insight.content).map(([key, val]) => (
-                          <p key={key}>
+                          <div key={key}>
                             <span className="font-medium text-foreground capitalize">{key.replace(/_/g, ' ')}: </span>
-                            {typeof val === 'string' ? val : JSON.stringify(val)}
-                          </p>
+                            {renderInsightValue(val)}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -454,12 +519,16 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
           ) : (
             <LeadScoreView scores={scoredLeads} />
           )
-        ) : leads.length === 0 ? (
+        ) : displayedLeads.length === 0 ? (
           <div className="p-8 text-center text-xs text-muted-foreground">
-            {query ? 'No leads match your search.' : 'No leads found yet. Try running a scrape job above.'}
+            {query
+              ? 'No leads match your search.'
+              : viewMode === 'terbaru'
+              ? 'No leads from the last 7 days. Run a scrape to get started.'
+              : 'No older leads yet.'}
           </div>
         ) : (
-          leads.map(lead => {
+          displayedLeads.map(lead => {
             const isNew = isNewLead(lead.createdAt);
             return (
               <div
