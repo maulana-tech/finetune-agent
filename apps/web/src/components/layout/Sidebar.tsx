@@ -16,6 +16,7 @@ import {
   PanelLeft,
   History,
   ScanSearch,
+  Sparkles,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   {
     group: 'Intelligence',
     items: [
+      { href: '/dashboard/query',    icon: Sparkles,  label: 'AI Query'        },
       { href: '/dashboard/market',   icon: Globe,     label: 'Market Analysis' },
       { href: '/dashboard/reports',  icon: BarChart2, label: 'Reports'         },
       { href: '/dashboard/finance',  icon: Wallet,    label: 'Finance'         },
