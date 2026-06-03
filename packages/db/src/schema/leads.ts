@@ -1,9 +1,11 @@
 import { pgTable, text, timestamp, uuid, jsonb, doublePrecision } from 'drizzle-orm/pg-core';
 import { workspaces } from './workspaces';
+import { jobs } from './jobs';
 
 export const leads = pgTable('leads', {
   id: uuid('id').defaultRandom().primaryKey(),
   workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id),
+  sourceJobId: uuid('source_job_id').references(() => jobs.id),
   name: text('name').notNull(),
   address: text('address'),
   lat: doublePrecision('lat'),
