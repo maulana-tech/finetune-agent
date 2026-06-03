@@ -157,8 +157,12 @@ def scrape_maps(query: str, limit: int):
             if len(raw_leads) >= limit:
                 break
 
-            name = card.get_attribute('aria-label') or ''
-            if not name or name in seen or 'Kunjungi situs' in name:
+            name = (card.get_attribute('aria-label') or '').strip()
+            # Skip empty, too short, junk system strings, or already-seen
+            JUNK_NAMES = {'json', 'null', 'undefined', 'loading', 'load'}
+            if not name or len(name) < 3 or name.lower() in JUNK_NAMES or 'Kunjungi situs' in name:
+                continue
+            if name in seen:
                 continue
             seen.add(name)
 
