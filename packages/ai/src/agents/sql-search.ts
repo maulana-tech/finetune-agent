@@ -7,19 +7,21 @@ const fastModel = nvidia('meta/llama-3.1-8b-instruct');
 const LEADS_SCHEMA_HINT = `
 Table: leads
 Columns:
-  id          uuid
-  workspace_id uuid
-  name        text        -- business name
-  address     text
-  lat         float
-  lng         float
-  phone       text
-  website     text
-  category    text        -- e.g. "Coffee Shop", "klinik", "bengkel"
-  emails      jsonb       -- string array
-  maps_url    text
-  created_at  timestamp
-  updated_at  timestamp
+  id            uuid
+  workspace_id  uuid
+  name          text        -- business name
+  address       text
+  lat           float
+  lng           float
+  phone         text
+  website       text
+  category      text        -- e.g. "Coffee Shop", "klinik", "bengkel"
+  emails        jsonb       -- string array, e.g. ["info@cafe.com"]
+  whatsapp      jsonb       -- string array of WA numbers, e.g. ["+6281234567890"]
+  maps_url      text
+  pipeline_stage text       -- e.g. "Prospecting", "Qualified", "Closed"
+  created_at    timestamp
+  updated_at    timestamp
 `.trim();
 
 export const SqlQuerySchema = z.object({
