@@ -12,6 +12,7 @@ interface Lead {
   lat: number | null;
   lng: number | null;
   emails: string[] | null;
+  whatsapp: string[] | null;
   category: string | null;
   mapsUrl: string | null;
   phone: string | null;
