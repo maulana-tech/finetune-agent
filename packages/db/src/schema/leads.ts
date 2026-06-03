@@ -12,6 +12,7 @@ export const leads = pgTable('leads', {
   website: text('website'),
   category: text('category'),
   emails: jsonb('emails').$type<string[]>(),
+  whatsapp: jsonb('whatsapp').$type<string[]>(),
   mapsUrl: text('maps_url'),
   pipelineStage: text('pipeline_stage').default('Prospecting'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
