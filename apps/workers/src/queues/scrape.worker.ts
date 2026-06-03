@@ -58,11 +58,20 @@ export const startScrapeWorker = () => {
 
       console.log(`[Scrape] Scraped ${rawResults.length} results for "${query}"`);
 
+      // Names that indicate scraper picked up a non-business element
+      const BAD_NAMES = new Set(['json', 'null', 'undefined', 'n/a', 'na', 'loading', 'unknown']);
+
       let insertedCount = 0;
       for (const res of rawResults) {
         const emails    = (res.emails    as string[]) || [];
         const whatsapp  = (res.whatsapp  as string[]) || [];
-        const leadName  = (res.name      as string)   || 'Unknown';
+        const leadName  = (res.name      as string)?.trim() || '';
+
+        // Skip bad/placeholder names
+        if (!leadName || leadName.length < 3 || BAD_NAMES.has(leadName.toLowerCase())) {
+          console.log(`[Scrape] Skip bad name: "${leadName}"`);
+          continue;
+        }
 
         // Skip duplicates — same workspace + same name already exists
         const existing = await db
@@ -80,6 +89,7 @@ export const startScrapeWorker = () => {
           .insert(leads)
           .values({
             workspaceId,
+            sourceJobId:   jobId ?? undefined,
             name:          leadName,
             address:       (res.address  as string) || null,
             phone:         (res.phone    as string) || null,
