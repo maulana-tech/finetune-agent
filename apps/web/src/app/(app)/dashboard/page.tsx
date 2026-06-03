@@ -15,6 +15,7 @@ export default async function DashboardPage() {
       lat: leads.lat,
       lng: leads.lng,
       emails: leads.emails,
+      whatsapp: leads.whatsapp,
       category: leads.category,
       mapsUrl: leads.mapsUrl,
       phone: leads.phone,
