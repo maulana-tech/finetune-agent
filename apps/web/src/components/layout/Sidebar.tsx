@@ -15,6 +15,7 @@ import {
   Home,
   PanelLeft,
   History,
+  ScanSearch,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -28,8 +29,9 @@ const NAV_ITEMS = [
   {
     group: 'Prospecting',
     items: [
-      { href: '/dashboard/pipelines',        icon: Layers, label: 'Pipelines'        },
-      { href: '/dashboard/scrape-schedules', icon: Clock,  label: 'Scrape Schedules' },
+      { href: '/dashboard/pipelines',        icon: Layers,      label: 'Pipelines'        },
+      { href: '/dashboard/scrapes',          icon: ScanSearch,  label: 'Scrape History'   },
+      { href: '/dashboard/scrape-schedules', icon: Clock,       label: 'Scrape Schedules' },
     ],
   },
   {
