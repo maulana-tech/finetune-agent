@@ -1,195 +1,143 @@
-# Hackathon Pitch Deck — Finetune Agent
+# Hackathon Pitch Deck — Finetune Agent / uTune AI
+
+> **10 slides · ~16–18 menit · Target: hackathon judges (technical + business)**
 
 ---
 
-## Slide 1 — Cover Slide
+## Slide 1 — Cover
 
-**Title:** Finetune Agent
-**Tagline:** Find. Analyze. Close. — AI-native B2B sales intelligence, built for Southeast Asia.
-**Visual:** Full-bleed screenshot of the map dashboard with lead pins scattered across an Indonesian city
-**Bottom bar:** Team name · Hackathon name · Date
-
----
-
-## Slide 2 — Personal Anecdote / Introduce the Problem
-
-**Narrative (story format):**
-> "Meet Raka. He's an SDR at a Jakarta SaaS startup. His Monday task: find 50 dentist clinics across Surabaya to pitch their booking software. He opens Google Maps. Searches. Scrolls. Copies names, addresses, and phone numbers one by one into a spreadsheet. Three hours later — 23 leads, zero idea which ones can afford the product, and a generic email template that will land in every spam folder."
-
-**Visual suggestions:**
-- Screenshot of Google Maps + spreadsheet side-by-side (a "before" moment)
-- OR a photo/illustration of a field rep in a car with a clipboard and phone
-- News article angle: "Indonesian SMBs lose billions yearly due to poor sales targeting"
-
-**One-liner below the image:**
-*This is how B2B prospecting still works in 2026 across Southeast Asia.*
+**Title:** uTune AI
+**Tagline:** Find. Analyze. Close. — AI-native B2B sales intelligence for Southeast Asia.
+**Visual:** Full-bleed screenshot of the map dashboard — lead pins scattered across an Indonesian city, detail panel open on the right
+**Bottom bar:** Team name · Hackathon name · Date · `utune-ai.vercel.app`
 
 ---
 
-## Slide 3 — Problem Statement
+## Slide 2 — The Problem (Story)
 
-**Headline:** B2B Lead Generation is Manual, Fragmented, and Intelligence-Free
+**Headline:** This is how B2B prospecting still works in 2026.
 
-**Three problem pillars (icon + one line each):**
+**Narrative:**
+> "Meet Raka. He's an SDR at a Jakarta SaaS startup. His Monday task: find 50 dentist clinics across Surabaya to pitch their booking software.
+>
+> He opens Google Maps. Searches. Scrolls. Copies names, addresses, phone numbers — one by one — into a spreadsheet.
+>
+> Three hours later: 23 leads, zero idea which ones can afford the product, and a generic email template about to land in every spam folder."
 
-| Icon | Problem |
-|------|---------|
-| 📋 | Data without intelligence — scrapers give you lists, not insight |
-| 🗺️ | CRMs without geography — Pipedrive/HubSpot are list views; field reps drive blind |
-| ✉️ | Outreach without personalization — generic cold emails get <1% reply rate |
+**Visual:** Google Maps + spreadsheet side-by-side ("before" moment)
 
-**One synthesizing statement at bottom:**
-> Sales teams waste 65% of their time on non-selling activities — researching, data-entering, and guessing which leads are worth chasing.
+**Punchline below image:**
+> *Sales teams in SEA spend 65% of their day on non-selling work. Raka is not the exception — he's the rule.*
 
 ---
 
-## Slide 4 — Statistics / Research Validating the Problem
+## Slide 3 — Problem at Scale
 
-**Layout:** 4 big-number stat cards + 1 supporting quote
+**Headline:** B2B Lead Gen is Manual, Fragmented, and Intelligence-Free
+
+**Three pillars:**
+
+| | Problem | Impact |
+|--|---------|--------|
+| 📋 | Scrapers give you lists, not intelligence | No idea which leads are worth calling |
+| 🗺️ | CRMs are list views — field reps drive blind | Missed territory coverage, wasted visits |
+| ✉️ | Generic cold outreach gets <1% reply rate | Pipeline stalls, quota missed |
+
+**4 stats (big numbers):**
 
 | Stat | Source |
 |------|--------|
-| **65M+** SMBs in Indonesia alone — the addressable prospect universe | BPS / World Bank |
-| **65%** of a sales rep's day is non-selling work | McKinsey State of Sales |
-| **<1%** average reply rate on generic cold email | Salesforce Research |
-| **3–5 hrs** per day spent on manual prospect research & data entry | HubSpot Sales Report |
-
-**Supporting quote (blockquote style):**
-> *"The biggest problem isn't finding leads — it's knowing which ones are worth calling."*
-> — Common pain from 12 discovery interviews with SEA SDRs
+| **65M+** SMBs in Indonesia — the addressable prospect universe | BPS / World Bank |
+| **65%** of a rep's day is non-selling work | McKinsey |
+| **<1%** average cold email reply rate | Salesforce Research |
+| **3–5 hrs/day** lost to manual research & data entry | HubSpot |
 
 ---
 
-## Slide 5 — The Pivot Question
+## Slide 4 — The Pivot Question
 
-**Full-slide, centered, large type:**
+**Full-slide, large centered type:**
 
-> **What if every lead came pre-analyzed by a team of AI specialists — a financial analyst, a marketing strategist, and a sales advisor — all collaborating in under 10 seconds?**
+> **What if every lead came pre-analyzed by a team of AI specialists —**
+> **a financial analyst, a market strategist, and a sales advisor —**
+> **all working in parallel, in under 10 seconds?**
 
-**Visual:** Animated arrow from "messy Google Maps + spreadsheet" → "clean map with scored, AI-enriched leads"
-
----
-
-## Slide 6 — Showcase the Solution
-
-**Headline:** Finetune Agent — Map-First B2B Intelligence Platform
-
-**Three-pillar layout:**
-
-**1. Business Finder**
-Search millions of companies by industry + geography. Draw a polygon on a map, pick a category, get 1,000 verified leads — instantly.
-
-**2. Mapped CRM**
-Every lead is a pin. Manage your pipeline geographically — assign territories, plan routes, filter by stage or rating. No more list-view blindness.
-
-**3. Multi-Agent AI — 20 Specialized AI Agents**
-Three distinct pipelines, one unified Swarm runtime. Every agent decision is logged to `agent_logs` — full reasoning transparency, no black box.
-
-**Callout box:**
-> `search → enrich → analyze → message → visit → close` — all on one map.
+**Visual:** Arrow from "messy spreadsheet + Google Maps" → "clean map with AI-scored, enriched leads"
 
 ---
 
-## Slide 6.5 — The AI Engine: 20 Agents Across 3 Pipelines
+## Slide 5 — Solution Overview
 
-**Headline:** Not one AI. A full team of specialists — orchestrated, logged, observable.
+**Headline:** uTune AI — Map-First B2B Intelligence Platform
 
----
+**Three pillars (icon + 2-line description each):**
 
-### Pipeline A — Lead Scoring (Sequential, 4 steps)
-*Each agent receives the accumulated context of all previous agents.*
+**🔍 Business Finder**
+Search by industry + geography. Draw a polygon, pick a category, get hundreds of verified leads with contacts — automatically scraped from Google Maps.
 
-| # | Agent | Role |
-|---|-------|------|
-| 1 | **Extractor** | Parses raw scraped data → structured business profile (name, category, size signals) |
-| 2 | **Finance Agent** | Estimates budget capacity, cash health, revenue potential |
-| 3 | **Marketing Agent** | Identifies pain points, messaging fit, channel recommendations |
-| 4 | **Strategy Agent** | Synthesizes all 3 → priority tier (A/B/C/D) + conversion probability + recommended action |
+**🗺️ Mapped CRM**
+Every lead is a pin. Manage your pipeline geographically — filter by stage, score, or territory. The map is never hidden; it's the product.
 
+**🤖 Multi-Agent AI**
+20 specialized AI agents across 3 pipelines — lead scoring, financial simulation, market analysis. Every decision is logged. No black box.
+
+**Flow callout:**
 ```
-Lead scraped → Extractor → Finance → Marketing → Strategy → lead_scores table
+search → scrape → enrich → AI analyze → personalized email → visit → close
 ```
 
 ---
 
-### Pipeline B — Finance Simulation (Parallel fan-out, 5 agents)
-*4 stakeholder perspectives run concurrently, then a synthesizer reconciles disagreements.*
+## Slide 6 — The AI Engine
 
-| Agent | Perspective |
-|-------|------------|
-| **Owner Agent** | Revenue strategy, margin targets, hiring, growth |
-| **Supplier Agent** | Supply chain cost pressure, lead time, inventory |
-| **Customer Agent** | Price sensitivity, demand elasticity, churn risk |
-| **Bank Agent** | Runway analysis, debt service, credit recommendation |
-| **Synthesizer** | Reconciles all 4 → monthly cashflow forecast + risk level (low/medium/high/critical) |
+**Headline:** Not one AI. A coordinated team of 20 specialists.
+
+**Visual: Three pipeline boxes side by side**
 
 ```
-          ┌── Owner ────┐
-          ├── Supplier ─┤  (parallel, ~4× faster)
-          ├── Customer ─┤
-          └── Bank ─────┘
-                  │
-             Synthesizer  → cashflow forecast
+┌─────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  LEAD SCORING        │  │  FINANCE SIMULATION   │  │  MARKET ANALYSIS     │
+│  (Sequential)        │  │  (Parallel)           │  │  (Parallel)          │
+│                      │  │                       │  │                      │
+│  1. Extractor        │  │  ┌ Owner   ┐           │  │  ┌ Competitor ┐      │
+│       ↓              │  │  ├ Supplier┤ → Synth   │  │  ├ Trend      ┤→Synth│
+│  2. Finance          │  │  ├ Customer┤           │  │  ├ Risk       ┤      │
+│       ↓              │  │  └ Bank    ┘           │  │  └ Demand     ┘      │
+│  3. Marketing        │  │                       │  │                      │
+│       ↓              │  │  Cashflow forecast     │  │  Opportunity score   │
+│  4. Strategy         │  │  + risk level          │  │  + positioning       │
+└─────────────────────┘  └──────────────────────┘  └──────────────────────┘
 ```
 
----
+**Plus standalone agents:**
+- **SQL Search Agent** — natural language → PostgreSQL (ask your database in Bahasa Indonesia)
+- **Smart Sales Agent** — personalized sales strategy per lead
+- **Cold Email Agent** — hyper-personalized outreach generated from AI analysis
 
-### Pipeline C — Market Analysis (Parallel fan-out, 5 agents)
-*4 market lenses run concurrently, synthesizer produces opportunity score + positioning.*
-
-| Agent | Lens |
-|-------|------|
-| **Competitor Agent** | Competitor mapping, market share, positioning gaps |
-| **Trend Agent** | Industry trends, seasonal patterns, growth vectors |
-| **Risk Agent** | Market entry risks, regulatory flags, threat signals |
-| **Demand Agent** | Demand elasticity, customer willingness to pay, TAM |
-| **Synthesizer** | → opportunity score + risk level + go-to-market positioning |
+**Bottom callout:**
+> **20 agents · 3 pipelines · Swarm runtime with dynamic handoff · Every step logged to `agent_logs`**
+> Models: Llama 3.1 70B (analysis) · Llama 3.1 8B (fast/SQL) via NVIDIA NIM
 
 ---
 
-### Standalone Agents
+## [LIVE DEMO — 5–7 min]
 
-| Agent | Purpose |
-|-------|---------|
-| **Smart Sales Agent** | Personalized sales strategy recommendations per lead |
-| **Cold Email Agent** | Generates hyper-personalized cold outreach based on AI analysis |
-| **SQL Search Agent** | Translates natural language → PostgreSQL SELECT (Llama 3.1 8B, fast) |
-
----
-
-### Swarm Runtime (Dynamic Orchestration Layer)
-*Replaces hardcoded orchestrators with a dynamic handoff architecture.*
-
-| Component | Role |
-|-----------|------|
-| **Lead Scoring Coordinator** | Entry point for Pipeline A, routes to Extractor |
-| **FinSim Coordinator** | Emits parallel fan-out for `[Owner, Supplier, Customer, Bank]` |
-| **Market Coordinator** | Emits parallel fan-out for `[Competitor, Trend, Risk, Demand]` |
-| **Swarm Run-loop** | Handles sequential handoff, parallel fan-out, and tool sub-loops |
-
-**Models:** Llama 3.1 70B (analysis agents) · Llama 3.1 8B (fast extraction, SQL)
-**Observability:** Every agent step → `agent_logs` table with `handoffFrom`, `parallelGroup`, reasoning trace
-
-> **Total: 20 AI agents · 3 pipelines · 1 Swarm runtime · 5 async BullMQ queues**
-
----
-
-## [LIVE DEMO]
-
-**Demo flow script:**
-1. Open dashboard map — show leads as pins across Jakarta
-2. Trigger a new Business Finder search ("dentists in Surabaya")
-3. Show leads populating on the map in real-time
-4. Click a lead pin → detail panel slides open (name, address, reviews, pipeline stage)
-5. Show AI score panel — priority tier A/B/C/D, conversion probability, recommended action
-6. Open agent_logs trace — show Finance Agent's reasoning, Marketing Agent's pain points, Strategy Agent's final call
-7. Show AI-generated personalized cold email drafted for that specific lead
+**Script:**
+1. Open dashboard map — lead pins across Jakarta
+2. Trigger a new scrape: type "dentists in Surabaya" → show real-time scraping progress
+3. Leads populate on the map with pins
+4. Click a pin → detail panel opens (name, address, phone, email, WhatsApp, pipeline stage)
+5. Open AI Score panel → priority tier A/B/C/D, conversion probability, recommended action
+6. Show `agent_logs` reasoning trace — Finance Agent's analysis, Marketing Agent's pain points, Strategy Agent's final call
+7. Show AI-generated cold email drafted for that specific business
+8. Open AI Query tab → type "semua klinik yang punya email" → AI generates SQL → results table
+9. Open Scrape History → show job list with leads found per scrape
 
 ---
 
 ## Slide 7 — Tech Stack
 
-**Layout:** Layer diagram (top → bottom)
+**Layer diagram:**
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -207,16 +155,15 @@ Lead scraped → Extractor → Finance → Marketing → Strategy → lead_score
                  │
 ┌────────────────▼────────────────────────────┐
 │  WORKERS                                     │
-│  Python (Scrapling/Playwright) scraper       │
-│  Node.js BullMQ workers                      │
-│  5 AI queues (lead-score, finance, market…)  │
+│  Python (Playwright) scraper — parallel      │
+│  5 BullMQ queues (scrape, score, finance…)   │
 └────────────────┬────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────┐
 │  AI LAYER                                    │
-│  NVIDIA NIM (Llama 3.1 70B + 8B)            │
+│  NVIDIA NIM · Llama 3.1 70B + 8B            │
 │  Vercel AI SDK · Custom Swarm runtime        │
-│  Sequential + Parallel agent pipelines       │
+│  Sequential + Parallel fan-out pipelines     │
 └────────────────┬────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────┐
@@ -226,53 +173,143 @@ Lead scraped → Extractor → Finance → Marketing → Strategy → lead_score
 └─────────────────────────────────────────────┘
 ```
 
-**Deployment:** PM2 multi-process container on SumoPod PaaS — web, api, and workers in one image.
+**3 key choices:**
+- **MapLibre** → zero Google Maps API cost at scale
+- **BullMQ** → scrapes + AI pipelines async, never block the API
+- **NVIDIA NIM** → OpenAI-compatible, model-agnostic, fast inference
 
-**Why these choices:**
-- MapLibre → zero Google Maps API cost at scale
-- BullMQ → scrapes and AI pipelines run async, never block the API
-- NVIDIA NIM → OpenAI-compatible, model-agnostic, fast inference
+**Deploy:** Single Docker container · PM2 multi-process · SumoPod PaaS + Vercel
 
 ---
 
-## Slide 8 — Design System
+## Slide 8 — Business Model + Traction
 
-**Layout:** Two-column — component gallery on left, specs on right
+**Headline:** Built for the Indonesian SMB market. Priced for scale.
+
+### Pricing Tiers
+
+| Tier | Price | Leads/mo | Features |
+|------|-------|----------|----------|
+| **Free** | Rp 0 | 50 leads | Map view, basic scrape |
+| **Growth** | Rp 299k/mo | 500 leads | AI scoring, pipeline CRM, email outreach |
+| **Scale** | Rp 999k/mo | Unlimited | All AI pipelines, finance sim, market analysis, API access |
+
+### Early Traction (Hackathon Build)
+
+| Metric | Value |
+|--------|-------|
+| Leads scraped & enriched | **50+ across 8+ categories** |
+| AI agents built & wired | **20 agents, 3 pipelines** |
+| Scrape speed (10 leads) | **~45 seconds** (was 5 minutes) |
+| Email enrichment | **Parallel, 6× faster** |
+
+### Why Now
+> Indonesia has **65M+ SMBs** — yet no local B2B intelligence platform built natively for this market. Apollo.io costs $99/mo in USD, has no Indonesian language support, and zero geographic CRM. We're building the SEA-native version.
+
+---
+
+## Slide 9 — Design System
+
+**Two-column: component gallery left, specs right**
 
 **Typography:**
-- `Inter` — UI labels, body, dashboard data
-- `JetBrains Mono` — code snippets, agent reasoning traces, IDs
-- `Lora` — editorial headers on the marketing/landing pages
+- `Inter` — dashboard data, UI labels
+- `JetBrains Mono` — agent reasoning traces, SQL output, IDs
+- `Lora` — editorial headers on marketing landing pages
 
-**Color & Theming:**
-- Dashboard: **Brutalist theme** — high contrast, no decorative gradients, dense data-forward layout (`.brutalist` CSS class scoped to the app shell)
-- Marketing landing (`/` + `/start`): Sky-to-gradient scenes, cinematic scroll via Lenis
-- Two visual worlds intentionally separated — the product feels serious; the landing feels aspirational
+**Two visual worlds (intentional):**
+- **Dashboard** → Brutalist theme. High contrast, no decorative gradients, dense data-forward. The data is the design.
+- **Landing page (`/`)** → Sky-gradient cinematic scroll via Lenis. Aspirational, story-driven.
 
-**Component Library (`@repo/ui`):**
-- Built with `class-variance-authority` (CVA) + `clsx` + `tailwind-merge`
-- Shared across web + any future apps in the monorepo
-- Variant-driven: one Button component, N visual variants — no duplication
-
-**Map UI:**
-- Custom lead pins with stage-color coding
+**Map UI principles:**
+- The map is never hidden — every interaction happens *on* or *around* it
+- Lead pins color-coded by pipeline stage
 - Cluster view for dense areas
-- Slide-over detail panel — no page navigation, context stays on the map
+- Slide-over detail panel — context stays on the map, no page navigation
 
-**Key design principle:**
-> The map is never hidden. Every interaction happens *on* or *around* the map — it is the product, not a widget.
+---
+
+## Slide 10 — CTA + Q&A
+
+**Full slide, minimal, centered:**
+
+```
+Try it live:
+utune-ai.vercel.app
+
+AI Query demo:
+→ "Semua klinik di Jakarta yang punya email"
+
+Built with:
+NVIDIA NIM · Next.js · NestJS · MapLibre · Supabase
+
+[Team names]
+[QR code to live app]
+```
+
+**Tagline:**
+> *Find. Analyze. Close. — The AI sales team that never sleeps.*
 
 ---
 
 ## Timing Guide
 
-| Section | Duration |
-|---------|----------|
-| Slides 1–2 (cover + anecdote) | 3 min |
-| Slides 3–4 (problem + stats) | 3 min |
-| Slide 5 (pivot question) | 1 min |
-| Slide 6 (solution overview) | 2 min |
-| Slide 6.5 (20 AI agents deep-dive) | 3 min |
-| Live demo | 5–7 min |
-| Slides 7–8 (tech + design) | 4 min |
-| **Total** | **~21–23 min** |
+| Slide | Content | Duration |
+|-------|---------|----------|
+| 1 | Cover | 30s |
+| 2 | Problem story (Raka) | 2m |
+| 3 | Problem at scale (stats) | 1m |
+| 4 | Pivot question | 30s |
+| 5 | Solution overview | 1.5m |
+| 6 | AI engine (20 agents) | 2m |
+| — | **Live Demo** | **5–7m** |
+| 7 | Tech stack | 1.5m |
+| 8 | Business model + traction | 1.5m |
+| 9 | Design system | 1m |
+| 10 | CTA + Q&A | 30s |
+| **Total** | | **~17–19 menit** |
+
+---
+
+## Backup Slides (siapkan jika ada pertanyaan)
+
+### B1 — Agent Detail Table (lengkap)
+
+| Pipeline | Agent | Role |
+|----------|-------|------|
+| Lead Scoring | Extractor | Structured business profile dari raw data |
+| Lead Scoring | Finance Agent | Budget capacity, revenue potential |
+| Lead Scoring | Marketing Agent | Pain points, messaging fit, channel |
+| Lead Scoring | Strategy Agent | Priority tier A-D + recommended action |
+| Finance Sim | Owner Agent | Revenue strategy, margin, growth |
+| Finance Sim | Supplier Agent | Supply chain cost, lead time |
+| Finance Sim | Customer Agent | Price sensitivity, demand elasticity |
+| Finance Sim | Bank Agent | Runway, debt service, credit |
+| Finance Sim | Synthesizer | Monthly cashflow forecast + risk level |
+| Market Analysis | Competitor Agent | Market share, positioning gaps |
+| Market Analysis | Trend Agent | Industry trends, growth vectors |
+| Market Analysis | Risk Agent | Entry risks, regulatory flags |
+| Market Analysis | Demand Agent | TAM, willingness to pay |
+| Market Analysis | Synthesizer | Opportunity score + go-to-market |
+| Standalone | Smart Sales | Personalized sales strategy per lead |
+| Standalone | Cold Email | Hyper-personalized outreach |
+| Standalone | SQL Search | Natural language → PostgreSQL |
+| Swarm | Lead Coordinator | Entry point for scoring pipeline |
+| Swarm | FinSim Coordinator | Parallel fan-out for finance agents |
+| Swarm | Market Coordinator | Parallel fan-out for market agents |
+
+### B2 — Scraper Architecture
+- Phase 1: Google Maps parallel card scraping (Playwright headless)
+- Phase 2: Website enrichment via ThreadPoolExecutor (6 workers, email + WhatsApp)
+- Speed: 10 leads in ~45s (down from ~5 minutes)
+- Deduplication: name + workspaceId check before insert
+
+### B3 — Competitive Landscape
+
+| | uTune AI | Apollo.io | HubSpot | Google Maps |
+|--|----------|-----------|---------|-------------|
+| Geographic CRM | ✅ | ❌ | ❌ | ❌ |
+| AI scoring | ✅ | ✅ | ❌ | ❌ |
+| Bahasa Indonesia | ✅ | ❌ | ❌ | ✅ |
+| Local scraping | ✅ | ❌ | ❌ | ❌ |
+| Price (IDR) | 299k/mo | ~1.5jt/mo | ~2jt/mo | API credits |
