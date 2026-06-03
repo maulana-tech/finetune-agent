@@ -45,37 +45,26 @@ async function ScrapesContent() {
     .orderBy(desc(jobs.createdAt))
     .limit(100);
 
-  // Fetch leads per job: prefer sourceJobId FK; fall back to ±2min time window for old jobs
+  // Fetch leads per job using a ±15min time window around the job's creation time
   const jobLeadsMap = new Map<string, { id: string; name: string; category: string | null; emails: string[] | null }[]>();
 
   await Promise.all(
     allJobs
-      .filter((j) => j.status === 'completed')
+      .filter((j) => j.status === 'completed' && (j.resultCount ?? 0) > 0)
       .map(async (job) => {
-        // Try FK first
-        let jobLeads = await db
+        const windowStart = new Date(job.createdAt.getTime() - 30_000);
+        const windowEnd = new Date(job.createdAt.getTime() + 15 * 60_000);
+        const jobLeads = await db
           .select({ id: leads.id, name: leads.name, category: leads.category, emails: leads.emails })
           .from(leads)
-          .where(and(eq(leads.workspaceId, workspaceId), eq(leads.sourceJobId, job.id)))
+          .where(
+            and(
+              eq(leads.workspaceId, workspaceId),
+              gte(leads.createdAt, windowStart),
+              lte(leads.createdAt, windowEnd),
+            ),
+          )
           .limit(50);
-
-        // If none found (old data without sourceJobId), use time-window fallback
-        if (jobLeads.length === 0 && job.resultCount && job.resultCount > 0) {
-          const windowStart = new Date(job.createdAt.getTime() - 30_000);
-          const windowEnd = new Date(job.createdAt.getTime() + 15 * 60_000);
-          jobLeads = await db
-            .select({ id: leads.id, name: leads.name, category: leads.category, emails: leads.emails })
-            .from(leads)
-            .where(
-              and(
-                eq(leads.workspaceId, workspaceId),
-                gte(leads.createdAt, windowStart),
-                lte(leads.createdAt, windowEnd),
-              ),
-            )
-            .limit(50);
-        }
-
         jobLeadsMap.set(job.id, jobLeads as { id: string; name: string; category: string | null; emails: string[] | null }[]);
       }),
   );
