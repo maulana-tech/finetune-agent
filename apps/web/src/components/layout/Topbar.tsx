@@ -1,8 +1,9 @@
 'use client';
 
-import { Search, Bell, User, Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Search, Bell, User, Loader2, CheckCircle2, AlertCircle, X, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type ScrapeStatus = 'idle' | 'scraping' | 'done' | 'error';
 
@@ -130,9 +131,15 @@ export function Topbar({ workspaceId }: { workspaceId: string }) {
           <div className="flex items-center gap-2 px-3 py-1.5 border border-green-500/40 bg-green-500/5 text-[10px]">
             <CheckCircle2 className="w-3 h-3 text-green-500 shrink-0" />
             <span className="font-bold text-green-600">{statusMessage}</span>
+            <Link
+              href="/dashboard/scrapes"
+              className="flex items-center gap-0.5 text-green-600 hover:text-green-700 font-bold ml-1 transition-colors"
+            >
+              View <ArrowRight className="w-2.5 h-2.5" />
+            </Link>
             <button
               onClick={() => setStatus('idle')}
-              className="ml-1 text-muted-foreground hover:text-foreground transition-colors"
+              className="ml-0.5 text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="w-3 h-3" />
             </button>
