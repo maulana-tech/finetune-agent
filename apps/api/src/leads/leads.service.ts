@@ -261,6 +261,8 @@ export class LeadsService {
     } catch (err) {
       if (err instanceof BadRequestException) throw err;
 
+      console.error('[Search] SQL agent failed:', err instanceof Error ? err.message : err);
+
       // SQL agent or execution failed — fall back to simple ILIKE
       const fallback = await db
         .select()
