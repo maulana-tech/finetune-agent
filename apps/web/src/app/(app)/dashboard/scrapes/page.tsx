@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
-import { db, jobs } from '@repo/db';
-import { eq, desc, sum, count } from 'drizzle-orm';
+import Link from 'next/link';
+import { db, jobs, leads } from '@repo/db';
+import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import { getWorkspaceId } from '@/lib/get-workspace';
 import { ScrapePageRefresher } from './ScrapePageRefresher';
 
@@ -44,6 +45,41 @@ async function ScrapesContent() {
     .orderBy(desc(jobs.createdAt))
     .limit(100);
 
+  // Fetch leads per job: prefer sourceJobId FK; fall back to ±2min time window for old jobs
+  const jobLeadsMap = new Map<string, { id: string; name: string; category: string | null; emails: string[] | null }[]>();
+
+  await Promise.all(
+    allJobs
+      .filter((j) => j.status === 'completed')
+      .map(async (job) => {
+        // Try FK first
+        let jobLeads = await db
+          .select({ id: leads.id, name: leads.name, category: leads.category, emails: leads.emails })
+          .from(leads)
+          .where(and(eq(leads.workspaceId, workspaceId), eq(leads.sourceJobId, job.id)))
+          .limit(50);
+
+        // If none found (old data without sourceJobId), use time-window fallback
+        if (jobLeads.length === 0 && job.resultCount && job.resultCount > 0) {
+          const windowStart = new Date(job.createdAt.getTime() - 30_000);
+          const windowEnd = new Date(job.createdAt.getTime() + 15 * 60_000);
+          jobLeads = await db
+            .select({ id: leads.id, name: leads.name, category: leads.category, emails: leads.emails })
+            .from(leads)
+            .where(
+              and(
+                eq(leads.workspaceId, workspaceId),
+                gte(leads.createdAt, windowStart),
+                lte(leads.createdAt, windowEnd),
+              ),
+            )
+            .limit(50);
+        }
+
+        jobLeadsMap.set(job.id, jobLeads as { id: string; name: string; category: string | null; emails: string[] | null }[]);
+      }),
+  );
+
   const totalLeads = allJobs.reduce((s, j) => s + (j.resultCount ?? 0), 0);
   const completedJobs = allJobs.filter((j) => j.status === 'completed').length;
   const activeJobs = allJobs.filter((j) => j.status === 'pending' || j.status === 'processing');
@@ -51,7 +87,6 @@ async function ScrapesContent() {
 
   return (
     <div className="p-6 flex flex-col gap-6 max-w-4xl">
-      {/* Auto-refresh while jobs are running */}
       {hasActive && <ScrapePageRefresher />}
 
       {/* Header */}
@@ -93,39 +128,78 @@ async function ScrapesContent() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
-          {allJobs.map((job) => (
-            <div
-              key={job.id}
-              className={`border p-4 flex items-center justify-between gap-4 ${
-                job.status === 'processing' || job.status === 'pending'
-                  ? 'border-blue-500/30 bg-blue-500/3'
-                  : job.status === 'failed'
-                  ? 'border-red-500/20'
-                  : 'border-border'
-              }`}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <StatusBadge status={job.status} />
-                <span className="font-bold text-sm truncate">{job.query}</span>
-              </div>
+        <div className="flex flex-col gap-3">
+          {allJobs.map((job) => {
+            const jobLeads = jobLeadsMap.get(job.id) ?? [];
+            const isActive = job.status === 'pending' || job.status === 'processing';
+            const isFailed = job.status === 'failed';
 
-              <div className="flex items-center gap-4 shrink-0 text-[10px] text-muted-foreground">
-                {job.status === 'completed' && (
-                  <span className="font-bold text-foreground">
-                    {job.resultCount ?? 0} lead{(job.resultCount ?? 0) !== 1 ? 's' : ''}
-                  </span>
+            return (
+              <div
+                key={job.id}
+                className={`border ${
+                  isActive ? 'border-blue-500/30 bg-blue-500/3' : isFailed ? 'border-red-500/20' : 'border-border'
+                }`}
+              >
+                {/* Job header row */}
+                <div className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <StatusBadge status={job.status} />
+                    <span className="font-bold text-sm truncate">{job.query}</span>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0 text-[10px] text-muted-foreground">
+                    {job.status === 'completed' && (
+                      <span className="font-bold text-foreground">
+                        {job.resultCount ?? 0} lead{(job.resultCount ?? 0) !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {isActive && <span className="text-blue-600">Scraping...</span>}
+                    {isFailed && <span className="text-red-500">Failed</span>}
+                    <span>{timeAgo(job.createdAt)}</span>
+                    <Link
+                      href={`/dashboard?q=${encodeURIComponent(job.query)}`}
+                      className="px-2 py-1 border border-border text-[9px] font-bold uppercase tracking-widest hover:border-primary hover:text-foreground transition-colors"
+                    >
+                      View on map →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Lead mini-list (only for completed jobs with results) */}
+                {job.status === 'completed' && jobLeads.length > 0 && (
+                  <div className="border-t border-border bg-accent/10">
+                    <div className="px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Leads found
+                    </div>
+                    <div className="divide-y divide-border">
+                      {jobLeads.slice(0, 8).map((lead) => (
+                        <div key={lead.id} className="px-4 py-2.5 flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium truncate">{lead.name}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {lead.emails && (lead.emails as string[]).length > 0 && (
+                              <span className="px-1.5 py-0.5 bg-primary text-primary-foreground text-[8px] font-bold uppercase tracking-wider">
+                                Email
+                              </span>
+                            )}
+                            {lead.category && (
+                              <span className="text-[9px] text-muted-foreground border border-border px-1.5 py-0.5">
+                                {lead.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {jobLeads.length > 8 && (
+                        <div className="px-4 py-2.5 text-[10px] text-muted-foreground">
+                          + {jobLeads.length - 8} more leads
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
-                {(job.status === 'pending' || job.status === 'processing') && (
-                  <span className="text-blue-600">Scraping...</span>
-                )}
-                {job.status === 'failed' && (
-                  <span className="text-red-500">No leads found</span>
-                )}
-                <span>{timeAgo(job.createdAt)}</span>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
