@@ -166,10 +166,11 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
 
       {hoveredPin && (
         <div
-          className="absolute z-10 pointer-events-none bg-background border border-border px-2 py-1 text-[10px] font-bold shadow-md whitespace-nowrap"
-          style={{ left: hoveredPin.x + 14, top: hoveredPin.y - 28 }}
+          className="absolute z-10 pointer-events-none bg-background border border-border px-2.5 py-1.5 shadow-md whitespace-nowrap flex flex-col gap-0.5"
+          style={{ left: hoveredPin.x + 14, top: hoveredPin.y - 40 }}
         >
-          {hoveredPin.name}
+          <span className="text-[10px] font-bold">{hoveredPin.name}</span>
+          <span className="text-[8px] text-muted-foreground uppercase tracking-widest">Click to view details</span>
         </div>
       )}
     </div>
