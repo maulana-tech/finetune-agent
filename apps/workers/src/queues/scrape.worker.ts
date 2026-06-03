@@ -89,7 +89,6 @@ export const startScrapeWorker = () => {
           .insert(leads)
           .values({
             workspaceId,
-            sourceJobId:   jobId ?? undefined,
             name:          leadName,
             address:       (res.address  as string) || null,
             phone:         (res.phone    as string) || null,
