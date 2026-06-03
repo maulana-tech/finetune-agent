@@ -155,6 +155,12 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
     return () => clearTimeout(timer);
   }, [query, search]);
 
+  // Auto-refresh every 15s so new scrape results appear without page reload
+  useEffect(() => {
+    const interval = setInterval(() => search(query), 15000);
+    return () => clearInterval(interval);
+  }, [query, search]);
+
   useEffect(() => {
     if (viewMode !== 'scores') return;
     setScoresLoading(true);
