@@ -41,6 +41,7 @@ interface Lead {
   name: string;
   address: string | null;
   emails: string[] | null;
+  whatsapp: string[] | null;
   category: string | null;
   mapsUrl: string | null;
   phone: string | null;
@@ -337,7 +338,22 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
               {selectedLead.emails && selectedLead.emails.length > 0 && (
                 <div className="flex gap-2">
                   <span className="text-muted-foreground w-16 shrink-0">Email</span>
-                  <span className="font-medium break-all">{selectedLead.emails[0]}</span>
+                  <a href={`mailto:${selectedLead.emails[0]}`} className="font-medium break-all hover:text-primary transition-colors">
+                    {selectedLead.emails[0]}
+                  </a>
+                </div>
+              )}
+              {selectedLead.whatsapp && selectedLead.whatsapp.length > 0 && (
+                <div className="flex gap-2">
+                  <span className="text-muted-foreground w-16 shrink-0">WhatsApp</span>
+                  <a
+                    href={`https://wa.me/${selectedLead.whatsapp[0].replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    {selectedLead.whatsapp[0]} ↗
+                  </a>
                 </div>
               )}
               {selectedLead.mapsUrl && (
@@ -557,6 +573,9 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
                 <div className="mt-3 flex gap-1 flex-wrap">
                   {lead.emails && lead.emails.length > 0 && (
                     <span className="px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider">Email</span>
+                  )}
+                  {lead.whatsapp && lead.whatsapp.length > 0 && (
+                    <span className="px-1.5 py-0.5 bg-green-600 text-white text-[9px] font-bold uppercase tracking-wider">WA</span>
                   )}
                   {lead.category && (
                     <span className="px-1.5 py-0.5 border border-border text-muted-foreground text-[9px] font-bold uppercase tracking-wider">{lead.category}</span>
