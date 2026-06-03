@@ -7,6 +7,8 @@ import {
   MarketAnalysisJobPayload,
   MarketScrapeJobPayload,
 } from '@repo/shared';
+import { db, jobs } from '@repo/db';
+import { eq, desc } from 'drizzle-orm';
 
 @Injectable()
 export class JobsService {
@@ -19,8 +21,22 @@ export class JobsService {
   ) {}
 
   async queueMapScrape(payload: ScrapeJobPayload) {
-    const job = await this.scrapeQueue.add('map-scrape-job', payload);
-    return { jobId: job.id };
+    const [dbJob] = await db
+      .insert(jobs)
+      .values({ workspaceId: payload.workspaceId, query: payload.query, status: 'pending' })
+      .returning();
+
+    await this.scrapeQueue.add('map-scrape-job', { ...payload, jobId: dbJob.id });
+    return { jobId: dbJob.id };
+  }
+
+  async getJobs(workspaceId: string) {
+    return db
+      .select()
+      .from(jobs)
+      .where(eq(jobs.workspaceId, workspaceId))
+      .orderBy(desc(jobs.createdAt))
+      .limit(100);
   }
 
   // Alias used by ScrapeSchedulesService (scheduleId-aware path)
