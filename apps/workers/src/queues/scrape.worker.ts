@@ -1,8 +1,8 @@
 import { Worker, Queue } from 'bullmq';
 import { spawn } from 'child_process';
 import path from 'path';
-import { eq, sql } from 'drizzle-orm';
-import { db, leads, scrapeSchedules } from '@repo/db';
+import { eq, sql, and, ilike } from 'drizzle-orm';
+import { db, leads, scrapeSchedules, jobs } from '@repo/db';
 
 const aiQueue = new Queue('orchestrated-ai-queue', {
   connection: { url: process.env.REDIS_URL || 'redis://localhost:6379' },
@@ -15,19 +15,33 @@ export const startScrapeWorker = () => {
   const worker = new Worker(
     'scrape-map',
     async (job) => {
-      const { query, limit, workspaceId, scheduleId } = job.data as {
+      const { query, limit, workspaceId, scheduleId, jobId } = job.data as {
         query: string;
         limit: number;
         workspaceId: string;
         scheduleId?: string;
+        jobId?: string;
       };
 
       console.log(`[Scrape] Starting scrape: query="${query}" limit=${limit}`);
+
+      if (jobId) {
+        await db
+          .update(jobs)
+          .set({ status: 'processing', updatedAt: new Date() })
+          .where(eq(jobs.id, jobId));
+      }
 
       let rawResults: Record<string, unknown>[];
       try {
         rawResults = await runPythonScraper(query, limit);
       } catch (err) {
+        if (jobId) {
+          await db
+            .update(jobs)
+            .set({ status: 'failed', updatedAt: new Date() })
+            .where(eq(jobs.id, jobId));
+        }
         if (scheduleId) {
           await db
             .update(scrapeSchedules)
@@ -46,21 +60,36 @@ export const startScrapeWorker = () => {
 
       let insertedCount = 0;
       for (const res of rawResults) {
-        const emails = (res.emails as string[]) || [];
+        const emails    = (res.emails    as string[]) || [];
+        const whatsapp  = (res.whatsapp  as string[]) || [];
+        const leadName  = (res.name      as string)   || 'Unknown';
+
+        // Skip duplicates — same workspace + same name already exists
+        const existing = await db
+          .select({ id: leads.id })
+          .from(leads)
+          .where(and(eq(leads.workspaceId, workspaceId), ilike(leads.name, leadName)))
+          .limit(1);
+
+        if (existing.length > 0) {
+          console.log(`[Scrape] Skip duplicate: ${leadName}`);
+          continue;
+        }
 
         const [inserted] = await db
           .insert(leads)
           .values({
             workspaceId,
-            name: (res.name as string) || 'Unknown',
-            address: (res.address as string) || null,
-            phone: (res.phone as string) || null,
-            website: (res.website as string) || null,
-            emails: emails.length > 0 ? emails : undefined,
-            mapsUrl: (res.maps_url as string) || null,
-            lat: (res.lat as number) || null,
-            lng: (res.lng as number) || null,
-            category: (res.category as string) || query,
+            name:          leadName,
+            address:       (res.address  as string) || null,
+            phone:         (res.phone    as string) || null,
+            website:       (res.website  as string) || null,
+            emails:        emails.length   > 0 ? emails   : undefined,
+            whatsapp:      whatsapp.length > 0 ? whatsapp : undefined,
+            mapsUrl:       (res.maps_url  as string) || null,
+            lat:           (res.lat       as number) || null,
+            lng:           (res.lng       as number) || null,
+            category:      (res.category  as string) || query,
           })
           .returning();
 
@@ -84,6 +113,13 @@ export const startScrapeWorker = () => {
         insertedCount++;
       }
       console.log(`[Scrape] Inserted ${insertedCount} leads + queued AI for each`);
+
+      if (jobId) {
+        await db
+          .update(jobs)
+          .set({ status: 'completed', resultCount: insertedCount, updatedAt: new Date() })
+          .where(eq(jobs.id, jobId));
+      }
 
       // Update schedule status on success
       if (scheduleId) {
