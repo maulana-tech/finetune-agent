@@ -14,9 +14,16 @@ interface Lead {
   lng: number | null;
 }
 
+interface HoveredPin {
+  name: string;
+  x: number;
+  y: number;
+}
+
 export function MapContainer({ leads }: { leads: Lead[] }) {
   const mapRef = React.useRef<MapRef>(null);
-  const { viewState, setViewState, setSelectedLeadId } = useMapStore();
+  const { viewState, setViewState, setSelectedLeadId, selectedLeadId } = useMapStore();
+  const [hoveredPin, setHoveredPin] = React.useState<HoveredPin | null>(null);
 
   const geojson: GeoJSON.FeatureCollection = React.useMemo(() => ({
     type: 'FeatureCollection',
@@ -49,9 +56,41 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
         });
       }
     } else {
-      setSelectedLeadId(feature.properties?.id ?? null);
+      const id = feature.properties?.id ?? null;
+      setSelectedLeadId(id);
+      const [lng, lat] = (feature.geometry as GeoJSON.Point).coordinates;
+      const currentZoom = mapRef.current?.getMap()?.getZoom() ?? 11;
+      mapRef.current?.getMap()?.flyTo({
+        center: [lng, lat],
+        zoom: Math.max(currentZoom, 14),
+        duration: 350,
+      });
     }
   }, [setSelectedLeadId]);
+
+  const onMouseMove = React.useCallback((e: MapLayerMouseEvent) => {
+    const canvas = mapRef.current?.getMap()?.getCanvas();
+    if (!canvas) return;
+    const feature = e.features?.[0];
+    if (!feature) {
+      canvas.style.cursor = '';
+      setHoveredPin(null);
+      return;
+    }
+    if (feature.properties?.cluster) {
+      canvas.style.cursor = 'zoom-in';
+      setHoveredPin(null);
+    } else {
+      canvas.style.cursor = 'pointer';
+      setHoveredPin({ name: feature.properties?.name ?? '', x: e.point.x, y: e.point.y });
+    }
+  }, []);
+
+  const onMouseLeave = React.useCallback(() => {
+    const canvas = mapRef.current?.getMap()?.getCanvas();
+    if (canvas) canvas.style.cursor = '';
+    setHoveredPin(null);
+  }, []);
 
   return (
     <div className="w-full h-full relative bg-muted">
@@ -61,8 +100,10 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
         onMove={evt => setViewState(evt.viewState)}
         mapStyle={MAP_STYLE}
         style={{ width: '100%', height: '100%' }}
-        interactiveLayerIds={['clusters', 'unclustered']}
+        interactiveLayerIds={['clusters', 'unclustered', 'unclustered-selected']}
         onClick={onClick}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
       >
         <Source
           id="leads"
@@ -108,8 +149,29 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
               'circle-stroke-color': '#ffffff',
             }}
           />
+          <Layer
+            id="unclustered-selected"
+            type="circle"
+            filter={['==', ['get', 'id'], selectedLeadId ?? '']}
+            paint={{
+              'circle-color': '#4f46e5',
+              'circle-radius': 10,
+              'circle-stroke-width': 3,
+              'circle-stroke-color': '#ffffff',
+              'circle-opacity': 1,
+            }}
+          />
         </Source>
       </Map>
+
+      {hoveredPin && (
+        <div
+          className="absolute z-10 pointer-events-none bg-background border border-border px-2 py-1 text-[10px] font-bold shadow-md whitespace-nowrap"
+          style={{ left: hoveredPin.x + 14, top: hoveredPin.y - 28 }}
+        >
+          {hoveredPin.name}
+        </div>
+      )}
     </div>
   );
 }
