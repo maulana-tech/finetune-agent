@@ -82,17 +82,95 @@ Search millions of companies by industry + geography. Draw a polygon on a map, p
 **2. Mapped CRM**
 Every lead is a pin. Manage your pipeline geographically — assign territories, plan routes, filter by stage or rating. No more list-view blindness.
 
-**3. Multi-Agent AI**
-Four specialized AI agents work in sequence — each building on the last's reasoning:
-- **Extractor** → structures raw data
-- **Finance Agent** → estimates budget capacity
-- **Marketing Agent** → identifies pain points & messaging fit
-- **Strategy Agent** → synthesizes all into a priority score + recommended action
-
-Every decision is logged. No black box.
+**3. Multi-Agent AI — 20 Specialized AI Agents**
+Three distinct pipelines, one unified Swarm runtime. Every agent decision is logged to `agent_logs` — full reasoning transparency, no black box.
 
 **Callout box:**
 > `search → enrich → analyze → message → visit → close` — all on one map.
+
+---
+
+## Slide 6.5 — The AI Engine: 20 Agents Across 3 Pipelines
+
+**Headline:** Not one AI. A full team of specialists — orchestrated, logged, observable.
+
+---
+
+### Pipeline A — Lead Scoring (Sequential, 4 steps)
+*Each agent receives the accumulated context of all previous agents.*
+
+| # | Agent | Role |
+|---|-------|------|
+| 1 | **Extractor** | Parses raw scraped data → structured business profile (name, category, size signals) |
+| 2 | **Finance Agent** | Estimates budget capacity, cash health, revenue potential |
+| 3 | **Marketing Agent** | Identifies pain points, messaging fit, channel recommendations |
+| 4 | **Strategy Agent** | Synthesizes all 3 → priority tier (A/B/C/D) + conversion probability + recommended action |
+
+```
+Lead scraped → Extractor → Finance → Marketing → Strategy → lead_scores table
+```
+
+---
+
+### Pipeline B — Finance Simulation (Parallel fan-out, 5 agents)
+*4 stakeholder perspectives run concurrently, then a synthesizer reconciles disagreements.*
+
+| Agent | Perspective |
+|-------|------------|
+| **Owner Agent** | Revenue strategy, margin targets, hiring, growth |
+| **Supplier Agent** | Supply chain cost pressure, lead time, inventory |
+| **Customer Agent** | Price sensitivity, demand elasticity, churn risk |
+| **Bank Agent** | Runway analysis, debt service, credit recommendation |
+| **Synthesizer** | Reconciles all 4 → monthly cashflow forecast + risk level (low/medium/high/critical) |
+
+```
+          ┌── Owner ────┐
+          ├── Supplier ─┤  (parallel, ~4× faster)
+          ├── Customer ─┤
+          └── Bank ─────┘
+                  │
+             Synthesizer  → cashflow forecast
+```
+
+---
+
+### Pipeline C — Market Analysis (Parallel fan-out, 5 agents)
+*4 market lenses run concurrently, synthesizer produces opportunity score + positioning.*
+
+| Agent | Lens |
+|-------|------|
+| **Competitor Agent** | Competitor mapping, market share, positioning gaps |
+| **Trend Agent** | Industry trends, seasonal patterns, growth vectors |
+| **Risk Agent** | Market entry risks, regulatory flags, threat signals |
+| **Demand Agent** | Demand elasticity, customer willingness to pay, TAM |
+| **Synthesizer** | → opportunity score + risk level + go-to-market positioning |
+
+---
+
+### Standalone Agents
+
+| Agent | Purpose |
+|-------|---------|
+| **Smart Sales Agent** | Personalized sales strategy recommendations per lead |
+| **Cold Email Agent** | Generates hyper-personalized cold outreach based on AI analysis |
+| **SQL Search Agent** | Translates natural language → PostgreSQL SELECT (Llama 3.1 8B, fast) |
+
+---
+
+### Swarm Runtime (Dynamic Orchestration Layer)
+*Replaces hardcoded orchestrators with a dynamic handoff architecture.*
+
+| Component | Role |
+|-----------|------|
+| **Lead Scoring Coordinator** | Entry point for Pipeline A, routes to Extractor |
+| **FinSim Coordinator** | Emits parallel fan-out for `[Owner, Supplier, Customer, Bank]` |
+| **Market Coordinator** | Emits parallel fan-out for `[Competitor, Trend, Risk, Demand]` |
+| **Swarm Run-loop** | Handles sequential handoff, parallel fan-out, and tool sub-loops |
+
+**Models:** Llama 3.1 70B (analysis agents) · Llama 3.1 8B (fast extraction, SQL)
+**Observability:** Every agent step → `agent_logs` table with `handoffFrom`, `parallelGroup`, reasoning trace
+
+> **Total: 20 AI agents · 3 pipelines · 1 Swarm runtime · 5 async BullMQ queues**
 
 ---
 
@@ -193,7 +271,8 @@ Every decision is logged. No black box.
 | Slides 1–2 (cover + anecdote) | 3 min |
 | Slides 3–4 (problem + stats) | 3 min |
 | Slide 5 (pivot question) | 1 min |
-| Slide 6 (solution) | 3 min |
+| Slide 6 (solution overview) | 2 min |
+| Slide 6.5 (20 AI agents deep-dive) | 3 min |
 | Live demo | 5–7 min |
 | Slides 7–8 (tech + design) | 4 min |
-| **Total** | **~20–21 min** |
+| **Total** | **~21–23 min** |
