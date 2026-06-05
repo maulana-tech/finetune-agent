@@ -6,6 +6,8 @@ import { MapContainer } from '../map/MapContainer';
 import { LeadsPanel } from '../leads/LeadsPanel';
 import { MapFilters } from './MapFilters';
 import { useMapStore } from '../map/store';
+import { useWorkspaceId } from '@/lib/workspace-context';
+import { apiUrl } from '@/lib/workspace';
 
 interface Lead {
   id: string;
@@ -22,18 +24,51 @@ interface Lead {
   createdAt: string;
 }
 
-export function DashboardClient({ leads }: { leads: Lead[] }) {
+export function DashboardClient({ leads: initialLeads }: { leads: Lead[] }) {
+  const [leads, setLeads] = useState(initialLeads);
   const [searchQuery, setSearchQuery] = useState('');
   const searchParams = useSearchParams();
   const setFlyToLeadId = useMapStore((s) => s.setFlyToLeadId);
+  const workspaceId = useWorkspaceId();
 
-  // Read `?lead=` from URL on mount and trigger fly-to
+  // Read `?lead=` from URL, fetch from API if not in leads, then fly-to
   useEffect(() => {
     const leadId = searchParams.get('lead');
-    if (leadId) {
+    if (!leadId) return;
+
+    // Check if lead is already in array
+    const found = leads.find((l) => l.id === leadId);
+    if (found) {
       setFlyToLeadId(leadId);
+      return;
     }
-  }, [searchParams, setFlyToLeadId]);
+
+    // Fetch from API
+    fetch(`${apiUrl()}/leads/${leadId}?workspaceId=${workspaceId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) {
+          // Add to leads array so map renders it
+          setLeads((prev) => [...prev, {
+            id: data.id,
+            name: data.name,
+            address: data.address ?? null,
+            lat: data.lat ?? null,
+            lng: data.lng ?? null,
+            emails: data.emails ?? null,
+            whatsapp: data.whatsapp ?? null,
+            category: data.category ?? null,
+            mapsUrl: data.mapsUrl ?? null,
+            phone: data.phone ?? null,
+            pipelineStage: data.pipelineStage ?? null,
+            createdAt: data.createdAt ?? new Date().toISOString(),
+          }]);
+          // Trigger fly-to after a short delay so the pin renders
+          setTimeout(() => setFlyToLeadId(leadId), 300);
+        }
+      })
+      .catch(() => {});
+  }, [searchParams]); // Only run on mount / URL change
 
   const categories = useMemo(() => {
     const set = new Set<string>();

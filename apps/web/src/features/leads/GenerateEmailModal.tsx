@@ -44,6 +44,7 @@ function GenerateEmailModal({
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [email, setEmail] = useState<{ subject: string; body: string } | null>(null);
+  const [toEmail, setToEmail] = useState(leadEmail ?? '');
   const [copied, setCopied] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ function GenerateEmailModal({
   };
 
   const sendEmail = async () => {
-    if (!email || !leadEmail) return;
+    if (!email || !toEmail) return;
     setSending(true);
     setError(null);
     try {
@@ -83,7 +84,7 @@ function GenerateEmailModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          toEmail: leadEmail,
+          toEmail,
           subject: email.subject,
           body: email.body,
         }),
@@ -152,12 +153,16 @@ function GenerateEmailModal({
 
           {email && (
             <>
-              {leadEmail && (
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">To</label>
-                  <div className="px-3 py-2 border border-border bg-accent/20 text-xs font-medium">{leadEmail}</div>
-                </div>
-              )}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">To</label>
+                <input
+                  type="email"
+                  value={toEmail}
+                  onChange={(e) => setToEmail(e.target.value)}
+                  placeholder="recipient@email.com"
+                  className="w-full px-3 py-2 border border-border bg-accent/20 text-xs font-medium outline-none focus:border-primary"
+                />
+              </div>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Subject</label>
                 <div className="px-3 py-2 border border-border bg-accent/20 text-xs font-medium">{email.subject}</div>
@@ -173,30 +178,28 @@ function GenerateEmailModal({
                 </div>
               )}
               <div className="flex gap-2">
-                {leadEmail && (
-                  <button
-                    onClick={sendEmail}
-                    disabled={sending || sent}
-                    className="flex-1 py-2 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {sending ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Sending...
-                      </>
-                    ) : sent ? (
-                      <>
-                        <Check className="w-3 h-3" />
-                        Sent
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-3 h-3" />
-                        Send Email
-                      </>
-                    )}
-                  </button>
-                )}
+                <button
+                  onClick={sendEmail}
+                  disabled={sending || sent || !toEmail}
+                  className="flex-1 py-2 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {sending ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Sending...
+                    </>
+                  ) : sent ? (
+                    <>
+                      <Check className="w-3 h-3" />
+                      Sent
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3 h-3" />
+                      Send Email
+                    </>
+                  )}
+                </button>
                 <button
                   onClick={copyToClipboard}
                   className="flex-1 py-2 border border-border bg-background text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors flex items-center justify-center gap-2"

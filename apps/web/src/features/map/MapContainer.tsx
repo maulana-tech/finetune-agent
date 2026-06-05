@@ -96,10 +96,7 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
   React.useEffect(() => {
     if (!flyToLeadId) return;
     const lead = leads.find((l) => l.id === flyToLeadId);
-    if (!lead || lead.lat == null || lead.lng == null) {
-      setFlyToLeadId(null);
-      return;
-    }
+    if (!lead || lead.lat == null || lead.lng == null) return;
     setSelectedLeadId(lead.id);
     mapRef.current?.flyTo({
       center: [lead.lng, lead.lat],
