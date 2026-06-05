@@ -15,38 +15,39 @@ export async function analyzeMarketing(
   const { object, usage } = await generateObject({
     model: defaultModel,
     schema: MarketingOutputSchema,
-    prompt: `You are a B2B marketing strategist. Analyze this lead's messaging fit.
+    prompt: `Anda adalah strategis marketing B2B. Analisis kesesuaian messaging untuk lead ini.
 
-CONTEXT FROM PREVIOUS AGENTS:
+KONTEKS DARI AGEN SEBELUMNYA:
 
-1. EXTRACTOR OUTPUT:
+1. OUTPUT EXTRACTOR:
 ${JSON.stringify(context.extractedData, null, 2)}
 
-2. FINANCE AGENT OUTPUT:
+2. OUTPUT AGEN KEUANGAN:
 ${JSON.stringify(context.financialAnalysis, null, 2)}
 
-OUR PRODUCT/SERVICE:
+PRODUK/LAYANAN KAMI:
 ${ourProduct}
 
-YOUR TASK:
-Determine:
-- Who is their target customer (persona)?
-- What are their top 3 pain points we can solve?
-- How should we position our product to them?
-- How well does our product fit their needs? (0-100 score)
+TUGAS ANDA:
+Tentukan:
+- Siapa target customer mereka (persona)?
+- 3 pain points utama yang bisa kami selesaikan?
+- Bagaimana cara memposisikan produk kami kepada mereka?
+- Seberapa cocok produk kami dengan kebutuhan mereka? (skor 0-100)
 
-CRITICAL RULES:
-1. NO emojis, NO buzzwords
-2. Base analysis on data from previous agents
-3. Clinical B2B tone
-4. Provide reasoning (2-3 sentences)
+ATURAN KRITIS:
+1. TANPA emoji, TANPA buzzwords
+2. Berdasarkan analisis dari agen sebelumnya
+3. Tone B2B klinis
+4. Berikan reasoning (2-3 kalimat)
 
-Execution Context:
+Konteks Eksekusi:
 - Execution ID: ${context.executionId}
 - Lead ID: ${context.leadId}
-- Step: ${context.stepNumber} (Marketing Agent - receives context from Extractor + Finance)
+- Step: ${context.stepNumber} (Marketing Agent - menerima konteks dari Extractor + Finance)
 
-Output: marketing analysis with reasoning and confidence.`,
+Output: analisis marketing dengan reasoning dan confidence.
+PENTING: Semua output (target_persona, pain_points, messaging_angle, reasoning) dalam Bahasa Indonesia.`,
   });
 
   const durationMs = Date.now() - startTime;
