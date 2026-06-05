@@ -14,40 +14,41 @@ export async function strategicRecommendation(
   const { object, usage } = await generateObject({
     model: defaultModel,
     schema: StrategyOutputSchema,
-    prompt: `You are a strategic advisor synthesizing multi-agent analysis.
+    prompt: `Anda adalah penasihat strategis yang mensintesis analisis multi-agen.
 
-ACCUMULATED CONTEXT FROM ALL AGENTS:
+KONTEKS AKUMULATIF DARI SEMUA AGEN:
 
 1. EXTRACTOR:
 ${JSON.stringify(context.extractedData, null, 2)}
 
-2. FINANCE AGENT:
+2. AGEN KEUANGAN:
 ${JSON.stringify(context.financialAnalysis, null, 2)}
 
-3. MARKETING AGENT:
+3. AGEN MARKETING:
 ${JSON.stringify(context.marketingInsights, null, 2)}
 
-YOUR TASK:
-Synthesize all signals and provide:
-- Overall lead quality score (0-100)
-- Conversion probability (0.0 - 1.0)
-- Estimated deal value ($USD)
-- Priority tier (A/B/C/D) where A = hot lead, D = disqualify
-- Recommended action (immediate_outreach / nurture / disqualify)
-- Strategic alignment score (0-100): how well this lead fits our ICP
+TUGAS ANDA:
+Sintesis semua sinyal dan berikan:
+- Skor kualitas lead keseluruhan (0-100)
+- Probabilitas konversi (0.0 - 1.0)
+- Estimasi nilai deal ($USD)
+- Tier prioritas (A/B/C/D) di mana A = lead panas, D = diskualifikasi
+- Aksi yang direkomendasikan (immediate_outreach / nurture / disqualify)
+- Skor kesesuaian strategis (0-100): seberapa cocok lead ini dengan ICP kami
 
-CRITICAL RULES:
-1. Your recommendation must be data-driven - reference specific insights from previous agents
-2. Use clinical strategic tone - NO buzzwords
-3. Reasoning must explain WHY (3-4 sentences)
-4. If agents gave contradictory signals, explain how you resolved them
+ATURAN KRITIS:
+1. Rekomendasi harus berbasis data — referensikan wawasan spesifik dari agen sebelumnya
+2. Tone strategis klinis — TANPA buzzwords
+3. Reasoning harus menjelaskan MENGAPA (3-4 kalimat)
+4. Jika agen memberikan sinyal kontradiktif, jelaskan bagaimana Anda menyelesaikannya
 
-Execution Context:
+Konteks Eksekusi:
 - Execution ID: ${context.executionId}
 - Lead ID: ${context.leadId}
-- Step: ${context.stepNumber} (Strategy Agent - FINAL SYNTHESIS of all agents)
+- Step: ${context.stepNumber} (Strategy Agent - SINTESIS AKHIR dari semua agen)
 
-Output: strategic recommendation with reasoning and confidence.`,
+Output: rekomendasi strategis dengan reasoning dan confidence.
+PENTING: Semua output (reasoning, recommended_action) dalam Bahasa Indonesia.`,
   });
 
   const durationMs = Date.now() - startTime;
