@@ -30,27 +30,29 @@ export async function analyzeLeadForSales(
   const { object } = await generateObject({
     model: defaultModel,
     schema: SalesAnalysisSchema,
-    prompt: `You are a senior B2B sales strategist. Analyze this lead and recommend a sales approach.
+    prompt: `Anda adalah strategis sales B2B senior. Analisis lead ini dan rekomendasikan pendekatan sales.
 
-LEAD DATA:
+DATA LEAD:
 ${JSON.stringify(leadData, null, 2)}
 
-OUR BUSINESS CONTEXT:
-${businessContext || 'No business context provided. Use general B2B best practices.'}
+KONTEKS BISNIS KAMI:
+${businessContext || 'Tidak ada konteks bisnis. Gunakan best practices B2B umum.'}
 
-YOUR TASK:
-Analyze this lead from a sales perspective:
-1. What are the key weaknesses or risks? (e.g., no website, no emails, hard to reach)
-2. What are the strengths or opportunities? (e.g., clear category, has contact info)
-3. What is the recommended sales approach? (one sentence)
-4. What are concrete next steps?
-5. How well does this lead fit our business? (0-100)
+TUGAS ANDA:
+Analisis lead ini dari perspektif sales:
+1. Apa kelemahan atau risiko utama? (misal: tanpa website, tanpa email, sulit dihubungi)
+2. Apa kekuatan atau peluang? (misal: kategori jelas, punya kontak)
+3. Pendekatan sales yang direkomendasikan? (satu kalimat)
+4. Langkah konkret berikutnya?
+5. Seberapa cocok lead ini dengan bisnis kami? (0-100)
 
-CRITICAL RULES:
-1. NO emojis, NO buzzwords
-2. Base analysis on actual data provided — don't invent information
-3. Clinical B2B tone
-4. Be honest about data quality issues`,
+ATURAN KRITIS:
+1. TANPA emoji, TANPA buzzwords
+2. Berdasarkan data aktual yang diberikan — jangan mengarang informasi
+3. Tone B2B klinis
+4. Jujur tentang masalah kualitas data
+
+PENTING: Semua output (weaknesses, strengths, recommendedApproach, reasoning) dalam Bahasa Indonesia.`,
   });
 
   return object;
