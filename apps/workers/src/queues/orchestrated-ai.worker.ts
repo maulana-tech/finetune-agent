@@ -3,6 +3,44 @@ import { runMultiAgentWorkflow, runLeadScoringSwarm, type SwarmRunResult } from 
 import { db, agentLogs, leadScores, leads, swarmRuns } from '@repo/db';
 import { eq } from 'drizzle-orm';
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Returns true if the string looks like a JSON blob or junk value. */
+function isJsonOrJunk(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed.length < 3) return true;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) return true;
+  const junkSet = new Set(['json', 'null', 'undefined', 'n/a', 'na', 'loading', 'unknown', 'test']);
+  if (junkSet.has(trimmed.toLowerCase())) return true;
+  return false;
+}
+
+/** Clean a business name returned by the LLM — strip JSON, prefixes, quotes. */
+function sanitizeName(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let name = raw.trim();
+
+  // If it looks like JSON, try to extract a name field
+  if (name.startsWith('{') || name.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(name);
+      name = parsed.name || parsed.business_name || parsed.company_name || '';
+    } catch {
+      return null;
+    }
+  }
+
+  // Remove surrounding quotes
+  name = name.replace(/^["']|["']$/g, '');
+
+  // Remove common prefixes the LLM sometimes adds
+  name = name.replace(/^(Name|Business|Company|Brand)\s*:\s*/i, '');
+
+  name = name.trim();
+  if (name.length < 3) return null;
+  return name;
+}
+
 /**
  * Orchestrated AI Worker
  *
@@ -129,19 +167,50 @@ export const startOrchestratedAiWorker = () => {
           });
         }
 
-        // Update lead with extracted data from Step 1
+        // Smart-merge extracted data — only fill empty/junk fields, preserve scraper data
         const extractorOutput = steps[0].output;
-        await db
-          .update(leads)
-          .set({
-            name: extractorOutput.name,
-            category: extractorOutput.category,
-            emails: extractorOutput.contact_info.email
-              ? [extractorOutput.contact_info.email]
-              : [],
-            phone: extractorOutput.contact_info.phone || null,
-          })
-          .where(eq(leads.id, leadId));
+        const [current] = await db
+          .select()
+          .from(leads)
+          .where(eq(leads.id, leadId))
+          .limit(1);
+
+        if (current) {
+          const updateData: Record<string, unknown> = {};
+
+          // Name: only update if current is empty, junk, or looks like JSON
+          const sanitisedName = sanitizeName(extractorOutput.name);
+          if (!current.name || isJsonOrJunk(current.name)) {
+            if (sanitisedName) updateData.name = sanitisedName;
+          }
+
+          // Category: only update if current is empty
+          if (!current.category && extractorOutput.category) {
+            updateData.category = extractorOutput.category;
+          }
+
+          // Emails: MERGE — don't discard scraper emails
+          const scrapedEmails = (current.emails as string[]) || [];
+          const aiEmail = extractorOutput.contact_info?.email;
+          if (aiEmail && !scrapedEmails.includes(aiEmail)) {
+            updateData.emails = [...scrapedEmails, aiEmail];
+          }
+
+          // Phone: only update if current is empty
+          if (!current.phone && extractorOutput.contact_info?.phone) {
+            updateData.phone = extractorOutput.contact_info.phone;
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            await db
+              .update(leads)
+              .set(updateData)
+              .where(eq(leads.id, leadId));
+            console.log(`[OrchestratedAI] Merged fields for lead ${leadId}:`, Object.keys(updateData));
+          } else {
+            console.log(`[OrchestratedAI] No merge needed for lead ${leadId} — scraper data is good`);
+          }
+        }
 
         return {
           success: true,
