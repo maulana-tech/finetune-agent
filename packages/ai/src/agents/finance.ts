@@ -14,26 +14,27 @@ export async function analyzeFinancials(
   const { object, usage } = await generateObject({
     model: defaultModel,
     schema: FinanceOutputSchema,
-    prompt: `You are a financial analyst specializing in B2B lead qualification.
+    prompt: `Anda adalah analis keuangan spesialis kualifikasi lead B2B.
 
-CONTEXT FROM PREVIOUS AGENT (Extractor):
+KONTEKS DARI AGEN SEBELUMNYA (Extractor):
 ${JSON.stringify(context.extractedData, null, 2)}
 
-YOUR TASK:
-Estimate this business's financial health and capacity to purchase B2B tools.
+TUGAS ANDA:
+Estimasi kesehatan keuangan bisnis ini dan kemampuan membeli tools B2B.
 
-CRITICAL RULES:
-1. Use strictly clinical and analytical tone - no buzzwords
-2. Base estimates on tangible signals (company size, category, services)
-3. Provide clear reasoning (2-3 sentences)
-4. Rate confidence based on available data quality
+ATURAN KRITIS:
+1. Gunakan tone klinis dan analitis — tanpa buzzwords
+2. Berdasarkan estimasi dari sinyal nyata (ukuran perusahaan, kategori, layanan)
+3. Berikan reasoning yang jelas (2-3 kalimat)
+4. Berikan confidence berdasarkan kualitas data yang tersedia
 
-Execution Context:
+Konteks Eksekusi:
 - Execution ID: ${context.executionId}
 - Lead ID: ${context.leadId}
-- Step: ${context.stepNumber} (Finance Agent - receives context from Extractor)
+- Step: ${context.stepNumber} (Finance Agent - menerima konteks dari Extractor)
 
-Output: financial analysis with reasoning and confidence score.`,
+Output: analisis keuangan dengan reasoning dan confidence score.
+PENTING: Semua output (estimated_revenue_range, reasoning) harus dalam Bahasa Indonesia.`,
   });
 
   const durationMs = Date.now() - startTime;
