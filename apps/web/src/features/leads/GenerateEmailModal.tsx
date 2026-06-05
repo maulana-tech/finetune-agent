@@ -210,9 +210,15 @@ function GenerateEmailModal({
                   onClick={() => {
                     const plainText = email.body.replace(/<[^>]*>/g, '').trim();
                     navigator.clipboard.writeText(plainText);
-                    const phone = (leadPhone || '').replace(/\D/g, '');
+                    let phone = (leadPhone || '').replace(/\D/g, '');
+                    // Convert Indonesian format: 0811xxx → 62811xxx
+                    if (phone.startsWith('0')) {
+                      phone = '62' + phone.slice(1);
+                    }
                     if (phone) {
                       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(plainText)}`, '_blank');
+                    } else {
+                      window.open('https://web.whatsapp.com/', '_blank');
                     }
                   }}
                   className="flex-1 py-2 bg-green-600 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
