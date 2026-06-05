@@ -163,9 +163,11 @@ function runPythonScraper(
   limit: number,
 ): Promise<Record<string, unknown>[]> {
   return new Promise((resolve, reject) => {
-    const scriptPath = path.resolve(__dirname, '../python/maps_scraper.py');
+    const scriptPath = path.resolve(__dirname, '../python/places_scraper.py');
     const pythonExec = path.resolve(__dirname, '../../.venv/bin/python');
-    const proc = spawn(pythonExec, [scriptPath, query, String(limit)]);
+    const proc = spawn(pythonExec, [scriptPath, query, String(limit)], {
+      env: { ...process.env },
+    });
 
     let stdout = '';
     let stderr = '';
