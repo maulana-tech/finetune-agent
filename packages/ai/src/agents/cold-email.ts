@@ -23,30 +23,31 @@ export async function generateColdEmail(
   const { object } = await generateObject({
     model: defaultModel,
     schema: ColdEmailSchema,
-    prompt: `You are a B2B sales email specialist. Write a personalized cold email.
+    prompt: `Anda adalah spesialis email sales B2B. Tulis cold email yang dipersonalisasi.
 
-LEAD DATA:
+DATA LEAD:
 ${JSON.stringify(leadData, null, 2)}
 
-OUR BUSINESS CONTEXT:
-${businessContext || 'B2B SaaS company'}
+KONTEKS BISNIS KAMI:
+${businessContext || 'Perusahaan B2B SaaS'}
 
-${salesAnalysis ? `SALES ANALYSIS (for reference):\n${salesAnalysis}` : ''}
+${salesAnalysis ? `ANALISIS SALES (untuk referensi):\n${salesAnalysis}` : ''}
 
-YOUR TASK:
-Write a concise, professional cold email:
-1. Subject line that gets attention
-2. Body that is personalized to the lead (mention their category/industry)
-3. Clear value proposition tied to our business
-4. Low-pressure call to action
+TUGAS ANDA:
+Tulis email cold yang ringkas dan profesional:
+1. Subject line yang menarik perhatian
+2. Body yang dipersonalisasi untuk lead (sebutkan kategori/industri mereka)
+3. Value proposition yang jelas terkait bisnis kami
+4. Call to action yang tidak memaksa
 
-CRITICAL RULES:
-1. NO emojis in subject line
-2. NO generic greetings — personalize
-3. Keep body under 150 words
-4. Professional B2B tone
-5. Plain text format (no HTML)
-6. Include a specific, low-friction CTA`,
+ATURAN KRITIS:
+1. TANPA emoji di subject line
+2. TANPA sapaan generik — personalisasi
+3. Body maksimal 150 kata
+4. Tone profesional B2B
+5. Format plain text (tanpa HTML)
+6. Sertakan CTA yang spesifik dan rendah friction
+7. SEMUA output dalam Bahasa Indonesia`,
   });
 
   return object;
