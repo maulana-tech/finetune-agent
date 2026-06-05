@@ -23,8 +23,8 @@ HTTP_HEADERS = {
     'Accept-Language': 'id-ID,id;q=0.9,en;q=0.8',
 }
 
-# Only check the highest-yield paths to keep it fast
-CONTACT_PATHS = ['/', '/contact', '/kontak', '/hubungi-kami', '/about']
+# Check high-yield paths for email/WhatsApp enrichment
+CONTACT_PATHS = ['/', '/contact', '/kontak', '/hubungi-kami', '/about', '/about-us', '/contact-us', '/email', '/team']
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -192,15 +192,21 @@ def scrape_maps(query: str, limit: int):
                 # Click card → get phone, website, full address, category from panel
                 try:
                     link.click()
-                    # Wait for any of the detail fields to appear instead of fixed sleep
-                    try:
-                        page.wait_for_selector(
-                            '[data-item-id^="phone:tel:"], [data-item-id="authority"], [data-item-id="address"]',
-                            timeout=2500,
-                            state='attached',
-                        )
-                    except Exception:
-                        pass
+                    # Wait for any of the detail fields to appear — retry up to 2x
+                    panel_found = False
+                    for _attempt in range(2):
+                        try:
+                            page.wait_for_selector(
+                                '[data-item-id^="phone:tel:"], [data-item-id="authority"], [data-item-id="address"]',
+                                timeout=4000,
+                                state='attached',
+                            )
+                            panel_found = True
+                            break
+                        except Exception:
+                            if _attempt == 0:
+                                page.wait_for_timeout(800)
+                            continue
 
                     panel = (
                         page.query_selector('[role="main"]') or
