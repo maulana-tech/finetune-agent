@@ -132,7 +132,7 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
     } finally {
       setSearching(false);
     }
-  }, []);
+  }, [workspaceId]);
 
   const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
   const recentLeads = useMemo(
@@ -181,7 +181,25 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
   const [emailHistory, setEmailHistory] = useState<EmailHistory[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const selectedLead = leads.find(l => l.id === selectedLeadId);
+  // Fetch selected lead by ID so detail always works regardless of list limit/filters
+  const [selectedLeadDetail, setSelectedLeadDetail] = useState<Lead | null>(null);
+  useEffect(() => {
+    if (!selectedLeadId) {
+      setSelectedLeadDetail(null);
+      return;
+    }
+    const fromList = leads.find(l => l.id === selectedLeadId);
+    if (fromList) {
+      setSelectedLeadDetail(fromList);
+      return;
+    }
+    fetch(`${apiUrl()}/leads/${selectedLeadId}?workspaceId=${workspaceId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setSelectedLeadDetail(data as Lead); })
+      .catch(() => {});
+  }, [selectedLeadId, workspaceId]);
+
+  const selectedLead = selectedLeadDetail;
 
   const fetchInsights = useCallback(async (leadId: string) => {
     setInsightsLoading(true);
