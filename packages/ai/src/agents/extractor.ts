@@ -15,8 +15,14 @@ export async function extractBusinessInfo(
 
 CRITICAL RULES:
 1. Be precise - only extract what's explicitly stated
-2. Explain your reasoning briefly (1-2 sentences)
-3. Rate your confidence (0-100) based on data quality
+2. The "name" field MUST be a CLEAN business name string only.
+   - DO NOT return JSON objects, arrays, or key-value pairs as the name.
+   - DO NOT prefix with "Name:", "Business:", or "Company:".
+   - Just the raw name: "Klinik Gigi Sehat"
+3. The "email" and "phone" fields: extract ONLY if clearly present in the text.
+   - If not found, leave them undefined/null — do NOT guess.
+4. Explain your reasoning briefly (1-2 sentences)
+5. Rate your confidence (0-100) based on data quality
 
 Execution Context:
 - Execution ID: ${context.executionId}
