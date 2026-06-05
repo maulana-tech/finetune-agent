@@ -22,7 +22,7 @@ interface HoveredPin {
 
 export function MapContainer({ leads }: { leads: Lead[] }) {
   const mapRef = React.useRef<MapRef>(null);
-  const { viewState, setViewState, setSelectedLeadId, selectedLeadId } = useMapStore();
+  const { viewState, setViewState, setSelectedLeadId, selectedLeadId, flyToLeadId, setFlyToLeadId } = useMapStore();
   const [hoveredPin, setHoveredPin] = React.useState<HoveredPin | null>(null);
 
   const geojson: GeoJSON.FeatureCollection = React.useMemo(() => ({
@@ -91,6 +91,23 @@ export function MapContainer({ leads }: { leads: Lead[] }) {
     if (canvas) canvas.style.cursor = '';
     setHoveredPin(null);
   }, []);
+
+  // Fly to a lead when flyToLeadId is set (e.g. from scrape page)
+  React.useEffect(() => {
+    if (!flyToLeadId) return;
+    const lead = leads.find((l) => l.id === flyToLeadId);
+    if (!lead || lead.lat == null || lead.lng == null) {
+      setFlyToLeadId(null);
+      return;
+    }
+    setSelectedLeadId(lead.id);
+    mapRef.current?.flyTo({
+      center: [lead.lng, lead.lat],
+      zoom: 15,
+      duration: 1200,
+    });
+    setFlyToLeadId(null);
+  }, [flyToLeadId, leads, setSelectedLeadId, setFlyToLeadId]);
 
   return (
     <div className="w-full h-full relative bg-muted">

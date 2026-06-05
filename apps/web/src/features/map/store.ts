@@ -9,6 +9,8 @@ interface MapState {
   setViewState: (viewState: Partial<MapState['viewState']>) => void;
   selectedLeadId: string | null;
   setSelectedLeadId: (id: string | null) => void;
+  flyToLeadId: string | null;
+  setFlyToLeadId: (id: string | null) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -22,4 +24,6 @@ export const useMapStore = create<MapState>((set) => ({
   })),
   selectedLeadId: null,
   setSelectedLeadId: (id) => set({ selectedLeadId: id }),
+  flyToLeadId: null,
+  setFlyToLeadId: (id) => set({ flyToLeadId: id }),
 }));

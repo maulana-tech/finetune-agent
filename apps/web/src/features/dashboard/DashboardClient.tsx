@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MapContainer } from '../map/MapContainer';
 import { LeadsPanel } from '../leads/LeadsPanel';
 import { MapFilters } from './MapFilters';
+import { useMapStore } from '../map/store';
 
 interface Lead {
   id: string;
@@ -22,6 +24,16 @@ interface Lead {
 
 export function DashboardClient({ leads }: { leads: Lead[] }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const setFlyToLeadId = useMapStore((s) => s.setFlyToLeadId);
+
+  // Read `?lead=` from URL on mount and trigger fly-to
+  useEffect(() => {
+    const leadId = searchParams.get('lead');
+    if (leadId) {
+      setFlyToLeadId(leadId);
+    }
+  }, [searchParams, setFlyToLeadId]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();

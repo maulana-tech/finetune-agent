@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ScrapePageRefresher } from './ScrapePageRefresher';
 import { apiUrl } from '@/lib/workspace';
 import { useWorkspaceId } from '@/lib/workspace-context';
@@ -235,7 +236,7 @@ function LeadDetailPanel({
 
             {/* View on dashboard map */}
             <Link
-              href={`/dashboard?q=${encodeURIComponent(lead.category ?? lead.name)}`}
+              href={`/dashboard?lead=${lead.id}`}
               className="block w-full py-2 text-center border border-border text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-foreground transition-colors"
             >
               View on Map →
@@ -391,7 +392,7 @@ export function ScrapesClient({
                       {isFailed && <span className="text-red-500">Failed</span>}
                       <span>{timeAgo(job.createdAt)}</span>
                       <Link
-                        href={`/dashboard?q=${encodeURIComponent(job.query)}`}
+                        href={jobLeads.length > 0 ? `/dashboard?lead=${jobLeads[0].id}` : `/dashboard?q=${encodeURIComponent(job.query)}`}
                         className="px-2 py-1 border border-border text-[9px] font-bold uppercase tracking-widest hover:border-primary hover:text-foreground transition-colors"
                       >
                         View on map →
@@ -418,6 +419,13 @@ export function ScrapesClient({
                               {lead.name}
                             </span>
                             <div className="flex items-center gap-1.5 shrink-0">
+                              <Link
+                                href={`/dashboard?lead=${lead.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="px-1.5 py-0.5 border border-border text-[8px] font-bold uppercase tracking-wider hover:border-primary hover:text-foreground transition-colors"
+                              >
+                                Map
+                              </Link>
                               {lead.emails && lead.emails.length > 0 && (
                                 <span className="px-1.5 py-0.5 bg-primary text-primary-foreground text-[8px] font-bold uppercase tracking-wider">
                                   Email
