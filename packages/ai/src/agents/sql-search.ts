@@ -37,22 +37,22 @@ export async function generateLeadsSearchSql(
   const { text } = await generateText({
     model: fastModel,
     maxTokens: 500,
-    prompt: `You are a SQL query generator for a business leads database.
+    prompt: `Anda adalah generator query SQL untuk database leads bisnis.
 
 ${LEADS_SCHEMA_HINT}
 
-User query: "${q}"
+Query pengguna: "${q}"
 
-Rules:
-- Output ONLY a valid PostgreSQL SELECT * FROM leads WHERE ... query. Nothing else.
-- No markdown, no explanation, no code blocks — just the raw SQL.
-- ALWAYS include workspace_id = ':workspaceId' as a literal placeholder string.
-- NEVER use UPDATE, DELETE, INSERT, DROP, or any DDL.
-- For text columns use ILIKE '%value%' for partial matching.
-- For "this week" or "minggu ini" use: created_at >= NOW() - INTERVAL '7 days'
-- For "today" or "hari ini" use: created_at >= NOW() - INTERVAL '1 day'
-- For location queries match against address ILIKE.
-- End with LIMIT ${limit}.
+Aturan:
+- Output HANYA query PostgreSQL SELECT * FROM leads WHERE ... yang valid. Tidak yang lain.
+- Tidak ada markdown, tidak ada penjelasan, tidak ada code blocks — hanya SQL mentah.
+- SELALU sertakan workspace_id = ':workspaceId' sebagai placeholder literal string.
+- JANGAN PERNAH gunakan UPDATE, DELETE, INSERT, DROP, atau DDL apapun.
+- Untuk kolom text gunakan ILIKE '%value%' untuk partial matching.
+- Untuk "minggu ini" gunakan: created_at >= NOW() - INTERVAL '7 days'
+- Untuk "hari ini" gunakan: created_at >= NOW() - INTERVAL '1 day'
+- Untuk query lokasi matchagainst address ILIKE.
+- Akhiri dengan LIMIT ${limit}.
 
 SQL query:`,
   });
