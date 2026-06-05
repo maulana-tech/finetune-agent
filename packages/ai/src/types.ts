@@ -61,8 +61,8 @@ export const ExtractorOutputSchema = z.object({
   category: z.string().describe('Primary business category/industry'),
   services: z.array(z.string()).describe('List of services offered'),
   contact_info: z.object({
-    email: z.string().optional(),
-    phone: z.string().optional(),
+    email: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
   }),
   summary: z.string().describe('A 1 sentence summary of the business'),
   reasoning: z.string().describe('Why these fields were extracted this way'),
