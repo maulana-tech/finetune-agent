@@ -99,7 +99,7 @@ export const startOrchestratedAiWorker = () => {
             input: { rawText: step.stepNumber === 1 ? rawText : null },
             output: step.output,
             reasoning: step.reasoning,
-            confidence: Number(step.confidence) || 0,
+            confidence: Math.round((Number(step.confidence) || 0) * (Number(step.confidence) <= 1 ? 100 : 1)),
             contextFromPreviousAgent: contextFromPrevious,
             contextSharedToNextAgent: contextToNext,
             durationMs: Number(step.durationMs) || 0,
