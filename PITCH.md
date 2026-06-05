@@ -4,6 +4,23 @@
 
 ---
 
+## 🗺️ Peta Kriteria Juri → Slide
+
+| Kriteria | Slide / Bagian |
+|----------|----------------|
+| **Reasoning Agent** — logika & kualitas penalaran | Slide 6 + Demo (agent_logs trace) |
+| **Kolaborasi Multi-Agent** — efektivitas sistem | Slide 6 (3 pola koordinasi) |
+| **Dampak Riil** — nilai bisnis, revenue, efisiensi | Slide 2, 3, 8 |
+| **Arsitektur Sistem** — kejelasan arsitektur | Slide 7 + B6 (flow diagram) |
+| **Reproducibility** — kemudahan replikasi & deploy | Slide 7 + B7 |
+| **Komunikasi** — penyampaian yang jelas | Slide 1–5 (struktur: masalah → solusi → bukti) |
+| **Originalitas** — keunikan solusi | Slide 4 + B3 (competitive) |
+| **Kesiapan Demo** — kelancaran live demo | Skrip Demo |
+| **Antusiasme** — keyakinan & profesionalisme | Slide 1, 4, 10 (tagline) |
+| **Pemahaman Masalah** — kedalaman problem statement | Slide 2, 3 |
+
+---
+
 ## Slide 1 — Cover
 
 **Judul:** uTune AI
@@ -13,7 +30,8 @@
 
 ---
 
-## Slide 2 — Masalah (Cerita)
+## Slide 2 — Masalah: Cerita Nyata
+*→ Kriteria: Pemahaman Masalah, Komunikasi*
 
 **Judul:** Begini cara prospekting B2B masih dilakukan di 2026.
 
@@ -32,29 +50,33 @@
 ---
 
 ## Slide 3 — Masalah di Skala
+*→ Kriteria: Pemahaman Masalah, Dampak Riil*
 
-**Judul:** Lead Gen B2B Masih Manual, Terfragmentasi, dan Tanpa Inteligensi
+**Judul:** Lead Gen B2B: Manual, Terfragmentasi, Tanpa Inteligensi
 
-**Tiga pilar:**
+**Tiga akar masalah:**
 
-| | Masalah | Dampak |
-|--|---------|--------|
-| 📋 | Scraper memberi daftar, bukan inteligensi | Tidak tahu lead mana yang layak dihubungi |
+| | Masalah | Dampak Nyata |
+|--|---------|--------------|
+| 📋 | Scraper memberi daftar, bukan inteligensi | Tidak tahu lead mana layak dihubungi — semua diperlakukan sama |
 | 🗺️ | CRM adalah tampilan list — rep lapangan buta arah | Wilayah tidak tercakup optimal, kunjungan terbuang |
-| ✉️ | Cold outreach generik dapat <1% reply rate | Pipeline macet, kuota tidak tercapai |
+| ✉️ | Cold outreach generik, tidak kontekstual | Pipeline macet, kuota tidak tercapai, <1% reply rate |
 
-**4 statistik (angka besar):**
+**4 statistik:**
 
 | Statistik | Sumber |
 |-----------|--------|
 | **65 Juta+** UMKM di Indonesia — semesta prospek yang bisa dijangkau | BPS / World Bank |
 | **65%** waktu rep dihabiskan untuk pekerjaan non-selling | McKinsey |
-| **<1%** rata-rata reply rate cold email | Salesforce Research |
+| **<1%** rata-rata reply rate cold email generik | Salesforce Research |
 | **3–5 jam/hari** hilang untuk riset manual & entry data | HubSpot |
+
+**Kesimpulan:** Apollo.io harganya $99/bulan dalam USD, tanpa Bahasa Indonesia, tanpa CRM geografis. Tidak ada solusi yang dibangun native untuk pasar SEA.
 
 ---
 
 ## Slide 4 — Pertanyaan Pivot
+*→ Kriteria: Originalitas, Antusiasme*
 
 **Satu slide, teks besar di tengah:**
 
@@ -62,156 +84,231 @@
 > **analis keuangan, ahli strategi pasar, dan konsultan sales —**
 > **semua bekerja paralel, dalam waktu kurang dari 10 detik?**
 
-**Visual:** Panah dari "spreadsheet berantakan + Google Maps" → "peta bersih dengan lead ber-skor AI dan diperkaya"
+**Visual:** Panah dari "spreadsheet + Google Maps manual" → "peta dengan lead ber-skor AI, diperkaya kontak, siap dihubungi"
+
+**Ini bukan chatbot. Ini orkestrasi 20 agen khusus yang bekerja seperti departemen riset — otomatis, transparan, dan bisa diaudit.**
 
 ---
 
 ## Slide 5 — Gambaran Solusi
+*→ Kriteria: Komunikasi, Dampak Riil*
 
 **Judul:** uTune AI — Platform Inteligensi B2B Berbasis Peta
 
-**Tiga pilar (ikon + deskripsi 2 baris):**
+**Tiga pilar:**
 
 **🔍 Business Finder**
-Cari berdasarkan industri + geografi. Gambar poligon, pilih kategori, dapatkan ratusan lead terverifikasi dengan kontak — otomatis di-scrape dari Google Maps. Termasuk email dan nomor WhatsApp.
+Cari berdasarkan industri + geografi. Gambar poligon, pilih kategori, dapatkan ratusan lead terverifikasi — otomatis di-scrape dari Google Maps lengkap dengan email dan WhatsApp.
 
 **🗺️ Mapped CRM**
-Setiap lead adalah pin. Kelola pipeline secara geografis — filter berdasarkan stage, skor, atau wilayah. Peta tidak pernah tersembunyi; itulah produknya.
+Setiap lead adalah pin. Kelola pipeline secara geografis — filter berdasarkan stage, skor AI, atau wilayah. Peta tidak pernah tersembunyi; itulah produknya.
 
 **🤖 Multi-Agent AI**
-20 agen AI khusus dalam 3 pipeline — lead scoring, simulasi keuangan, analisis pasar. Setiap keputusan dicatat. Tidak ada kotak hitam.
+20 agen AI khusus dalam 3 pipeline — lead scoring, simulasi keuangan, analisis pasar. Setiap keputusan dicatat dengan reasoning trace lengkap. Tidak ada kotak hitam.
 
-**Alur kerja:**
+**Satu alur kerja end-to-end:**
 ```
-cari → scrape → perkaya → analisis AI → email personal → kunjungi → tutup
+scrape otomatis → perkaya kontak → analisis AI → cold email personal → kunjungi → tutup
 ```
+
+**Nilai yang langsung terasa:**
+- Raka dapat 50 lead dalam 45 detik, bukan 3 jam
+- Setiap lead sudah tahu: prioritas A/B/C/D, potensi konversi, pain point spesifik
+- Cold email di-generate dari riset nyata, bukan template
 
 ---
 
-## Slide 6 — Engine AI
+## Slide 6 — Engine AI: Sistem Multi-Agent
+*→ Kriteria: Reasoning Agent, Kolaborasi Multi-Agent*
 
-**Judul:** Bukan satu AI. Tim terkoordinasi 20 spesialis.
+**Judul:** Bukan satu AI. Tim terkoordinasi 20 spesialis yang berargumen, berkolaborasi, dan memberi keputusan.
 
-**Visual: Tiga kotak pipeline berdampingan**
+---
+
+### Tiga Pola Kolaborasi
+
+**Pola 1 — Sequential dengan Konteks Diwariskan (Lead Scoring)**
+
+Setiap agen menerima output agen sebelumnya. Penalaran menumpuk, bukan diulang dari nol:
 
 ```
-┌──────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
-│  LEAD SCORING         │  │  SIMULASI KEUANGAN  │  │  ANALISIS PASAR     │
-│  (Berurutan)          │  │  (Paralel)          │  │  (Paralel)          │
-│                       │  │                     │  │                     │
-│  1. Extractor         │  │  ┌ Owner   ┐        │  │  ┌ Competitor ┐     │
-│       ↓               │  │  ├ Supplier┤ → Sint │  │  ├ Trend      ┤→Sint│
-│  2. Finance Agent     │  │  ├ Customer┤        │  │  ├ Risk       ┤     │
-│       ↓               │  │  └ Bank    ┘        │  │  └ Demand     ┘     │
-│  3. Marketing Agent   │  │                     │  │                     │
-│       ↓               │  │  Forecast cashflow  │  │  Skor peluang       │
-│  4. Strategy Agent    │  │  + level risiko     │  │  + positioning      │
-└──────────────────────┘  └─────────────────────┘  └─────────────────────┘
+Raw data scrape
+      │
+      ▼
+[Extractor Agent]  ← "Saya ekstrak profil bisnis terstruktur"
+      │ konteks →
+      ▼
+[Finance Agent]    ← "Berdasarkan profil itu, saya nilai kapasitas anggaran mereka"
+      │ konteks →
+      ▼
+[Marketing Agent]  ← "Berdasarkan profil + kondisi keuangan, ini pain point & channel terbaik"
+      │ konteks →
+      ▼
+[Strategy Agent]   ← "Mensintesis semua — prioritas A/B/C/D + rekomendasi tindakan spesifik"
 ```
 
-**Cara kerjanya:**
+**Mengapa sequential?** Karena setiap analisis bergantung pada yang sebelumnya. Finance Agent tidak bisa nilai anggaran tanpa tahu profil bisnisnya terlebih dulu.
 
-**Pipeline A — Lead Scoring (Berurutan, konteks diwariskan)**
-Setiap agen menerima output agen sebelumnya sebagai konteks:
-1. **Extractor** → Profil bisnis terstruktur dari data mentah scrape
-2. **Finance Agent** → Kapasitas anggaran, potensi pendapatan bisnis target
-3. **Marketing Agent** → Pain point, kesesuaian pesan, channel yang tepat
-4. **Strategy Agent** → Skor prioritas A/B/C/D + rekomendasi tindakan final
+---
 
-**Pipeline B — Simulasi Keuangan (Paralel, 4 perspektif stakeholder)**
-Empat agen berjalan paralel, lalu synthesizer merekonsiliasi hasil:
-- **Owner Agent** — strategi pendapatan, margin, pertumbuhan
-- **Supplier Agent** — tekanan biaya supply chain, kecukupan inventori
-- **Customer Agent** — sensitivitas harga, elastisitas permintaan
-- **Bank Agent** — runway, debt service, rekomendasi kredit
-- **Synthesizer** → Forecast cashflow bulanan + level risiko (rendah/sedang/tinggi/kritis)
+**Pola 2 — Parallel Fan-Out + Synthesizer (Simulasi Keuangan & Analisis Pasar)**
 
-**Pipeline C — Analisis Pasar (Paralel, 4 perspektif independen)**
-- **Competitor Agent** — pangsa pasar, celah positioning
-- **Trend Agent** — tren industri, vektor pertumbuhan
-- **Risk Agent** — risiko masuk, hambatan regulasi
-- **Demand Agent** — TAM, willingness to pay
-- **Synthesizer** → Skor peluang + rekomendasi go-to-market
+Agen-agen independen berjalan bersamaan, lalu synthesizer merekonsiliasi perbedaan perspektif:
 
-**Agen standalone:**
-- **SQL Search Agent** — bahasa natural → PostgreSQL (tanya database dalam Bahasa Indonesia)
-- **Smart Sales Agent** — strategi sales personal per lead
-- **Cold Email Agent** — outreach hyper-personal dari hasil analisis AI
+```
+                    ┌── Owner Agent    ── strategi pendapatan, margin
+Skenario input  ──► ├── Supplier Agent ── tekanan supply chain, inventori    ──► Synthesizer
+                    ├── Customer Agent ── sensitivitas harga, elastisitas              │
+                    └── Bank Agent     ── runway, debt service, kredit           Forecast cashflow
+                                                                                 + level risiko
+```
 
-**Swarm Runtime:**
-Semua pipeline dijalankan di atas runtime Swarm kustom dengan dynamic handoff — koordinator memutuskan siapa agen berikutnya, fan-out paralel otomatis, dan setiap langkah dicatat ke `agent_logs` untuk transparansi penuh.
+**Mengapa paralel?** Perspektif keuangan bersifat independen — Owner, Supplier, Customer, Bank masing-masing punya sudut pandang berbeda pada skenario yang sama. Paralel juga ~4× lebih cepat.
 
-**Catatan bawah:**
-> **20 agen · 3 pipeline · Swarm runtime dengan dynamic handoff · Setiap langkah tercatat di `agent_logs`**
-> Model: Llama 3.1 70B (analisis) · Llama 3.1 8B (cepat/SQL) via NVIDIA NIM
+Pola yang sama untuk **Analisis Pasar**: Competitor, Trend, Risk, Demand berjalan paralel → Synthesizer menghasilkan skor peluang.
+
+---
+
+**Pola 3 — Dynamic Handoff via Swarm Runtime**
+
+Semua pipeline dijalankan di atas Swarm runtime kustom. Agen tidak hanya mengeksekusi — mereka **memutuskan siapa agen selanjutnya**:
+
+```typescript
+// Setiap agen bisa emit salah satu dari tiga instruksi:
+_handoff:  { nextAgent, contextToPass, reason }   // routing berurutan
+_parallel: { agents, groupKey, nextAfterAll }      // fan-out paralel
+_toolCall: { toolName, params }                    // sub-loop tool use
+```
+
+Koordinator memutuskan alur, bukan hardcoded di orchestrator. Ini yang membuat sistem bisa diperluas tanpa mengubah runtime.
+
+---
+
+### Transparansi Penalaran (Reasoning Agent)
+
+Setiap langkah agent dicatat ke tabel `agent_logs`:
+
+```
+agent_logs
+├── agentName       "strategy_agent"
+├── input           konteks dari 3 agen sebelumnya
+├── output          {priorityTier: "A", conversionProb: 0.78, action: "Hubungi minggu ini..."}
+├── reasoning       "Bisnis ini punya rating 4.2, email terverifikasi, kategori klinik gigi
+│                    di Surabaya. Finance Agent menunjukkan margin 35%+. Marketing Agent
+│                    mengidentifikasi pain point: booking masih via telepon. Rekomendasi:
+│                    pitch fitur booking online, prioritas tinggi."
+├── handoffFrom     "marketing_agent"
+├── parallelGroup   null
+└── tokenUsage      { input: 1847, output: 312 }
+```
+
+**Reasoning tidak disembunyikan** — bisa dilihat langsung di UI per lead. Juri bisa audit kenapa agen merekomendasikan prioritas A vs D.
+
+---
+
+**Ringkasan:**
+> **20 agen · 3 pipeline · 3 pola kolaborasi · Swarm runtime dengan dynamic handoff**
+> Model: Llama 3.1 70B (analisis mendalam) · Llama 3.1 8B (ekstraksi cepat/SQL) via NVIDIA NIM
 
 ---
 
 ## [DEMO LANGSUNG — 5–7 menit]
+*→ Kriteria: Kesiapan Demo*
 
-**Skrip:**
-1. Buka dashboard peta — pin lead tersebar di Jakarta
-2. Trigger scrape baru: ketik "klinik gigi di Surabaya" → tampilkan progress scraping real-time
-3. Lead muncul di peta sebagai pin
-4. Klik pin → panel detail terbuka (nama, alamat, telepon, email, WhatsApp, stage pipeline)
-5. Buka panel AI Score → tier prioritas A/B/C/D, probabilitas konversi, rekomendasi tindakan
-6. Tampilkan reasoning trace di `agent_logs` — analisis Finance Agent, pain point Marketing Agent, keputusan final Strategy Agent
-7. Tampilkan cold email yang di-generate AI khusus untuk bisnis tersebut
-8. Buka tab AI Query → ketik "semua klinik yang punya email" → AI generate SQL → tabel hasil
-9. Buka Scrape History → tampilkan daftar job dengan jumlah lead per scrape
+**Skrip (urutan terbukti, tidak ada improvisasi):**
+
+| # | Aksi | Yang Dibuktikan |
+|---|------|-----------------|
+| 1 | Buka dashboard peta — pin lead tersebar di Jakarta | Product exists, peta berfungsi |
+| 2 | Ketik "klinik gigi di Surabaya" → show progress scraping | Scrape real-time, bukan data dummy |
+| 3 | Lead muncul di peta sebagai pin | End-to-end pipeline berjalan |
+| 4 | Klik pin → panel detail (nama, alamat, telepon, email, WhatsApp) | Data enrichment berfungsi |
+| 5 | Buka panel AI Score → tier A/B/C/D, probabilitas konversi | Reasoning Agent: output terstruktur |
+| 6 | Tampilkan `agent_logs` — reasoning trace Finance, Marketing, Strategy | Reasoning transparan, bisa diaudit |
+| 7 | Tampilkan cold email yang di-generate AI untuk lead tersebut | Personalisasi dari analisis nyata |
+| 8 | Tab AI Query → ketik "semua klinik yang punya email" → SQL → hasil | SQL Agent: bahasa natural → query |
+| 9 | Buka Scrape History → daftar job + lead per scrape | Sistem terekam, bisa di-trace |
+
+**Backup jika ada yang gagal:** Gunakan screenshot yang sudah disiapkan di folder `demo-backup/`.
 
 ---
 
-## Slide 7 — Tech Stack
+## Slide 7 — Arsitektur Sistem
+*→ Kriteria: Arsitektur Sistem, Reproducibility*
 
-**Diagram lapisan:**
+**Judul:** Arsitektur yang bisa dijelaskan dalam 60 detik.
+
+**Alur sistem end-to-end:**
 
 ```
-┌─────────────────────────────────────────────┐
-│  FRONTEND                                    │
-│  Next.js 15 (App Router) · React 19          │
-│  MapLibre GL JS · tile OpenFreeMap           │
-│  Tailwind v4 · Zustand                       │
-└────────────────┬────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────┐
-│  BACKEND                                     │
-│  NestJS 11 — REST API tipis (queue bridge)   │
-│  BullMQ + Redis — orkestrasi job async       │
-└────────────────┬────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────┐
-│  WORKERS                                     │
-│  Python (Playwright) scraper — paralel       │
-│  5 antrian BullMQ (scrape, score, finance…)  │
-└────────────────┬────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────┐
-│  LAPISAN AI                                  │
-│  NVIDIA NIM · Llama 3.1 70B + 8B            │
-│  Vercel AI SDK · Swarm runtime kustom        │
-│  Pipeline sequential + parallel fan-out      │
-└────────────────┬────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────┐
-│  DATA                                        │
-│  Supabase PostgreSQL · Drizzle ORM           │
-│  agent_logs · lead_scores · swarm_runs       │
-└─────────────────────────────────────────────┘
+User input "klinik gigi Surabaya"
+        │
+        ▼
+[Next.js Web App]  ──POST /jobs/scrape──►  [NestJS API]
+                                                │
+                                         push to BullMQ
+                                                │
+                                                ▼
+                                       [scrape-map queue]
+                                                │
+                                                ▼
+                                    [Scrape Worker: TypeScript]
+                                                │
+                                    spawn child_process
+                                                │
+                                                ▼
+                                    [Python Playwright Scraper]
+                                    parallel card scraping +
+                                    ThreadPoolExecutor email/WA
+                                                │
+                                    JSON output → parse → DB insert
+                                                │
+                                                ▼
+                                    [orchestrated-ai-queue]
+                                    (1 job per lead)
+                                                │
+                                                ▼
+                                    [AI Worker: Swarm Runtime]
+                                    Extractor → Finance → Marketing
+                                    → Strategy (+ parallel pipelines)
+                                                │
+                                    agent_logs + lead_scores
+                                                │
+                                                ▼
+                                    [Next.js] polling → UI update
 ```
 
-**3 keputusan teknis kunci:**
-- **MapLibre** → nol biaya Google Maps API di skala besar
-- **BullMQ** → scrape + pipeline AI async, tidak pernah blokir API
-- **NVIDIA NIM** → OpenAI-compatible, model-agnostic, inferensi cepat
+**Stack per lapisan:**
 
-**Deploy:** Container Docker tunggal · PM2 multi-proses · SumoPod PaaS + Vercel
+```
+Frontend:  Next.js 15 · React 19 · MapLibre GL JS · Tailwind v4 · Zustand
+Backend:   NestJS 11 · BullMQ + Redis · 5 antrian async
+Workers:   TypeScript (tsx) + Python (Playwright) · PM2 multi-process
+AI:        NVIDIA NIM · Llama 3.1 70B + 8B · Vercel AI SDK · Swarm runtime kustom
+Data:      Supabase PostgreSQL · Drizzle ORM · agent_logs · lead_scores · swarm_runs
+Deploy:    Docker container tunggal · PM2 · SumoPod PaaS + Vercel
+```
+
+**3 keputusan arsitektur kunci:**
+- **API thin (queue bridge)** → tidak ada pekerjaan berat di request handler, tidak ada timeout
+- **MapLibre** → nol biaya Google Maps API — scalable tanpa billing shock
+- **BullMQ** → scrape + AI pipeline async dan retry-able, observable via dashboard
 
 ---
 
 ## Slide 8 — Model Bisnis + Traksi
+*→ Kriteria: Dampak Riil*
 
-**Judul:** Dibangun untuk pasar UMKM Indonesia. Harga untuk skala.
+**Judul:** Dibangun untuk 65 Juta+ UMKM Indonesia. Harga yang masuk akal.
+
+### Nilai Nyata untuk Pengguna
+
+| Sebelum uTune AI | Sesudah uTune AI |
+|-----------------|------------------|
+| 50 lead = 3 jam kerja manual | 50 lead = 45 detik |
+| 0 informasi tentang kelayakan lead | Setiap lead: prioritas A/B/C/D + reasoning |
+| Cold email generik, <1% reply | Email dari pain point nyata, kontekstual |
+| CRM list — rep buta arah | Peta interaktif — lihat coverage sekilas |
 
 ### Tier Harga
 
@@ -221,38 +318,43 @@ Semua pipeline dijalankan di atas runtime Swarm kustom dengan dynamic handoff �
 | **Growth** | Rp 299.000/bln | 500 lead | AI scoring, pipeline CRM, email outreach |
 | **Scale** | Rp 999.000/bln | Tak terbatas | Semua pipeline AI, simulasi keuangan, analisis pasar, akses API |
 
-### Traksi Awal (Build Hackathon)
+**Apollo.io (kompetitor terdekat):** $99/bln ≈ Rp 1,6jt — tanpa Bahasa Indonesia, tanpa CRM geografis, tanpa scraping lokal.
+
+### Traksi Hackathon (dibangun dalam waktu singkat)
 
 | Metrik | Nilai |
 |--------|-------|
 | Lead di-scrape & diperkaya | **50+ lintas 8+ kategori** |
 | Agen AI dibangun & terhubung | **20 agen, 3 pipeline** |
-| Kecepatan scrape (10 lead) | **~45 detik** (dari ~5 menit) |
-| Pengayaan email | **Paralel, 6× lebih cepat** |
+| Kecepatan scrape (10 lead) | **~45 detik** (turun dari ~5 menit, 6× lebih cepat) |
+| Scraping email + WhatsApp | **Paralel, ThreadPoolExecutor 6 worker** |
+| Pipeline AI terekam | **Setiap langkah tercatat di agent_logs** |
 
-### Kenapa Sekarang
-> Indonesia punya **65 Juta+ UMKM** — namun belum ada platform inteligensi B2B lokal yang dibangun native untuk pasar ini. Apollo.io harganya $99/bulan dalam USD, tanpa dukungan Bahasa Indonesia, dan tanpa CRM geografis. Kami membangun versi native SEA-nya.
+### Kenapa Indonesia, Kenapa Sekarang
+> **65 Juta+ UMKM** di Indonesia — terbesar ke-4 di dunia. Belum ada platform inteligensi B2B yang dibangun native untuk pasar ini: harga IDR, Bahasa Indonesia, WhatsApp-native, CRM berbasis peta.
 
 ---
 
-## Slide 9 — Sistem Desain
+## Slide 9 — Desain & Pengalaman Pengguna
 
-**Dua kolom: galeri komponen kiri, spesifikasi kanan**
+**Dua dunia visual (disengaja, bukan kebetulan):**
 
-**Tipografi:**
-- `Inter` — data dashboard, label UI
-- `JetBrains Mono` — trace reasoning agen, output SQL, ID
-- `Lora` — header editorial di landing page marketing
+**Dashboard → Brutalist**
+Kontras tinggi, tanpa gradien dekoratif, tipografi monospace untuk data teknis. Prinsip: data *adalah* desainnya. Tidak ada elemen yang menghalangi informasi.
 
-**Dua dunia visual (disengaja):**
-- **Dashboard** → Tema Brutalist. Kontras tinggi, tanpa gradien dekoratif, data padat. Data adalah desainnya.
-- **Landing page (`/`)** → Sky-gradient cinematic scroll via Lenis. Aspirasional, berbasis cerita.
+**Landing Page → Cinematic**
+Sky-gradient scroll via Lenis. Aspirasional dan berbasis cerita — untuk memenangkan calon pelanggan, bukan engineer.
 
 **Prinsip UI Peta:**
 - Peta tidak pernah tersembunyi — setiap interaksi terjadi *di* atau *sekitar* peta
-- Pin lead dikode warna berdasarkan stage pipeline
+- Pin lead dikode warna berdasarkan stage pipeline (Prospecting/Qualified/Closed/dll)
 - Cluster view untuk area padat
-- Panel detail slide-over — konteks tetap di peta, tanpa navigasi halaman
+- Panel detail slide-over — tidak ada navigasi halaman, konteks tetap di peta
+
+**Tipografi:**
+- `Inter` — label UI, data dashboard
+- `JetBrains Mono` — reasoning trace agen, output SQL, ID teknis
+- `Lora` — header editorial landing page
 
 ---
 
@@ -264,17 +366,18 @@ Semua pipeline dijalankan di atas runtime Swarm kustom dengan dynamic handoff �
 Coba langsung:
 utune-ai.vercel.app
 
-Demo AI Query:
+Demo AI Query (ketik ini):
 → "Semua klinik di Jakarta yang punya email"
+→ "Lead yang ditambahkan minggu ini"
 
 Dibangun dengan:
-NVIDIA NIM · Next.js · NestJS · MapLibre · Supabase
+NVIDIA NIM · Next.js 15 · NestJS · MapLibre · Supabase
 
 [Nama tim]
 [QR code ke aplikasi live]
 ```
 
-**Tagline:**
+**Tagline penutup:**
 > *Temukan. Analisis. Tutup. — Tim sales AI yang tidak pernah tidur.*
 
 ---
@@ -288,11 +391,11 @@ NVIDIA NIM · Next.js · NestJS · MapLibre · Supabase
 | 3 | Masalah di skala (statistik) | 1 menit |
 | 4 | Pertanyaan pivot | 30 detik |
 | 5 | Gambaran solusi | 1,5 menit |
-| 6 | Engine AI (20 agen) | 2 menit |
+| 6 | Engine AI (3 pola kolaborasi) | 2,5 menit |
 | — | **Demo Langsung** | **5–7 menit** |
-| 7 | Tech stack | 1,5 menit |
+| 7 | Arsitektur sistem | 1,5 menit |
 | 8 | Model bisnis + traksi | 1,5 menit |
-| 9 | Sistem desain | 1 menit |
+| 9 | Desain & UX | 1 menit |
 | 10 | CTA + Tanya Jawab | 30 detik |
 | **Total** | | **~17–19 menit** |
 
@@ -300,67 +403,131 @@ NVIDIA NIM · Next.js · NestJS · MapLibre · Supabase
 
 ## Slide Cadangan (siapkan jika ada pertanyaan)
 
-### B1 — Tabel Detail Agen (lengkap)
+### B1 — Tabel 20 Agen Lengkap
+*→ Jika juri tanya: "Apa saja agen-agennya?"*
 
-| Pipeline | Agen | Peran |
-|----------|------|-------|
-| Lead Scoring | Extractor | Profil bisnis terstruktur dari data mentah |
-| Lead Scoring | Finance Agent | Kapasitas anggaran, potensi pendapatan |
+| Pipeline | Agen | Peran & Output |
+|----------|------|----------------|
+| Lead Scoring | Extractor | Profil terstruktur: nama, kategori, lokasi, kontak dari data mentah |
+| Lead Scoring | Finance Agent | Kapasitas anggaran, potensi pendapatan bisnis target |
 | Lead Scoring | Marketing Agent | Pain point, kesesuaian pesan, channel yang tepat |
-| Lead Scoring | Strategy Agent | Prioritas tier A–D + rekomendasi tindakan |
-| Simulasi Keuangan | Owner Agent | Strategi pendapatan, margin, pertumbuhan |
-| Simulasi Keuangan | Supplier Agent | Tekanan biaya supply chain, lead time |
-| Simulasi Keuangan | Customer Agent | Sensitivitas harga, elastisitas permintaan |
+| Lead Scoring | Strategy Agent | Prioritas tier A–D + rekomendasi tindakan spesifik |
+| Simulasi Keuangan | Owner Agent | Strategi pendapatan, margin, ambisi pertumbuhan |
+| Simulasi Keuangan | Supplier Agent | Tekanan biaya supply chain, lead time, inventori |
+| Simulasi Keuangan | Customer Agent | Sensitivitas harga, elastisitas permintaan, churn |
 | Simulasi Keuangan | Bank Agent | Runway, debt service, rekomendasi kredit |
-| Simulasi Keuangan | Synthesizer | Forecast cashflow bulanan + level risiko |
-| Analisis Pasar | Competitor Agent | Pangsa pasar, celah positioning |
+| Simulasi Keuangan | Synthesizer | Forecast cashflow bulanan + level risiko (rendah/sedang/tinggi/kritis) |
+| Analisis Pasar | Competitor Agent | Pangsa pasar, celah positioning kompetitor |
 | Analisis Pasar | Trend Agent | Tren industri, vektor pertumbuhan |
-| Analisis Pasar | Risk Agent | Risiko masuk, hambatan regulasi |
-| Analisis Pasar | Demand Agent | TAM, willingness to pay |
-| Analisis Pasar | Synthesizer | Skor peluang + go-to-market |
-| Standalone | Smart Sales | Strategi sales personal per lead |
-| Standalone | Cold Email | Outreach hyper-personal dari analisis AI |
-| Standalone | SQL Search | Bahasa natural → PostgreSQL |
-| Swarm | Lead Coordinator | Entry point pipeline lead scoring |
-| Swarm | FinSim Coordinator | Fan-out paralel untuk agen keuangan |
-| Swarm | Market Coordinator | Fan-out paralel untuk agen analisis pasar |
+| Analisis Pasar | Risk Agent | Risiko masuk, hambatan regulasi, UU PDP |
+| Analisis Pasar | Demand Agent | TAM, willingness to pay, segmentasi |
+| Analisis Pasar | Synthesizer | Skor peluang (0–100) + rekomendasi go-to-market |
+| Standalone | Smart Sales | Strategi sales personal per lead berdasarkan profil AI |
+| Standalone | Cold Email | Email outreach hyper-personal dari hasil analisis |
+| Standalone | SQL Search | Bahasa natural → PostgreSQL (Bahasa Indonesia support) |
+| Swarm | Lead Coordinator | Entry point pipeline lead scoring, routing ke Extractor |
+| Swarm | FinSim Coordinator | Inisiasi fan-out paralel untuk 4 agen keuangan |
+| Swarm | Market Coordinator | Inisiasi fan-out paralel untuk 4 agen analisis pasar |
 
-### B2 — Arsitektur Scraper
+### B2 — Mengapa Swarm Runtime, Bukan Satu Model?
+*→ Jika juri tanya: "Kenapa tidak pakai satu LLM saja?"*
 
-- **Fase 1:** Scraping paralel kartu Google Maps (Playwright headless)
-- **Fase 2:** Pengayaan website via ThreadPoolExecutor (6 worker, email + WhatsApp)
-- **Kecepatan:** 10 lead dalam ~45 detik (turun dari ~5 menit)
-- **Deduplikasi:** Cek nama + workspaceId sebelum insert
-- **Filtrasi:** JUNK_NAMES di Python + BAD_NAMES di worker TypeScript
+**Masalah dengan satu LLM untuk semua:**
+- Satu prompt harus jadi ahli keuangan, ahli pemasaran, dan strategis sekaligus
+- Konteks membengkak → kualitas analisis menurun
+- Tidak bisa dioptimasi: prompt keuangan sangat berbeda dari prompt copywriting
 
-### B3 — Lanskap Kompetitif
+**Solusi Swarm:**
+- Setiap agen: instruksi fokus + schema output ketat (Zod)
+- Agen kecil Llama 8B → ekstraksi cepat (Extractor, SQL)
+- Agen besar Llama 70B → analisis mendalam (Finance, Strategy, Synthesizer)
+- Dynamic handoff: agen memutuskan siapa yang bekerja selanjutnya — extensible tanpa ubah runtime
+- Fan-out paralel: pipeline Finance & Market ~4× lebih cepat dari sequential
+- Setiap langkah tercatat → bisa di-debug, bisa di-audit, bisa di-improve per agen
+
+### B3 — Arsitektur Scraper
+*→ Jika juri tanya: "Bagaimana scraping bekerja?"*
+
+```
+Phase 1: Parallel card scraping
+  Playwright → Google Maps → role="article" cards
+  aria-label → nama bisnis
+  Concurrent via asyncio → 10 lead dalam ~10 detik
+
+Phase 2: Contact enrichment (parallel)
+  ThreadPoolExecutor (6 worker)
+  Per bisnis: scrape website → extract email + WhatsApp
+  ~35 detik untuk 10 bisnis (paralel)
+
+Total: ~45 detik untuk 10 lead + kontak
+(vs manual: ~5 menit tanpa kontak sama sekali)
+
+Deduplication:
+  Worker TypeScript: cek nama + workspaceId sebelum insert (ILIKE)
+  Python scraper: seen set + JUNK_NAMES filter
+```
+
+### B4 — Lanskap Kompetitif
+*→ Jika juri tanya: "Apa bedanya dengan Apollo.io / HubSpot?"*
 
 | | uTune AI | Apollo.io | HubSpot | Google Maps |
 |--|----------|-----------|---------|-------------|
-| CRM Geografis | ✅ | ❌ | ❌ | ❌ |
-| AI scoring | ✅ | ✅ | ❌ | ❌ |
+| CRM Geografis (peta) | ✅ | ❌ | ❌ | ❌ |
+| AI multi-agent scoring | ✅ | ⚠️ basic | ❌ | ❌ |
 | Bahasa Indonesia | ✅ | ❌ | ❌ | ✅ |
-| Scraping lokal | ✅ | ❌ | ❌ | ❌ |
+| Scraping lokal otomatis | ✅ | ❌ | ❌ | ❌ |
 | WhatsApp native | ✅ | ❌ | ❌ | ❌ |
-| Harga (IDR) | 299rb/bln | ~1,5jt/bln | ~2jt/bln | Kredit API |
+| Reasoning trace (audit AI) | ✅ | ❌ | ❌ | ❌ |
+| Harga (IDR/bln) | 299rb | ~1,6jt | ~2jt | Kredit API |
+| Dibangun untuk SEA | ✅ | ❌ | ❌ | — |
 
-### B4 — Mengapa Swarm Runtime, Bukan Satu Model?
+**Celah terbesar:** Tidak ada kompetitor yang menggabungkan peta + AI multi-agent + scraping lokal + harga IDR dalam satu produk native SEA.
 
-**Masalah dengan satu LLM untuk semua:**
-- Satu prompt harus menjadi ahli keuangan, ahli pemasaran, dan strategis sekaligus
-- Konteks membengkak → kualitas menurun
-- Tidak bisa dioptimasi per tugas
+### B5 — Reproducibility: Deploy dalam 3 Langkah
+*→ Jika juri tanya: "Bagaimana cara deploy atau replikasi sistem ini?"*
 
-**Solusi Swarm:**
-- Setiap agen punya instruksi fokus + schema output ketat
-- Agen kecil (8B) untuk ekstraksi cepat, agen besar (70B) untuk analisis dalam
-- Dynamic handoff: agen memutuskan siapa yang bekerja selanjutnya
-- Paralel fan-out untuk pipeline independen → 4× lebih cepat
-- Setiap langkah dicatat di `agent_logs` → bisa di-debug, bisa di-audit
+```bash
+# 1. Clone & install
+git clone <repo>
+cp .env.example .env
+# isi: DATABASE_URL, REDIS_URL, NVIDIA_API_KEY, NEXT_PUBLIC_SUPABASE_*
+pnpm install
 
-### B5 — Kepatuhan Data & UU PDP
+# 2. Setup database
+pnpm db:generate && pnpm db:migrate
 
-- Semua data disimpan di Supabase PostgreSQL (Singapore region)
-- Multi-tenant via `workspace_id` — data antar workspace terisolasi penuh
-- Tidak ada data yang dibagikan antar pengguna
-- Rencana ke depan: review lawyer untuk kepatuhan UU PDP Indonesia sebelum go-live komersial
+# 3. Jalankan semua (frontend + backend + workers)
+pnpm dev
+# atau production:
+docker build -t utune-ai .
+docker run --env-file .env utune-ai
+```
+
+**Single Docker container** menjalankan semua via PM2:
+- `web` — Next.js port 3000
+- `api` — NestJS port 3001
+- `workers` — BullMQ (no port)
+
+**Environment yang dibutuhkan:** Supabase (gratis), Redis/Upstash (gratis tier), NVIDIA NIM API key
+
+### B6 — Observabilitas Sistem
+*→ Jika juri tanya: "Bagaimana memantau sistem AI?"*
+
+Tiga tabel DB untuk observabilitas penuh:
+
+```
+swarm_runs     — 1 baris per workflow (executionId, entryAgent, totalSteps, status)
+agent_logs     — 1 baris per langkah agen (input, output, reasoning, handoffFrom, parallelGroup)
+lead_scores    — hasil final agregat per lead (priorityTier, conversionProb, action)
+```
+
+Setiap scrape bisa di-trace dari awal hingga akhir:
+`swarm_runs.executionId` → semua `agent_logs` untuk run tersebut → `lead_scores` final
+
+### B7 — Keamanan & Kepatuhan Data
+*→ Jika juri tanya: "Bagaimana dengan privasi data?"*
+
+- Semua data di Supabase PostgreSQL (region Singapore)
+- Multi-tenant: setiap query difilter oleh `workspaceId` — data antar pengguna terisolasi penuh
+- Tidak ada data yang dibagikan antar workspace
+- Rencana: review kepatuhan UU PDP Indonesia sebelum go-live komersial
