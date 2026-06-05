@@ -466,6 +466,7 @@ export function LeadsPanel({ leads: initialLeads }: { leads: Lead[] }) {
               <GenerateEmailButton
                 leadId={selectedLeadId!}
                 leadEmail={selectedLead.emails?.[0]}
+                leadPhone={selectedLead.phone}
                 onGenerated={() => {
                   fetchInsights(selectedLeadId!);
                   fetchEmailHistory(selectedLeadId!);

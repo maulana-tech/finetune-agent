@@ -8,10 +8,12 @@ import { useWorkspaceId } from '@/lib/workspace-context';
 export function GenerateEmailButton({
   leadId,
   leadEmail,
+  leadPhone,
   onGenerated,
 }: {
   leadId: string;
   leadEmail?: string | null;
+  leadPhone?: string | null;
   onGenerated: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -24,7 +26,7 @@ export function GenerateEmailButton({
       >
         Generate Outreach Draft
       </button>
-      {open && <GenerateEmailModal leadId={leadId} leadEmail={leadEmail} onClose={() => setOpen(false)} onGenerated={onGenerated} />}
+      {open && <GenerateEmailModal leadId={leadId} leadEmail={leadEmail} leadPhone={leadPhone} onClose={() => setOpen(false)} onGenerated={onGenerated} />}
     </>
   );
 }
@@ -32,11 +34,13 @@ export function GenerateEmailButton({
 function GenerateEmailModal({
   leadId,
   leadEmail,
+  leadPhone,
   onClose,
   onGenerated,
 }: {
   leadId: string;
   leadEmail?: string | null;
+  leadPhone?: string | null;
   onClose: () => void;
   onGenerated: () => void;
 }) {
@@ -177,35 +181,50 @@ function GenerateEmailModal({
                   Email sent successfully!
                 </div>
               )}
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                {toEmail && (
+                  <button
+                    onClick={sendEmail}
+                    disabled={sending || sent}
+                    className="flex-1 py-2 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {sending ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Sending...
+                      </>
+                    ) : sent ? (
+                      <>
+                        <Check className="w-3 h-3" />
+                        Sent
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3 h-3" />
+                        Send Email
+                      </>
+                    )}
+                  </button>
+                )}
                 <button
-                  onClick={sendEmail}
-                  disabled={sending || sent || !toEmail}
-                  className="flex-1 py-2 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                  onClick={() => {
+                    const plainText = email.body.replace(/<[^>]*>/g, '').trim();
+                    navigator.clipboard.writeText(plainText);
+                    const phone = (leadPhone || '').replace(/\D/g, '');
+                    if (phone) {
+                      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(plainText)}`, '_blank');
+                    }
+                  }}
+                  className="flex-1 py-2 bg-green-600 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
                 >
-                  {sending ? (
-                    <>
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      Sending...
-                    </>
-                  ) : sent ? (
-                    <>
-                      <Check className="w-3 h-3" />
-                      Sent
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-3 h-3" />
-                      Send Email
-                    </>
-                  )}
+                  Send via WhatsApp
                 </button>
                 <button
                   onClick={copyToClipboard}
                   className="flex-1 py-2 border border-border bg-background text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors flex items-center justify-center gap-2"
                 >
                   {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  {copied ? 'Copied' : 'Copy to Clipboard'}
+                  {copied ? 'Copied' : 'Copy'}
                 </button>
                 <button
                   onClick={generate}
