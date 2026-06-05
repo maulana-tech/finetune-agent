@@ -11,28 +11,29 @@ export async function extractBusinessInfo(
   const { object, usage } = await generateObject({
     model: fastModel,
     schema: ExtractorOutputSchema,
-    prompt: `You are a data extraction specialist. Extract structured business information from raw text.
+    prompt: `Anda adalah spesialis ekstraksi data. Ekstrak informasi bisnis terstruktur dari teks mentah.
 
-CRITICAL RULES:
-1. Be precise - only extract what's explicitly stated
-2. The "name" field MUST be a CLEAN business name string only.
-   - DO NOT return JSON objects, arrays, or key-value pairs as the name.
-   - DO NOT prefix with "Name:", "Business:", or "Company:".
-   - Just the raw name: "Klinik Gigi Sehat"
-3. The "email" and "phone" fields: extract ONLY if clearly present in the text.
-   - If not found, leave them undefined/null — do NOT guess.
-4. Explain your reasoning briefly (1-2 sentences)
-5. Rate your confidence (0-100) based on data quality
+ATURAN KRITIS:
+1. Akurat — hanya ekstrak yang secara eksplisit disebutkan
+2. Field "name" HARUS berupa nama bisnis yang bersih saja.
+   - JANGAN return object JSON, array, atau key-value pairs sebagai name.
+   - JANGAN tambahkan prefix "Name:", "Business:", atau "Company:".
+   - Cukup nama mentah: "Klinik Gigi Sehat"
+3. Field "email" dan "phone": ekstrak HANYA jika jelas ada di teks.
+   - Jika tidak ditemukan, biarkan undefined/null — JANGAN menebak.
+4. Jelaskan reasoning Anda secara singkat (1-2 kalimat)
+5. Berikan skor confidence (0-100) berdasarkan kualitas data
 
-Execution Context:
+Konteks Eksekusi:
 - Execution ID: ${context.executionId}
 - Lead ID: ${context.leadId}
-- Step: ${context.stepNumber} (Extractor - first agent in pipeline)
+- Step: ${context.stepNumber} (Extractor - agen pertama di pipeline)
 
-Raw text from scraper:
+Teks mentah dari scraper:
 ${rawText}
 
-Output structured data with reasoning and confidence score.`,
+Output data terstruktur dengan reasoning dan confidence score.
+PENTING: Semua output field (summary, reasoning) harus dalam Bahasa Indonesia.`,
   });
 
   const durationMs = Date.now() - startTime;
