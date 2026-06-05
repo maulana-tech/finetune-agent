@@ -16,7 +16,8 @@ from curl_cffi import requests as http
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-PLACES_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+def _get_api_key():
+    return os.environ.get('GOOGLE_MAPS_API_KEY', '')
 TEXT_SEARCH_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 DETAILS_URL = 'https://maps.googleapis.com/maps/api/place/details/json'
 
@@ -107,6 +108,7 @@ def enrich_all_parallel(website_map: dict) -> dict:
 
 def text_search(query: str, limit: int) -> list:
     """Search Google Places API for businesses matching query."""
+    api_key = _get_api_key()
     results = []
     pagetoken = None
     retries = 0
@@ -114,7 +116,7 @@ def text_search(query: str, limit: int) -> list:
     while len(results) < limit:
         params = {
             'query': query,
-            'key': PLACES_API_KEY,
+            'key': api_key,
             'language': 'id',
         }
         if pagetoken:
@@ -151,11 +153,11 @@ def text_search(query: str, limit: int) -> list:
 
 def get_place_details(place_id: str) -> dict:
     """Get detailed info for a place (phone, website, address, etc)."""
+    api_key = _get_api_key()
     params = {
         'place_id': place_id,
-        'key': PLACES_API_KEY,
+        'key': api_key,
         'language': 'id',
-        'fields': 'formatted_phone_number,website,address_formatted,rating,geometry/location,types,opening_hours',
     }
 
     try:
@@ -173,8 +175,8 @@ def format_place(place: dict, details: dict, query: str) -> dict:
     """Format a Google Place into our lead format."""
     name = place.get('name', '')
     address = place.get('formatted_address', details.get('address', ''))
-    phone = details.get('formatted_phone_number', '')
-    website = details.get('website', '')
+    phone = details.get('formatted_phone_number') or details.get('international_phone_number') or ''
+    website = details.get('website') or ''
     lat = place.get('geometry', {}).get('location', {}).get('lat')
     lng = place.get('geometry', {}).get('location', {}).get('lng')
 
@@ -210,7 +212,8 @@ def format_place(place: dict, details: dict, query: str) -> dict:
 
 def scrape_maps(query: str, limit: int):
     """Main entry: search Google Places API, enrich websites for emails."""
-    if not PLACES_API_KEY:
+    api_key = _get_api_key()
+    if not api_key:
         print('[ERROR] GOOGLE_MAPS_API_KEY not set', file=sys.stderr)
         print(json.dumps([]))
         return
