@@ -223,6 +223,7 @@ export class LeadsService {
           .select()
           .from(leads)
           .where(eq(leads.workspaceId, workspaceId))
+          .orderBy(desc(leads.createdAt))
           .limit(limit),
         generatedSql: null,
         reasoning: null,
@@ -277,6 +278,7 @@ export class LeadsService {
             )`,
           ),
         )
+        .orderBy(desc(leads.createdAt))
         .limit(limit);
 
       return {
