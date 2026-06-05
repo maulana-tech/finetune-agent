@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { defaultModel } from '../provider';
+import { defaultModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { MarketingOutputSchema, AgentContext, AgentResponse } from '../types';
 
 export async function analyzeMarketing(
@@ -12,10 +13,12 @@ export async function analyzeMarketing(
     throw new Error('Marketing agent requires extractedData and financialAnalysis from previous agents');
   }
 
-  const { object, usage } = await generateObject({
-    model: defaultModel,
-    schema: MarketingOutputSchema,
-    prompt: `Anda adalah strategis marketing B2B. Analisis kesesuaian messaging untuk lead ini.
+  const { object, usage } = await generateObjectWithFallback(
+    defaultModel,
+    fallbackModels.standard,
+    {
+      schema: MarketingOutputSchema,
+      prompt: `Anda adalah strategis marketing B2B. Analisis kesesuaian messaging untuk lead ini.
 
 KONTEKS DARI AGEN SEBELUMNYA:
 
@@ -48,7 +51,9 @@ Konteks Eksekusi:
 
 Output: analisis marketing dengan reasoning dan confidence.
 PENTING: Semua output (target_persona, pain_points, messaging_angle, reasoning) dalam Bahasa Indonesia.`,
-  });
+    },
+    'standard',
+  );
 
   const durationMs = Date.now() - startTime;
 

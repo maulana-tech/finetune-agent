@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { defaultModel } from '../provider';
+import { defaultModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { z } from 'zod';
 
 export const SalesAnalysisSchema = z.object({
@@ -27,10 +28,12 @@ export async function analyzeLeadForSales(
 ): Promise<SalesAnalysis> {
   const startTime = Date.now();
 
-  const { object } = await generateObject({
-    model: defaultModel,
-    schema: SalesAnalysisSchema,
-    prompt: `Anda adalah strategis sales B2B senior. Analisis lead ini dan rekomendasikan pendekatan sales.
+  const { object } = await generateObjectWithFallback(
+    defaultModel,
+    fallbackModels.standard,
+    {
+      schema: SalesAnalysisSchema,
+      prompt: `Anda adalah strategis sales B2B senior. Analisis lead ini dan rekomendasikan pendekatan sales.
 
 DATA LEAD:
 ${JSON.stringify(leadData, null, 2)}
@@ -53,7 +56,9 @@ ATURAN KRITIS:
 4. Jujur tentang masalah kualitas data
 
 PENTING: Semua output (weaknesses, strengths, recommendedApproach, reasoning) dalam Bahasa Indonesia.`,
-  });
+    },
+    'standard',
+  );
 
   return object;
 }

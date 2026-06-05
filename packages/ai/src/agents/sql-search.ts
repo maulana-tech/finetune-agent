@@ -1,5 +1,6 @@
 import { generateText } from 'ai';
-import { fastModel } from '../provider';
+import { fastModel, fallbackModels } from '../provider';
+import { generateTextWithFallback } from '../fallback';
 
 const LEADS_SCHEMA_HINT = `
 Table: leads
@@ -34,10 +35,12 @@ export async function generateLeadsSearchSql(
   q: string,
   limit: number,
 ): Promise<SqlQueryResult> {
-  const { text } = await generateText({
-    model: fastModel,
-    maxTokens: 500,
-    prompt: `Anda adalah generator query SQL untuk database leads bisnis.
+  const { text } = await generateTextWithFallback(
+    fastModel,
+    fallbackModels.fast,
+    {
+      maxTokens: 500,
+      prompt: `Anda adalah generator query SQL untuk database leads bisnis.
 
 ${LEADS_SCHEMA_HINT}
 
@@ -55,7 +58,9 @@ Aturan:
 - Akhiri dengan LIMIT ${limit}.
 
 SQL query:`,
-  });
+    },
+    'fast',
+  );
 
   // Strip any accidental markdown fences the model might still add
   const cleaned = text

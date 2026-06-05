@@ -34,6 +34,7 @@ function resolveModel(name: string) {
   if (idx > 0) {
     const provider = name.slice(0, idx);
     const model = name.slice(idx + 1);
+    if (provider === 'nvidia') return nvidia(model);
     if (provider === 'google' && google) return google(model);
     if (provider === 'anthropic' && anthropic) return anthropic(model) as unknown as ReturnType<typeof nvidia>;
     if (provider === 'sumopod' && sumopod) return sumopod(model);
@@ -56,13 +57,19 @@ export const defaultModel = standardOverride
 const heavyOverride = process.env.AI_HEAVY_MODEL;
 export const heavyModel = heavyOverride
   ? resolveModel(heavyOverride)
-  : anthropic
-    ? anthropic('claude-sonnet-4-6') as unknown as ReturnType<typeof nvidia>
-    : nvidia('meta/llama-3.1-70b-instruct');
+  : nvidia('meta/llama-3.1-70b-instruct');
 
 export const models = {
   fast: fastModel,
   standard: defaultModel,
   heavy: heavyModel,
   router: defaultModel,
+};
+
+// ─── Fallback models (used when primary fails) ─────────────────────────────
+
+export const fallbackModels = {
+  fast: nvidia('meta/llama-3.1-8b-instruct'),        // always available
+  standard: nvidia('meta/llama-3.1-8b-instruct'),     // downgrade to 8b
+  heavy: nvidia('meta/llama-3.1-8b-instruct'),        // downgrade to 8b
 };

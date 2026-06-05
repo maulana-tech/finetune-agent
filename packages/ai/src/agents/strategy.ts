@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { defaultModel } from '../provider';
+import { defaultModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { StrategyOutputSchema, AgentContext, AgentResponse } from '../types';
 
 export async function strategicRecommendation(
@@ -11,10 +12,12 @@ export async function strategicRecommendation(
     throw new Error('Strategy agent requires context from all previous agents (extractor, finance, marketing)');
   }
 
-  const { object, usage } = await generateObject({
-    model: defaultModel,
-    schema: StrategyOutputSchema,
-    prompt: `Anda adalah penasihat strategis yang mensintesis analisis multi-agen.
+  const { object, usage } = await generateObjectWithFallback(
+    defaultModel,
+    fallbackModels.standard,
+    {
+      schema: StrategyOutputSchema,
+      prompt: `Anda adalah penasihat strategis yang mensintesis analisis multi-agen.
 
 KONTEKS AKUMULATIF DARI SEMUA AGEN:
 
@@ -49,7 +52,9 @@ Konteks Eksekusi:
 
 Output: rekomendasi strategis dengan reasoning dan confidence.
 PENTING: Semua output (reasoning, recommended_action) dalam Bahasa Indonesia.`,
-  });
+    },
+    'standard',
+  );
 
   const durationMs = Date.now() - startTime;
 

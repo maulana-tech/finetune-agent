@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { defaultModel } from '../provider';
+import { defaultModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { FinanceOutputSchema, AgentContext, AgentResponse } from '../types';
 
 export async function analyzeFinancials(
@@ -11,10 +12,12 @@ export async function analyzeFinancials(
     throw new Error('Finance agent requires extractedData from previous agent');
   }
 
-  const { object, usage } = await generateObject({
-    model: defaultModel,
-    schema: FinanceOutputSchema,
-    prompt: `Anda adalah analis keuangan spesialis kualifikasi lead B2B.
+  const { object, usage } = await generateObjectWithFallback(
+    defaultModel,
+    fallbackModels.standard,
+    {
+      schema: FinanceOutputSchema,
+      prompt: `Anda adalah analis keuangan spesialis kualifikasi lead B2B.
 
 KONTEKS DARI AGEN SEBELUMNYA (Extractor):
 ${JSON.stringify(context.extractedData, null, 2)}
@@ -35,7 +38,9 @@ Konteks Eksekusi:
 
 Output: analisis keuangan dengan reasoning dan confidence score.
 PENTING: Semua output (estimated_revenue_range, reasoning) harus dalam Bahasa Indonesia.`,
-  });
+    },
+    'standard',
+  );
 
   const durationMs = Date.now() - startTime;
 

@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { fastModel } from '../provider';
+import { fastModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { ExtractorOutputSchema, AgentContext, AgentResponse } from '../types';
 
 export async function extractBusinessInfo(
@@ -8,10 +9,12 @@ export async function extractBusinessInfo(
 ): Promise<AgentResponse> {
   const startTime = Date.now();
 
-  const { object, usage } = await generateObject({
-    model: fastModel,
-    schema: ExtractorOutputSchema,
-    prompt: `Anda adalah spesialis ekstraksi data. Ekstrak informasi bisnis terstruktur dari teks mentah.
+  const { object, usage } = await generateObjectWithFallback(
+    fastModel,
+    fallbackModels.fast,
+    {
+      schema: ExtractorOutputSchema,
+      prompt: `Anda adalah spesialis ekstraksi data. Ekstrak informasi bisnis terstruktur dari teks mentah.
 
 ATURAN KRITIS:
 1. Akurat — hanya ekstrak yang secara eksplisit disebutkan
@@ -34,7 +37,9 @@ ${rawText}
 
 Output data terstruktur dengan reasoning dan confidence score.
 PENTING: Semua output field (summary, reasoning) harus dalam Bahasa Indonesia.`,
-  });
+    },
+    'fast',
+  );
 
   const durationMs = Date.now() - startTime;
 

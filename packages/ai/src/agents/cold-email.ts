@@ -1,5 +1,6 @@
 import { generateObject } from 'ai';
-import { defaultModel } from '../provider';
+import { defaultModel, fallbackModels } from '../provider';
+import { generateObjectWithFallback } from '../fallback';
 import { z } from 'zod';
 
 export const ColdEmailSchema = z.object({
@@ -20,10 +21,12 @@ export async function generateColdEmail(
   businessContext: string,
   salesAnalysis: string | null,
 ): Promise<ColdEmail> {
-  const { object } = await generateObject({
-    model: defaultModel,
-    schema: ColdEmailSchema,
-    prompt: `Anda adalah spesialis email sales B2B. Tulis cold email yang dipersonalisasi.
+  const { object } = await generateObjectWithFallback(
+    defaultModel,
+    fallbackModels.standard,
+    {
+      schema: ColdEmailSchema,
+      prompt: `Anda adalah spesialis email sales B2B. Tulis cold email yang dipersonalisasi.
 
 DATA LEAD:
 ${JSON.stringify(leadData, null, 2)}
@@ -48,7 +51,9 @@ ATURAN KRITIS:
 5. Format plain text (tanpa HTML)
 6. Sertakan CTA yang spesifik dan rendah friction
 7. SEMUA output dalam Bahasa Indonesia`,
-  });
+    },
+    'standard',
+  );
 
   return object;
 }
